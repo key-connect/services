@@ -161,7 +161,7 @@
                 <!--                <serializableModel>true</serializableModel>-->
                 <!--                <sourceFolder>src/gen/java/main</sourceFolder>-->
               </configOptions>
-              <verbose>true</verbose>
+<!--              <verbose>true</verbose>-->
               <packageName>com.turinglabs.keyconnect.api.client</packageName>
               <apiPackage>com.turinglabs.keyconnect.api.client</apiPackage>
               <modelPackage>com.turinglabs.keyconnect.api.client.model</modelPackage>

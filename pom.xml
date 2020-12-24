@@ -56,21 +56,12 @@
     </plugins>
   </build>
 
-  <repositories>
-    <repository>
-      <id>gitlab-maven</id>
-      <url>https://gitlab.com/api/v4/groups/9188641/packages/maven</url>
-    </repository>
-  </repositories>
   <distributionManagement>
     <repository>
-      <id>gitlab-maven</id>
-      <url>https://gitlab.com/api/v4/projects/20938786/packages/maven</url>
+      <id>github</id>
+      <name>GitHub OWNER Apache Maven Packages</name>
+      <url>https://maven.pkg.github.com/key-connect/services</url>
     </repository>
-    <snapshotRepository>
-      <id>gitlab-maven</id>
-      <url>https://gitlab.com/api/v4/projects/20938786/packages/maven</url>
-    </snapshotRepository>
   </distributionManagement>
 
 </project>

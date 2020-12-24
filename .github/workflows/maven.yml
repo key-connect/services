@@ -1,0 +1,28 @@
+# This workflow will build a Java project with Maven
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+
+name: Publish maven
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK 15
+      uses: actions/setup-java@v1
+      with:
+        java-version: 15
+    - name: Build with Maven
+      env:
+        ETH_MAINNET_ADDR: ${{ secrets.ETH_MAINNET_ADDR }}
+        ETH_ROPSTEN_ADDR: ${{ secrets.ETH_ROPSTEN_ADDR }}
+        ETHERSCAN_TOKEN: ${{ secrets.ETHERSCAN_TOKEN }}
+      run: mvn -DargLine=\"-DETH_MAINNET_ADDR=${ETH_MAINNET_ADDR} -DETH_ROPSTEN_ADDR=${ETH_ROPSTEN_ADDR} -DETHERSCAN_TOKEN=${ETHERSCAN_TOKEN}\" install --file pom.xml

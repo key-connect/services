@@ -19,11 +19,11 @@ Import Key Connect API using standard dependency management.
 <dependency>
   <groupId>com.turinglabs.keyconnect.api</groupId>
   <artifactId>keyconnect-api</artifactId>
-  <version>1.0.0</version>
-</dependency>
+  <version>1.0-SNAPSHOT</version>
+</dependency> 
 ```
 
-*Replace version 1.0.0 with more up-to-date release.
+Up-to-date packages available on github [here](https://github.com/orgs/key-connect/packages?tab=packages&ecosystem=maven&q=%22com.turinglabs.keyconnect.api.keyconnect-api%22).
 
 Start developing!
 
