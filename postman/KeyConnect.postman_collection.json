@@ -1,0 +1,542 @@
+{
+	"info": {
+		"_postman_id": "a0099a24-fb22-48ee-9ec9-844108d5b44f",
+		"name": "KeyConnectV2",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "GET /v1/blockchains/status",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{ServerUrl}}/v1/blockchains/status",
+					"host": [
+						"{{ServerUrl}}"
+					],
+					"path": [
+						"v1",
+						"blockchains",
+						"status"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET /v1/blockchains/xrp/status",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{ServerUrl}}/v1/blockchains/xrp/status?network=testnet",
+					"host": [
+						"{{ServerUrl}}"
+					],
+					"path": [
+						"v1",
+						"blockchains",
+						"xrp",
+						"status"
+					],
+					"query": [
+						{
+							"key": "network",
+							"value": "testnet",
+							"description": "Optional network parameter"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET /v1/blockchains/xrp/fee",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{ServerUrl}}/v1/blockchains/xrp/fee?network=mainnet",
+					"host": [
+						"{{ServerUrl}}"
+					],
+					"path": [
+						"v1",
+						"blockchains",
+						"xrp",
+						"fee"
+					],
+					"query": [
+						{
+							"key": "network",
+							"value": "mainnet",
+							"description": "Optional network parameter"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET /v1/blockchains/eth/status",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{ServerUrl}}/v1/blockchains/eth/status?network=mainnet",
+					"host": [
+						"{{ServerUrl}}"
+					],
+					"path": [
+						"v1",
+						"blockchains",
+						"eth",
+						"status"
+					],
+					"query": [
+						{
+							"key": "network",
+							"value": "mainnet",
+							"description": "Optional network parameter"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET /v1/blockchains/eth/fee",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{ServerUrl}}/v1/blockchains/eth/fee?network=mainnet",
+					"host": [
+						"{{ServerUrl}}"
+					],
+					"path": [
+						"v1",
+						"blockchains",
+						"eth",
+						"fee"
+					],
+					"query": [
+						{
+							"key": "network",
+							"value": "mainnet",
+							"description": "Optional network parameter"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET account info (xrp)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{ServerUrl}}/v1/blockchains/xrp/accounts/rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv?network=testnet",
+					"host": [
+						"{{ServerUrl}}"
+					],
+					"path": [
+						"v1",
+						"blockchains",
+						"xrp",
+						"accounts",
+						"rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv"
+					],
+					"query": [
+						{
+							"key": "network",
+							"value": "testnet"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET account info (eth)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{ServerUrl}}/v1/blockchains/eth/accounts/0x6c8C5d80B9C9C644E342d60Cc904A9D5E3C7a8e3?network=mainnet",
+					"host": [
+						"{{ServerUrl}}"
+					],
+					"path": [
+						"v1",
+						"blockchains",
+						"eth",
+						"accounts",
+						"0x6c8C5d80B9C9C644E342d60Cc904A9D5E3C7a8e3"
+					],
+					"query": [
+						{
+							"key": "network",
+							"value": "mainnet"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET account transactions (xrp)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"cursor\", pm.response.json().cursor);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{ServerUrl}}/v1/blockchains/xrp/accounts/rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv/transactions?network=mainnet&cursor={{cursor}}&limit=2",
+					"host": [
+						"{{ServerUrl}}"
+					],
+					"path": [
+						"v1",
+						"blockchains",
+						"xrp",
+						"accounts",
+						"rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv",
+						"transactions"
+					],
+					"query": [
+						{
+							"key": "network",
+							"value": "mainnet"
+						},
+						{
+							"key": "cursor",
+							"value": "{{cursor}}"
+						},
+						{
+							"key": "limit",
+							"value": "2"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET account transactions (eth)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"cursor\", pm.response.json().cursor);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{ServerUrl}}/v1/blockchains/eth/accounts/0x6c8C5d80B9C9C644E342d60Cc904A9D5E3C7a8e3/transactions?network=mainnet&cursor={{cursor}}&limit=2",
+					"host": [
+						"{{ServerUrl}}"
+					],
+					"path": [
+						"v1",
+						"blockchains",
+						"eth",
+						"accounts",
+						"0x6c8C5d80B9C9C644E342d60Cc904A9D5E3C7a8e3",
+						"transactions"
+					],
+					"query": [
+						{
+							"key": "network",
+							"value": "mainnet"
+						},
+						{
+							"key": "cursor",
+							"value": "{{cursor}}"
+						},
+						{
+							"key": "limit",
+							"value": "2"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET account payments (xrp)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"cursor\", pm.response.json().cursor);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{ServerUrl}}/v1/blockchains/xrp/accounts/rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv/payments?network=mainnet&cursor={{cursor}}&limit=2",
+					"host": [
+						"{{ServerUrl}}"
+					],
+					"path": [
+						"v1",
+						"blockchains",
+						"xrp",
+						"accounts",
+						"rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv",
+						"payments"
+					],
+					"query": [
+						{
+							"key": "network",
+							"value": "mainnet"
+						},
+						{
+							"key": "cursor",
+							"value": "{{cursor}}"
+						},
+						{
+							"key": "limit",
+							"value": "2"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET account payments (eth)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"cursor\", pm.response.json().cursor);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{ServerUrl}}/v1/blockchains/xrp/accounts/rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv/payments?network=mainnet&cursor={{cursor}}&limit=2",
+					"host": [
+						"{{ServerUrl}}"
+					],
+					"path": [
+						"v1",
+						"blockchains",
+						"xrp",
+						"accounts",
+						"rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv",
+						"payments"
+					],
+					"query": [
+						{
+							"key": "network",
+							"value": "mainnet"
+						},
+						{
+							"key": "cursor",
+							"value": "{{cursor}}"
+						},
+						{
+							"key": "limit",
+							"value": "2"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET account transaction (xrp)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"cursor\", pm.response.json().cursor);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{ServerUrl}}/v1/blockchains/xrp/transactions/D0109D0A813F58D504FD9FADD8C3A2490A0CBE2A6C8F7D327EC5712D36F03E4B?network=mainnet",
+					"host": [
+						"{{ServerUrl}}"
+					],
+					"path": [
+						"v1",
+						"blockchains",
+						"xrp",
+						"transactions",
+						"D0109D0A813F58D504FD9FADD8C3A2490A0CBE2A6C8F7D327EC5712D36F03E4B"
+					],
+					"query": [
+						{
+							"key": "network",
+							"value": "mainnet"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET account transaction (eth)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"cursor\", pm.response.json().cursor);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{ServerUrl}}/v1/blockchains/eth/transactions/0x70ba342f52b859dd0391e01c4643ca9c86cb7d8890737c19f0f91ddd30b387ef?network=mainnet",
+					"host": [
+						"{{ServerUrl}}"
+					],
+					"path": [
+						"v1",
+						"blockchains",
+						"eth",
+						"transactions",
+						"0x70ba342f52b859dd0391e01c4643ca9c86cb7d8890737c19f0f91ddd30b387ef"
+					],
+					"query": [
+						{
+							"key": "network",
+							"value": "mainnet"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET generate payment",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"cursor\", pm.response.json().cursor);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{ServerUrl}}/v1/blockchains/xrp/generator/payment?network=mainnet&sourceAccount=rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe&destinationAccount=rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv&destinationTag=58871619&amount=10000000&fee=5200",
+					"host": [
+						"{{ServerUrl}}"
+					],
+					"path": [
+						"v1",
+						"blockchains",
+						"xrp",
+						"generator",
+						"payment"
+					],
+					"query": [
+						{
+							"key": "network",
+							"value": "mainnet"
+						},
+						{
+							"key": "sourceAccount",
+							"value": "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe"
+						},
+						{
+							"key": "destinationAccount",
+							"value": "rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv"
+						},
+						{
+							"key": "destinationTag",
+							"value": "58871619"
+						},
+						{
+							"key": "amount",
+							"value": "10000000"
+						},
+						{
+							"key": "fee",
+							"value": "5200"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

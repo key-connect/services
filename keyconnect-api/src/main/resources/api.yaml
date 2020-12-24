@@ -1,0 +1,700 @@
+openapi: 3.0.0
+info:
+  title: KeyConnect API
+  description: Blockchain access made easy
+  version: 1.0.0
+servers:
+  - url: 'https://api.keyconnect.com'
+    description: Production KeyConnect server
+  - url: 'http://localhost:8080'
+    description: Local KeyConnect server
+paths:
+  /v1/server/status:
+    get:
+      summary: Returns status of the server.
+      description: Returns server status along with any error information (if any).
+      operationId: getServerStatus
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerStatusResponse'
+  /v1/blockchains/status:
+    get:
+      summary: Returns list of available blockchains and their statuses.
+      operationId: getBlockchainsStatus
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AvailableBlockchains'
+  /v1/blockchains/{chainId}/status:
+    get:
+      summary: Returns status of the provided chainId.
+      description: Optional extended description in Markdown.
+      operationId: getBlockchainStatus
+      parameters:
+        - name: chainId
+          in: path
+          description: ID of the block chain
+          required: true
+          schema:
+            type: string
+            enum:
+              - xrp
+              - eth
+              - btc
+        - name: network
+          in: query
+          description: Blockchain network to get the status from.
+          required: false
+          schema:
+            type: string
+            example: testnet
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlockchainStatus'
+  /v1/blockchains/{chainId}/fee:
+    get:
+      summary: Returns fee of the provided chainId.
+      operationId: getFee
+      parameters:
+        - name: chainId
+          in: path
+          description: ID of the block chain
+          required: true
+          schema:
+            type: string
+            enum:
+              - xrp
+              - eth
+              - btc
+        - name: network
+          in: query
+          description: Blockchain network to get the status from.
+          required: false
+          schema:
+            type: string
+            example: testnet
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlockchainFee'
+  /v1/blockchains/{chainId}/accounts/{accountId}:
+    get:
+      summary: Returns account / wallet information for the provided chainId representing the blockchain.
+      description: Used to get walletInfo for a given blockchain, i.e. for chainId=xrp this endpoint will return info regarding a provided accountId.
+      operationId: getAccountInfo
+      parameters:
+        - name: chainId
+          in: path
+          description: ID of the block chain
+          required: true
+          schema:
+            type: string
+            enum:
+              - xrp
+              - eth
+              - btc
+            example: xrp
+        - name: network
+          in: query
+          description: "
+            Blockchain network to get the account info from. For example, for XRP this
+            would be one of (testnet/devnet/mainnet). More information regarding what
+            environments are available can be obtained from /v1/blockchains/{chainId}/status
+            endpoint.
+          "
+          required: false
+          schema:
+            type: string
+            example: testnet
+            default: "mainnet"
+        - name: accountId
+          in: path
+          description: Identifier representing the account. This is most likely the wallet address.
+          required: true
+          schema:
+            type: string
+            example: "rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlockchainAccountInfo'
+  /v1/blockchains/{chainId}/accounts/{accountId}/transactions:
+    get:
+      summary: Gets transactions for given account on a given blockchain specified by the `chainId` parameter.
+      description: Returns paginated list of transactions.
+      operationId: getAccountTransactions
+      parameters:
+        - name: chainId
+          in: path
+          required: true
+          schema:
+            type: string
+            enum:
+              - xrp
+              - eth
+              - btc
+          example: xrp
+        - name: network
+          in: query
+          description: "
+                Blockchain network to get the account info from. For example, for XRP this
+                would be one of (testnet/devnet/mainnet). More information regarding what
+                environments are available can be obtained from /v1/blockchains/{chainId}/status
+                endpoint.
+              "
+          required: false
+          schema:
+            type: string
+            example: testnet
+            default: "mainnet"
+        - name: accountId
+          in: path
+          description: Identifier representing the account. This is most likely the wallet address.
+          required: true
+          schema:
+            type: string
+            example: "rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv"
+        - name: cursor
+          in: query
+          description: Cursor representing position among pages. Pass the cursor from previous get transactions response to get the next page.
+          required: false
+          schema:
+            type: string
+            description: Format varies by the blockchain. For XRP, the value of `cursor` will be the `ledger:seq` from the marker object.
+            example: "57112007:13"
+      responses:
+        '200':
+          description: OK
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/BlockchainAccountTransactions'
+  /v1/blockchains/{chainId}/accounts/{accountId}/payments:
+    get:
+      summary: Gets payments for a given account on a given blockchain specified by the `chainId` parameter.
+      description: Returns paginated list of payments.
+      operationId: getAccountPayments
+      parameters:
+        - name: chainId
+          in: path
+          required: true
+          schema:
+            type: string
+            enum:
+              - xrp
+              - eth
+              - btc
+          example: xrp
+        - name: network
+          in: query
+          description: "
+                  Blockchain network to get the account info from. For example, for XRP this
+                  would be one of (testnet/devnet/mainnet). More information regarding what
+                  environments are available can be obtained from /v1/blockchains/{chainId}/status
+                  endpoint.
+                "
+          required: false
+          schema:
+            type: string
+            example: testnet
+            default: "mainnet"
+        - name: accountId
+          in: path
+          description: Identifier representing the account. This is most likely the wallet address.
+          required: true
+          schema:
+            type: string
+            example: "rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv"
+        - name: cursor
+          in: query
+          description: Cursor representing position among pages. Pass the cursor from previous get payments response to get the next page.
+          required: false
+          schema:
+            type: string
+            description: Format varies by the blockchain. For XRP, the value of `cursor` will be the `ledger:seq` from the marker object.
+            example: "57112007:13"
+      responses:
+        '200':
+          description: OK
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/BlockchainAccountPayments'
+  /v1/blockchains/{chainId}/transactions/{hash}:
+    get:
+      summary: Get a single transaction by its hash on the specified `chainId`.
+      operationId: getTransaction
+      parameters:
+        - name: chainId
+          in: path
+          required: true
+          schema:
+            type: string
+            enum:
+              - xrp
+              - eth
+              - btc
+        - name: hash
+          in: path
+          description: Hash of the transaction to lookup
+          required: true
+          schema:
+            type: string
+        - name: network
+          in: query
+          description: "
+                        Blockchain network to get the account info from. For example, for XRP this
+                        would be one of (testnet/devnet/mainnet). More information regarding what
+                        environments are available can be obtained from /v1/blockchains/{chainId}/status
+                        endpoint.
+                      "
+          required: false
+          schema:
+            type: string
+            example: testnet
+            default: "mainnet"
+      responses:
+        200:
+          description: OK
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/BlockchainAccountTransaction'
+  /v1/blockchains/{chainId}/transactions:
+    post:
+      summary: Submit a transaction to the blockchain
+      operationId: submitTransaction
+      parameters:
+        - name: chainId
+          in: path
+          required: true
+          schema:
+            type: string
+            enum:
+              - xrp
+              - eth
+              - btc
+        - name: network
+          in: query
+          description: "
+                        Blockchain network to get the account info from. For example, for XRP this
+                        would be one of (testnet/devnet/mainnet). More information regarding what
+                        environments are available can be obtained from /v1/blockchains/{chainId}/status
+                        endpoint.
+                      "
+          required: false
+          schema:
+            type: string
+            example: testnet
+            default: "mainnet"
+      requestBody:
+        description: "Request payload containing the transaction to submit to specified `chainId`."
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitTransactionRequest'
+      responses:
+        202:
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmitTransactionResult'
+  /v1/blockchains/xrp/generator/payment:
+    get:
+      summary: Generate a transaction
+      operationId: generateTransaction
+      parameters:
+        - name: sourceAccount
+          required: true
+          in: query
+          description: Source account
+          schema:
+            type: string
+            example: "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe"
+        - name: destinationAccount
+          required: true
+          in: query
+          description: Destination account
+          schema:
+            type: string
+            example: "rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv"
+        - name: destinationTag
+          required: false
+          in: query
+          description: Destination tag
+          schema:
+            type: number
+            example: 58871619
+        - name: amount
+          required: true
+          in: query
+          description: Payment amount in drops
+          schema:
+            type: string
+            example: "10000000"
+        - name: fee
+          required: false
+          in: query
+          description: "Fee to the ledger in drops. If this field is omitted, then `network` must be specified."
+          schema:
+            type: string
+            example: "5200"
+        - name: network
+          in: query
+          description: "
+                              Blockchain network to get the account info from. For XRP this would be
+                              one of (testnet/devnet/mainnet). More information regarding what
+                              environments are available can be obtained from /v1/blockchains/{chainId}/status
+                              endpoint. This field is required if `fee` is not specified in order to
+                              dynamically obtain the fee from the network.
+                            "
+          required: false
+          schema:
+            type: string
+            example: testnet
+            default: "mainnet"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+
+components:
+  schemas:
+    ServerStatusResponse:
+      properties:
+        status:
+          type: string
+          description: Status of the server
+          enum:
+            - healthy
+            - unhealthy
+        errors:
+          type: array
+          description: Any server errors if the server is unhealthy
+          items:
+            type: object
+            description: Array object
+            properties:
+              category:
+                type: string
+                description: Error category
+                enum:
+                  - blockchain
+                  - database
+                  - internal
+              severity:
+                type: string
+                description: Error severity
+                enum:
+                  - critical
+                  - high
+                  - medium
+                  - low
+                  - warning
+                  - info
+              message:
+                type: string
+                description: Error message
+#            $ref: '#/components/schemas/ServerErrorObject'
+    BlockchainStatusResponse:
+      properties:
+        status:
+          type: string
+          description: Status of the block chain
+          enum:
+            - connected
+            - disconnected
+        lastCheck:
+          type: string
+          description: UTC timestamp representing when the status was last checked
+    ServerErrorObject:
+      type: object
+      description: Object representing server error
+      properties:
+        category:
+          type: string
+          description: Error category
+          enum:
+            - blockchain
+            - database
+            - internal
+        severity:
+          type: string
+          description: Error severity
+          enum:
+            - critical
+            - high
+            - medium
+            - low
+            - warning
+            - info
+        message:
+          type: string
+          description: Error message
+    AvailableBlockchains:
+      description: List of available blockchains
+      properties:
+        blockchains:
+          type: array
+          items:
+            $ref: '#/components/schemas/BlockchainStatus'
+    BlockchainStatus:
+      properties:
+        chainId:
+          type: string
+          example: 'xrp'
+        networks:
+          type: array
+          items:
+            $ref: '#/components/schemas/BlockchainNetwork'
+    BlockchainNetwork:
+      properties:
+        group:
+          type: string
+          example: 'testnet'
+        servers:
+          type: array
+          items:
+            $ref: '#/components/schemas/BlockchainNetworkServerStatus'
+    BlockchainNetworkServerStatus:
+      properties:
+        host:
+          type: string
+        status:
+          type: string
+          enum:
+            - healthy
+            - unhealthy
+        lastCheck:
+          type: string
+          example: '2020-09-20 08:32:20'
+    BlockchainAccountInfo:
+      properties:
+        chainId:
+          type: string
+          enum:
+            - xrp
+            - eth
+            - btc
+        network:
+          type: string
+          example: testnet
+        server:
+          type: string
+          example: "https://s.altnet.rippletest.net:51234/"
+        accountId:
+          type: string
+          example: "rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv"
+        balance:
+          $ref: '#/components/schemas/CurrencyValue'
+        lastTransactionId:
+          type: string
+          example: "4294BEBE5B569A18C0A2702387C9B1E7146DC3A5850C1E87204951C6FDAA4C42"
+    CurrencyValue:
+      properties:
+        amount:
+          type: string
+        issuer:
+          type: string
+          nullable: true
+        currency:
+          type: string
+          enum:
+            - xrp
+            - drops
+            - eth
+            - gas
+      required:
+        - amount
+        - currency
+    BlockchainAccountTransactions:
+      properties:
+        chainId:
+          type: string
+          enum:
+            - xrp
+            - eth
+            - btc
+        network:
+          type: string
+          example: testnet
+        server:
+          type: string
+          example: "https://s.altnet.rippletest.net:51234/"
+        accountId:
+          type: string
+          example: "rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv"
+        cursor:
+          type: string
+          description: Format varies by the blockchain. For XRP, the value of `cursor` will be the `ledger:seq` from the marker object. This value is null when there are no more pages.
+          example: "57112007:13"
+        transactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/BlockchainAccountTransactionItem'
+    BlockchainAccountTransactionItem:
+      properties:
+        status:
+          type: string
+          description: One of `success`, `failure` or `pending` in most cases. In case the server returns unusual status, this attribute will reflect the raw value.
+          example: "success"
+        type:
+          type: string
+          example: "Payment"
+#          enum:
+#            - Payment
+#            - AccountSet
+#            - AccountDelete
+#            - CheckCancel
+#            - CheckCash
+#            - CheckCreate
+#            - DepositPreAuth
+#            - EscrowCancel
+#            - EscrowCreate
+#            - EscrowFinish
+#            - OfferCancel
+#            - OfferCreate
+#            - PaymentChannelCreate
+#            - PaymentChannelClaim
+#            - PaymentChannelFund
+#            - SetRegularKey
+#            - SignerListSet
+#            - TrustSet
+        sourceAccount:
+          type: string
+          example: "rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv"
+        destinationAccount:
+          type: string
+          example: "rU2mEJSLqBRkYLVTv55rFTgQajkLTnT6mA"
+        destinationTag:
+          type: string
+          example: "255577"
+        fee:
+          $ref: '#/components/schemas/CurrencyValue'
+        amount:
+          $ref: '#/components/schemas/CurrencyValue'
+        hash:
+          type: string
+          example: "558FB77C856092E191D3117C13A1BDB299050B5140CDF6916F50F026620463FE"
+    BlockchainAccountTransaction:
+      properties:
+        chainId:
+          type: string
+          enum:
+            - xrp
+            - eth
+            - btc
+        network:
+          type: string
+          example: testnet
+        server:
+          type: string
+          example: "https://s.altnet.rippletest.net:51234/"
+        transaction:
+          $ref: '#/components/schemas/BlockchainAccountTransactionItem'
+    SubmitTransactionRequest:
+      properties:
+        transaction:
+          type: string
+          example: "1200002280000000240000001E61D4838D7EA4C6800000000000000000000000000055534400000000004B4E9C06F24296074F7BC48F92A97916C6DC5EA968400000000000000B732103AB40A0490F9B7ED8DF29D246BF2D6269820A0EE7742ACDD457BEA7C7D0931EDB7447304502210095D23D8AF107DF50651F266259CC7139D0CD0C64ABBA3A958156352A0D95A21E02207FCF9B77D7510380E49FF250C21B57169E14E9B4ACFD314CEDC79DDD0A38B8A681144B4E9C06F24296074F7BC48F92A97916C6DC5EA983143E9D4A2B8AA0780F682D136F7A56D6724EF53754"
+          description: The transaction blob as required by the blockchain you are submitting to.
+    SubmitTransactionResult:
+      properties:
+        chainId:
+          type: string
+          enum:
+            - xrp
+            - eth
+            - btc
+        network:
+          type: string
+          example: testnet
+        server:
+          type: string
+          example: "https://s.altnet.rippletest.net:51234/"
+        transaction:
+          $ref: '#/components/schemas/BlockchainAccountTransactionItem'
+    BlockchainAccountPayments:
+      properties:
+        chainId:
+          type: string
+          enum:
+            - xrp
+            - eth
+            - btc
+        network:
+          type: string
+          example: testnet
+        server:
+          type: string
+          example: "https://s.altnet.rippletest.net:51234/"
+        accountId:
+          type: string
+          example: "rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv"
+        cursor:
+          type: string
+          description: Format varies by the blockchain. For XRP, the value of `cursor` will be the `ledger:seq` from the marker object. This value is null when there are no more pages.
+          example: "57112007:13"
+        payments:
+          type: array
+          items:
+            $ref: '#/components/schemas/BlockchainAccountPaymentItem'
+    BlockchainAccountPaymentItem:
+      properties:
+        status:
+          type: string
+          description: One of `success`, `failure` or `pending` in most cases. In case the server returns unusual status, this attribute will reflect the raw value.
+          example: "success"
+        sourceAccount:
+          type: string
+          example: "rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv"
+        destinationAccount:
+          type: string
+          example: "rU2mEJSLqBRkYLVTv55rFTgQajkLTnT6mA"
+        destinationTag:
+          type: string
+          example: "255577"
+        fee:
+          $ref: '#/components/schemas/CurrencyValue'
+        amount:
+          $ref: '#/components/schemas/CurrencyValue'
+        hash:
+          type: string
+          example: "558FB77C856092E191D3117C13A1BDB299050B5140CDF6916F50F026620463FE"
+    BlockchainFee:
+      properties:
+        chainId:
+          type: string
+          enum:
+            - xrp
+            - eth
+            - btc
+        network:
+          type: string
+          example: testnet
+        server:
+          type: string
+          example: "https://s.altnet.rippletest.net:51234/"
+        fee:
+          $ref: '#/components/schemas/CurrencyValue'

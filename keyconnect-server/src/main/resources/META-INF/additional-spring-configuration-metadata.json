@@ -1,0 +1,29 @@
+{
+  "properties": [
+    {
+      "name": "xrp.testnet.address",
+      "type": "java.lang.String",
+      "description": "Address for rippled testnet endpoint."
+    },
+    {
+      "name": "xrp.testnet.type",
+      "type": "java.lang.String",
+      "description": "Address type (json-rpc)."
+    },
+    {
+      "name": "xrp.mainnet.address",
+      "type": "java.lang.String",
+      "description": "Address for rippled mainnet endpoint."
+    },
+    {
+      "name": "xrp.mainnet.type",
+      "type": "java.lang.String",
+      "description": "Address type (json-rpc)."
+    },
+    {
+      "name": "blockchains",
+      "type": "java.util.List",
+      "description": "List of blockchain IDs"
+    }
+  ]
+}

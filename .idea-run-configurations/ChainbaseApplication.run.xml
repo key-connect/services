@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="ChainbaseApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <module name="keyconnect-chainbase" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.turinglabs.keyconnect.chainbase.ChainbaseApplication" />
+    <option name="VM_PARAMETERS" value="-Dlast-block=858922" />
+    <option name="ALTERNATIVE_JRE_PATH" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

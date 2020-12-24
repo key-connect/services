@@ -1,0 +1,47 @@
+cache:
+  paths:
+    - .m2/repository
+
+stages:
+  - build
+  - publish
+  - deploy
+
+variables:
+  MAVEN_OPTS: "-Dhttps.protocols=TLSv1.2 -Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
+  MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true"
+  APP_CONFIG_VARS: "-DETH_MAINNET_ADDR=$ETH_MAINNET_ADDR -DETH_ROPSTEN_ADDR=$ETH_ROPSTEN_ADDR -DETHERSCAN_TOKEN=$ETHERSCAN_TOKEN"
+
+maven:build:
+  interruptible: true
+  image: maven:3-openjdk-11
+  stage: build
+  script:
+    - mvn $MAVEN_CLI_OPTS install
+  artifacts:
+    paths:
+      - keyconnect-api/target/*
+      - keyconnect-server/target/*
+    expire_in: 2 hour
+
+maven:publish:
+  interruptible: false
+  image: maven:3-openjdk-11
+  stage: publish
+  script:
+    - "mvn $MAVEN_CLI_OPTS -DargLine=\"$APP_CONFIG_VARS\" -DskipTests deploy -s gitlab/settings.xml"
+  only:
+    - master
+
+npm:publish:
+  interruptible: false
+  image: node:lts-alpine
+  stage: publish
+  script:
+    - cd keyconnect-api/target/generated-sources/openapi
+    - echo "//gitlab.com/api/v4/projects/${CI_PROJECT_ID}/packages/npm/:_authToken=${CI_JOB_TOKEN}">.npmrc
+    - sed -i "s/-SNAPSHOT/.${CI_PIPELINE_IID}/" package.json
+    - sed -i 's/registry/@key-connect:registry/' package.json
+    - npm publish
+  only:
+    - master

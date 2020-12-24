@@ -1,0 +1,666 @@
+openapi: 3.0.0
+info:
+  title: KeyConnect Rippled API
+  description: API description in Markdown.
+  version: 1.0.0
+  contact:
+    name: Manthan Dave
+    url: https://www.manthanhd.com
+    email: manthan@keyconnect.app
+servers:
+  - url: 'https://s.altnet.rippletest.net:51234'
+    description: TestNet Ripple server
+  - url: 'https://s.devnet.rippletest.net:51234'
+    description: DevNet Ripple server
+
+paths:
+  "/":
+    post:
+      summary: Endpoint for all operations
+      operationId: callRippled
+      requestBody:
+        content:
+          "application/json":
+            schema:
+              anyOf:
+                - $ref: "#/components/schemas/ServerInfoRequest"
+                - $ref: "#/components/schemas/FeeRequest"
+                - $ref: "#/components/schemas/AccountInfoRequest"
+                - $ref: "#/components/schemas/AccountTransactionRequest"
+                - $ref: "#/components/schemas/TransactionRequest"
+                - $ref: "#/components/schemas/SubmitTransactionRequest"
+      responses:
+        200:
+          description: OK
+          content:
+            "application/json":
+              schema:
+                anyOf:
+                  - $ref: "#/components/schemas/ServerInfoResponse"
+                  - $ref: "#/components/schemas/FeeResponse"
+                  - $ref: "#/components/schemas/AccountInfoResponse"
+                  - $ref: "#/components/schemas/AccountTransactionResponse"
+                  - $ref: "#/components/schemas/TransactionResponse"
+                  - $ref: "#/components/schemas/SubmitTransactionResponse"
+components:
+  schemas:
+#    SERVERINFO RESOURCES
+    ServerInfoRequest:
+      properties:
+        method:
+          type: string
+          default: "server_info"
+          readOnly: true
+        params:
+          type: array
+          items:
+            type: object
+    ServerInfoResponse:
+      properties:
+        result:
+          $ref: '#/components/schemas/ServerInfoResult'
+    ServerInfoResult:
+      properties:
+        info:
+          $ref: '#/components/schemas/ServerInfo'
+        status:
+          type: string
+    ServerInfo:
+      properties:
+        build_version:
+          type: string
+        complete_ledgers:
+          type: string
+        hostid:
+          type: string
+        io_latency_ms:
+          type: number
+        jq_trans_overflow:
+          type: string
+        last_close:
+          $ref: "#/components/schemas/LedgerLastClose"
+        load:
+          $ref: "#/components/schemas/ServerLoad"
+        load_factor:
+          type: number
+        peer_disconnects:
+          type: string
+        peer_disconnects_resources:
+          type: string
+        peers:
+          type: number
+        pubkey_node:
+          type: string
+        pubkey_validator:
+          type: string
+        server_state:
+          type: string
+        server_state_duration_us:
+          type: string
+        state_accounting:
+          $ref: "#/components/schemas/ServerStateAccounting"
+        time:
+          type: string
+        uptime:
+          type: number
+        validated_ledger:
+          $ref: "#/components/schemas/ValidatedLedgerInfo"
+        validation_quorum:
+          type: number
+        validator_list:
+          $ref: "#/components/schemas/ValidatorListInfo"
+    LedgerLastClose:
+      properties:
+        converge_time_s:
+          type: number
+        proposers:
+          type: number
+    ServerLoad:
+      properties:
+        job_type:
+          type: array
+          items:
+            $ref: "#/components/schemas/ServerJob"
+        threads:
+          type: number
+    ServerJob:
+      properties:
+        avg_time:
+          type: number
+        job_type:
+          type: string
+        peak_time:
+          type: number
+        per_second:
+          type: number
+        in_progress:
+          type: number
+    ServerStateAccounting:
+      properties:
+        connected:
+          $ref: "#/components/schemas/StateAccount"
+        disconnected:
+          $ref: "#/components/schemas/StateAccount"
+        full:
+          $ref: "#/components/schemas/StateAccount"
+        syncing:
+          $ref: "#/components/schemas/StateAccount"
+        tracking:
+          $ref: "#/components/schemas/StateAccount"
+    StateAccount:
+      properties:
+        duration_us:
+          type: string
+        transitions:
+          type: number
+    ValidatedLedgerInfo:
+      properties:
+        age:
+          type: number
+        base_fee_xrp:
+          type: number
+        hash:
+            type: string
+        reserve_base_xrp:
+          type: number
+        reserve_inc_xrp:
+          type: number
+        seq:
+          type: number
+    ValidatorListInfo:
+      properties:
+        count:
+          type: number
+        expiration:
+          type: string
+        status:
+          type: string
+#    FEES RESOURCES
+    FeeRequest:
+      properties:
+        method:
+          type: string
+          default: "fee"
+          readOnly: true
+        params:
+          type: array
+          items:
+            type: object
+    FeeResponse:
+      properties:
+        result:
+          $ref: '#/components/schemas/FeeResult'
+    FeeResult:
+      properties:
+        current_ledger_size:
+          type: string
+        current_queue_size:
+          type: string
+        drops:
+          $ref: "#/components/schemas/FeeDropsObject"
+        expected_ledger_size:
+          type: string
+        ledger_current_index:
+          type: number
+        levels:
+          $ref: "#/components/schemas/LevelsObject"
+        max_queue_size:
+          type: string
+        status:
+          type: string
+    FeeDropsObject:
+      properties:
+        base_fee:
+          type: string
+        median_fee:
+          type: string
+        minimum_fee:
+          type: string
+        open_ledger_fee:
+          type: string
+    LevelsObject:
+      properties:
+        median_level:
+          type: string
+        minimum_level:
+          type: string
+        open_ledger_level:
+          type: string
+        reference_level:
+          type: string
+#    ACCOUNT INFO RESOURCES
+    AccountInfoRequest:
+      properties:
+        method:
+          type: string
+          default: "account_info"
+          readOnly: true
+        params:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountInfoRequestParam'
+    AccountInfoRequestParam:
+      properties:
+        account:
+          type: string
+          description: Wallet address
+        strict:
+          type: boolean
+          default: true
+        ledger_index:
+          type: string
+          default: "current"
+        queue:
+          type: boolean
+          default: true
+    AccountInfoResponse:
+      properties:
+        result:
+          $ref: '#/components/schemas/AccountInfoResult'
+    AccountInfoResult:
+      properties:
+        account_data:
+          $ref: '#/components/schemas/AccountData'
+        ledger_current_index:
+          type: number
+        queue_data:
+          $ref: '#/components/schemas/AccountQueueData'
+        status:
+          type: string
+        validated:
+          type: boolean
+    AccountData:
+      properties:
+        Account:
+          type: string
+          example: "rG1QQv2nh2gr7RCZ1P8YYcBUKCCN633jCn"
+        Balance:
+          type: string
+          example: "999999999960"
+          description: "Balance in drops"
+        Flags:
+          type: number
+          example: 8388608
+        LedgerEntryType:
+          type: string
+          example: "AccountRoot"
+        OwnerCount:
+          type: number
+          example: 0
+        PreviousTxnID:
+          type: string
+          example: "4294BEBE5B569A18C0A2702387C9B1E7146DC3A5850C1E87204951C6FDAA4C42"
+        PreviousTxnLgrSeq:
+          type: number
+          example: 3
+        Sequence:
+          type: number
+          example: 6
+        index:
+          type: string
+          example: "92FA6A9FC8EA6018D5D16532D7795C91BFB0831355BDFDA177E86C8BF997985F"
+    AccountQueueData:
+      properties:
+        auth_change_queued:
+          type: boolean
+          example: true
+        highest_sequence:
+          type: number
+          example: 10
+        lowest_sequence:
+          type: number
+          example: 6
+        max_spend_drops_total:
+          type: string
+          example: "500"
+        transactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountQueueDataTransaction'
+        txn_count:
+          type: number
+          example: 5
+    AccountQueueDataTransaction:
+      properties:
+        auth_change:
+          type: boolean
+          example: true
+        fee:
+          type: string
+          example: "100"
+        fee_level:
+          type: string
+          example: "2560"
+        max_spend_drops:
+          type: string
+          example: "100"
+        seq:
+          type: number
+          example: 10
+        LastLedgerSequence:
+          type: number
+          example: 10
+#    ACCOUNT TRANSACTION
+    AccountTransactionRequest:
+      properties:
+        method:
+          type: string
+          default: "account_tx"
+          readOnly: true
+        params:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountTransactionRequestParam'
+    AccountTransactionRequestParam:
+      properties:
+        account:
+          type: string
+          example: "rLNaPoKeeBjZe2qs6x52yVPZpZ8td4dc6w"
+        binary:
+          type: boolean
+          example: false
+          default: false
+        forward:
+          type: boolean
+          example: false
+          default: false
+        ledger_index_max:
+          type: int
+          example: -1
+        ledger_index_min:
+          type: int
+          example: -1
+        ledger:
+          type: int
+          example: -1
+        seq:
+          type: int
+          example: -1
+        limit:
+          type: int
+          example: 2
+        marker:
+          $ref: '#/components/schemas/AccountTransactionMarker'
+    AccountTransactionResponse:
+      properties:
+        result:
+          $ref: '#/components/schemas/AccountTransactionResult'
+    AccountTransactionResult:
+      properties:
+        account:
+          type: string
+          example: "rLNaPoKeeBjZe2qs6x52yVPZpZ8td4dc6w"
+        ledger_index_max:
+          type: number
+          example: 57112019
+        ledger_index_min:
+          type: number
+          example: 56248229
+        limit:
+          type: number
+          example: 2
+        marker:
+          $ref: '#/components/schemas/AccountTransactionMarker'
+        status:
+          type: string
+          example: "success"
+        transactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountTransactionItem'
+        validated:
+          type: boolean
+          example: true
+    AccountTransactionMarker:
+      properties:
+        ledger:
+          type: integer
+          example: 57112007
+        seq:
+          type: integer
+          example: 13
+    AccountTransactionItem:
+      properties:
+        meta:
+          $ref: '#/components/schemas/AccountTransactionMeta'
+        tx:
+          $ref: '#/components/schemas/AccountTransaction'
+        validated:
+          type: boolean
+          example: true
+    AccountTransaction:
+      properties:
+        Account:
+          type: string
+          example: "rLNaPoKeeBjZe2qs6x52yVPZpZ8td4dc6w"
+        Amount:
+          type: string
+          description: "Amount in drops"
+          example: "455643030"
+        Destination:
+          type: string
+          example: "raLPjTYeGezfdb6crXZzcC8RkLBEwbBHJ5"
+        DestinationTag:
+          type: number
+          example: 18240312
+        Fee:
+          type: string
+          description: "Fee in drops"
+          example: "40"
+        Flags:
+          type: number
+          example: 2147483648
+        LastLedgerSequence:
+          type: number
+          example: 57112037
+        Sequence:
+          type: number
+          example: 702819
+        SigningPubKey:
+          type: string
+          example: "020A46D8D02AC780C59853ACA309EAA92E7D8E02DD72A0B6AC315A7D18A6C3276A"
+        TransactionType:
+          type: string
+          example: "Payment"
+        TxnSignature:
+          type: string
+          example: "30450221008602B2E390C0C7B65182C6DBC86292052C1961B2BEFB79C2C8431722C0ADB911022024B74DCF910A4C8C95572CF662EB7F5FF67E1AC4D7B9B7BFE2A8EE851EC16576"
+        date:
+          type: number
+          example: 649200322
+        hash:
+          type: string
+          example: "08EF5BDA2825D7A28099219621CDBECCDECB828FEA202DEB6C7ACD5222D36C2C"
+        inLedger:
+          type: number
+          example: 57112015
+        ledger_index:
+          type: number
+          example: 57112015
+        meta:
+          # This field is only present and non-null when the response is serialised from get single transaction and is not available when serialised as part of list of transactions.
+          $ref: '#/components/schemas/AccountTransactionMeta'
+    AccountTransactionMeta:
+      properties:
+        AffectedNodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountTransactionAffectedNode'
+        TransactionIndex:
+          type: number
+          example: 33
+        TransactionResult:
+          type: string
+          example: "tesSUCCESS"
+        delivered_amount:
+          type: string
+          example: "499500387"
+    AccountTransactionAffectedNode:
+      properties:
+        ModifiedNode:
+          $ref: '#/components/schemas/AccountTransactionModifiedNode'
+    AccountTransactionModifiedNode:
+      properties:
+        FinalFields:
+          $ref: '#/components/schemas/AccountTransactionModifiedNodeFinalFields'
+        LedgerEntryType:
+          type: string
+          example: "AccountRoot"
+        LedgerIndex:
+          type: string
+          example: "140FA03FE8C39540CA8189BC7A7956795C712BC0A542C6409C041150703C8574"
+        PreviousFields:
+          $ref: '#/components/schemas/AccountTransactionModifiedNodePreviousField'
+        PreviousTxnID:
+          type: string
+          example: "7C031FD5B710E3C048EEF31254089BEEC505900BCC9A842257A0319453333998"
+        PreviousTxnLgrSeq:
+          type: number
+          example: 57112010
+    AccountTransactionModifiedNodePreviousField:
+      properties:
+        Balance:
+          type: string
+          example: "19117497271"
+        Sequence:
+          type: number
+          example: 466333
+    AccountTransactionModifiedNodeFinalFields:
+      properties:
+        Account:
+          type: string
+          example: "rLNaPoKeeBjZe2qs6x52yVPZpZ8td4dc6w"
+        Balance:
+          type: string
+          example: "3732969177079"
+        Flags:
+          type: number
+          example: 131072
+        OwnerCount:
+          type: number
+          example: 0
+        Sequence:
+          type: number
+          example: 702817
+#    TRANSACTION
+    TransactionRequest:
+      properties:
+        method:
+          type: string
+          readOnly: true
+          default: "tx"
+        params:
+          type: array
+          items:
+            $ref: '#/components/schemas/TransactionRequestParam'
+    TransactionRequestParam:
+      properties:
+        transaction:
+          type: string
+          example: "C53ECF838647FA5A4C780377025FEC7999AB4182590510CA461444B207AB74A9"
+        binary:
+          type: boolean
+          default: false
+          example: false
+    TransactionResponse:
+      properties:
+        result:
+          $ref: '#/components/schemas/TransactionResult'
+    TransactionResult:
+      allOf:
+        - $ref: '#/components/schemas/AccountTransaction'
+      properties:
+        meta:
+          $ref: '#/components/schemas/AccountTransactionMeta'
+        status:
+          type: string
+          example: "success"
+        validated:
+          type: boolean
+          example: true
+    # SUBMIT TRANSACTION
+    SubmitTransactionRequest:
+      properties:
+        method:
+          type: string
+          readOnly: true
+          default: "tx"
+        params:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubmitTransactionRequestParam'
+    SubmitTransactionRequestParam:
+      properties:
+        tx_blob:
+          type: string
+          description: "The complete transaction in hex string format"
+          example: "1200002280000000240000000361D4838D7EA4C6800000000000000000000000000055534400000000004B4E9C06F24296074F7BC48F92A97916C6DC5EA968400000000000000A732103AB40A0490F9B7ED8DF29D246BF2D6269820A0EE7742ACDD457BEA7C7D0931EDB74473045022100D184EB4AE5956FF600E7536EE459345C7BBCF097A84CC61A93B9AF7197EDB98702201CEA8009B7BEEBAA2AACC0359B41C427C1C5B550A4CA4B80CF2174AF2D6D5DCE81144B4E9C06F24296074F7BC48F92A97916C6DC5EA983143E9D4A2B8AA0780F682D136F7A56D6724EF53754"
+        fail_hard:
+          type: boolean
+          default: false
+    SubmitTransactionResponse:
+      properties:
+        result:
+          $ref: '#/components/schemas/SubmitTransactionResult'
+    SubmitTransactionResult:
+      properties:
+        tx_json:
+          $ref: '#/components/schemas/AccountTransaction'
+        engine_result:
+          type: string
+          description: "Text result code indicating the preliminary result of the transaction, for example tesSUCCESS"
+          example: "tesSUCCESS"
+        engine_result_code:
+          type: integer
+          description: "Numeric version of the result code. Not recommended."
+          example: 0
+        engine_result_message:
+          type: string
+          description: "Human-readable explanation of the transaction's preliminary result"
+          example: "The transaction was applied. Only final in a validated ledger."
+        tx_blob:
+          type: string
+          description: "The complete transaction in hex string format"
+          example: "1200002280000000240000016961D4838D7EA4C6800000000000000000000000000055534400000000004B4E9C06F24296074F7BC48F92A97916C6DC5EA9684000000000002710732103AB40A0490F9B7ED8DF29D246BF2D6269820A0EE7742ACDD457BEA7C7D0931EDB74473045022100A7CCD11455E47547FF617D5BFC15D120D9053DFD0536B044F10CA3631CD609E502203B61DEE4AC027C5743A1B56AF568D1E2B8E79BB9E9E14744AC87F38375C3C2F181144B4E9C06F24296074F7BC48F92A97916C6DC5EA983143E9D4A2B8AA0780F682D136F7A56D6724EF53754"
+        accepted:
+          type: boolean
+          description: "(Omitted in sign-and-submit mode) The value true indicates that the transaction was applied, queued, broadcast, or kept for later. The value false indicates that none of those happened, so the transaction cannot possibly succeed as long as you do not submit it again and have not already submitted it another time"
+          example: true
+        account_sequence_available:
+          type: number
+          description: "(Omitted in sign-and-submit mode) The next Sequence Number available for the sending account after all pending and queued transactions. "
+          example: 362
+        account_sequence_next:
+          type: number
+          description: "(Omitted in sign-and-submit mode) The next Sequence Number for the sending account after all transactions that have been provisionally applied, but not transactions in the queue."
+          example: 362
+        applied:
+          type: boolean
+          description: "(Omitted in sign-and-submit mode) The value true indicates that this transaction was applied to the open ledger. In this case, the transaction is likely, but not guaranteed, to be validated in the next ledger version. "
+          example: true
+        broadcast:
+          type: boolean
+          description: "(Omitted in sign-and-submit mode) The value true indicates this transaction was broadcast to peer servers in the peer-to-peer XRP Ledger network. (Note: if the server has no peers, such as in stand-alone mode, the server uses the value true for cases where it would have broadcast the transaction.) The value false indicates the transaction was not broadcast to any other servers."
+          example: true
+        kept:
+          type: boolean
+          description: "(Omitted in sign-and-submit mode) The value true indicates that the transaction was kept to be retried later."
+          example: false
+        queued:
+          type: boolean
+          description: "(Omitted in sign-and-submit mode) The value true indicates the transaction was put in the Transaction Queue, which means it is likely to be included in a future ledger version."
+          example: false
+        open_ledger_cost:
+          type: string
+          description: "(Omitted in sign-and-submit mode) The current open ledger cost before processing this transaction. Transactions with a lower cost are likely to be queued."
+          example: "10"
+        validated_ledger_index:
+          type: integer
+          description: "(Omitted in sign-and-submit mode) The ledger index of the newest validated ledger at the time of submission. This provides a lower bound on the ledger versions that the transaction can appear in as a result of this request. (The transaction could only have been validated in this ledger version or earlier if it had already been submitted before.)"
+          example: 21184416
+
+
+
+
+
+
