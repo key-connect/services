@@ -5,12 +5,15 @@ ethnode:
   httpAddress: 'http://localhost:8545'
 spring:
   datasource:
-    url: jdbc:sqlite:chains.db
-    driver-class-name: org.sqlite.JDBC
-    username: "sa"
-    password: "sa"
+    # docker run --rm --name postgres -p 5432:5432 -e POSTGRES_PASSWORD=pgpassword -e POSTGRES_USER=chains -e POSTGRES_DB=chainsdb -it postgres:12
+    url: jdbc:postgresql://localhost:5432/chainsdb
+    username: "chains"
+    password: "pgpassword"
+    platform: postgres
+    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: update
-    properties:
-      hibernate.dialect: org.hibernate.dialect.SQLiteDialect
+#    properties:
+#      hibernate.dialect: org.hibernate.dialect.SQLiteDialect
+#      hibernate.jdbc.lob.non_contextual_creation: true

@@ -1,28 +1,27 @@
 package com.turinglabs.keyconnect.chainbase.indexers;
 
+import com.turinglabs.keyconnect.chainbase.listeners.StatsListener;
 import com.turinglabs.keyconnect.chainbase.persistence.models.EthTransaction;
 import com.turinglabs.keyconnect.chainbase.persistence.repositories.EthTransactionRepository;
 import java.util.Optional;
 import java.util.function.Consumer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.web3j.protocol.core.methods.response.EthBlock.Block;
 import org.web3j.protocol.core.methods.response.EthBlock.TransactionObject;
 import org.web3j.protocol.core.methods.response.Transaction;
 
 public class EthBlockProcessor implements Consumer<Block> {
 
-  private static final Logger logger = LoggerFactory.getLogger(EthBlockProcessor.class);
   private final EthTransactionRepository ethTransactionRepository;
+  private final StatsListener statsListener;
 
   public EthBlockProcessor(
-      EthTransactionRepository ethTransactionRepository) {
+      EthTransactionRepository ethTransactionRepository, StatsListener statsListener) {
     this.ethTransactionRepository = ethTransactionRepository;
+    this.statsListener = statsListener;
   }
 
   @Override
   public void accept(Block block) {
-    logger.info("Processing {} txns on block {}", block.getTransactions().size(), block.getNumber().toString());
     block.getTransactions()
         .forEach(tR -> {
           final TransactionObject tx = (TransactionObject) tR.get();
@@ -43,11 +42,12 @@ public class EthBlockProcessor implements Consumer<Block> {
           final Optional<EthTransaction> maybeSaved = ethTransactionRepository
               .findTopByHash(transaction.getHash());
 
-          if(maybeSaved.isEmpty()) {
+          if (maybeSaved.isEmpty()) {
+            statsListener.newTransactionSaved();
             ethTransactionRepository.save(ethTransaction);
-//            logger.info("{} tx saved", transaction.getHash());
           }
         });
-//    logger.info("Processed block {}", block.getNumber().toString());
+    statsListener.transactionsProcessed(block.getTransactions().size());
+    statsListener.newBlockProcessed(block);
   }
 }

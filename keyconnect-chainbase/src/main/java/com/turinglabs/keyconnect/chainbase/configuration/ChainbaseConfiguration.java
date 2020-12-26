@@ -2,6 +2,7 @@ package com.turinglabs.keyconnect.chainbase.configuration;
 
 import com.turinglabs.keyconnect.chainbase.indexers.EthBlockProcessor;
 import com.turinglabs.keyconnect.chainbase.indexers.listeners.EthBlockListener;
+import com.turinglabs.keyconnect.chainbase.listeners.StatsListener;
 import com.turinglabs.keyconnect.chainbase.persistence.repositories.EthTransactionRepository;
 import java.math.BigInteger;
 import java.util.concurrent.ExecutorService;
@@ -15,7 +16,7 @@ public class ChainbaseConfiguration {
 
   private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-  @Bean
+  @Bean(destroyMethod = "stop")
   public EthBlockListener ethBlockListener(Environment env, EthBlockProcessor ethBlockProcessor) {
     final EthBlockListener ethBlockListener = new EthBlockListener(
         env.getProperty("ethnode.httpAddress", String.class), ethBlockProcessor, env.getProperty("last-block",
@@ -24,10 +25,16 @@ public class ChainbaseConfiguration {
     return ethBlockListener;
   }
 
+  @Bean(destroyMethod = "stop")
+  public StatsListener statsListener() {
+    return new StatsListener();
+  }
+
   @Bean
   public EthBlockProcessor ethBlockProcessor(
-      EthTransactionRepository ethTransactionRepository) {
-    return new EthBlockProcessor(ethTransactionRepository);
+      EthTransactionRepository ethTransactionRepository,
+      StatsListener statsListener) {
+    return new EthBlockProcessor(ethTransactionRepository, statsListener);
   }
 
 }

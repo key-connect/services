@@ -49,7 +49,7 @@ public class EthTransaction {
   @Column(name = "nonce")
   private String nonce;
 
-  @Column(name = "input")
+  @Column(name = "input", columnDefinition = "TEXT")
   private String input;
 
   @Column(name = "timestamp")

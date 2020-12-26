@@ -16,6 +16,8 @@ public class EthBlockListener implements Runnable {
   private final Web3j client;
   private final Consumer<Block> blockConsumer;
   private BigInteger lastBlock;
+  private boolean stop = false;
+  private Disposable subscription;
 
   public EthBlockListener(final String httpAddress, Consumer<Block> blockConsumer, BigInteger lastBlock) {
     this.client = Web3j.build(new HttpService(httpAddress));
@@ -26,11 +28,16 @@ public class EthBlockListener implements Runnable {
   @SneakyThrows
   @Override
   public void run() {
-    Disposable subscription = subscribe();
-    while(!subscription.isDisposed()) {
+    subscription = subscribe();
+    while(!subscription.isDisposed() && !stop) {
       Thread.sleep(10000);
       if (subscription.isDisposed()) subscription = subscribe();
     }
+    subscription.dispose();
+  }
+
+  public void stop() {
+    stop = true;
   }
 
   @NotNull
