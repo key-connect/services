@@ -68,7 +68,7 @@ For more information about the API usage, visit the [API documentation](https://
 
 | Tool | Version |
 | ---- | ------- |
-| JDK | OpenJDK-15 |
+| JDK | OpenJDK-11 |
 | Maven | 3.6.3 |
 
 *These are guide only, the application may still compile and run with higher versions.
