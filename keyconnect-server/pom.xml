@@ -85,11 +85,6 @@
       <version>${spring-boot.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-thymeleaf</artifactId>
-      <version>2.3.1.RELEASE</version>
-    </dependency>
-    <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
       <version>1.18.12</version>
@@ -125,19 +120,6 @@
     </dependency>
   </dependencies>
   <build>
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-        <includes>
-          <include>**/*</include>
-<!--          <include>**/*.html</include>-->
-<!--          <include>**/*.css</include>-->
-<!--          <include>**/*.png</include>-->
-<!--          <include>**/*.svg</include>-->
-<!--          <include>**/*.js</include>-->
-        </includes>
-      </resource>
-    </resources>
     <plugins>
       <plugin>
         <groupId>org.springframework.boot</groupId>
@@ -157,26 +139,6 @@
             <goals>
               <goal>repackage</goal>
             </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>unpack-shared-resources</id>
-            <goals>
-              <goal>unpack-dependencies</goal>
-            </goals>
-            <phase>generate-resources</phase>
-            <configuration>
-              <outputDirectory>${project.build.directory}/classes/static/api-docs</outputDirectory>
-              <includeArtifactIds>keyconnect-api</includeArtifactIds>
-              <includeGroupIds>${project.groupId}</includeGroupIds>
-              <excludeTransitive>true</excludeTransitive>
-              <!--use as much as needed to be specific...also scope,type,classifier etc-->
-            </configuration>
           </execution>
         </executions>
       </plugin>
