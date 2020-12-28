@@ -11,6 +11,9 @@
 
   <artifactId>keyconnect-chainbase</artifactId>
 
+  <name>Key Connect Chainbase</name>
+  <description>Blockchain Indexing Service for Key Connect</description>
+
   <properties>
     <spring-boot.version>2.3.3.RELEASE</spring-boot.version>
   </properties>

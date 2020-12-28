@@ -16,12 +16,32 @@
     <module>keyconnect-chainbase</module>
   </modules>
 
+  <name>Key Connect</name>
+  <description>Simplifying blockchain access</description>
+  <url>https://www.keyconnect.app</url>
+
   <scm>
     <connection>scm:git:${project.scm.url}</connection>
     <developerConnection>scm:git:${project.scm.url}</developerConnection>
     <url>https://github.com/key-connect/services.git</url>
     <tag>HEAD</tag>
   </scm>
+
+  <developers>
+    <developer>
+      <name>Manthan Dave</name>
+      <email>manthanhd@outlook.com</email>
+      <organization>Key Connect</organization>
+      <organizationUrl>https://www.keyconnect.app</organizationUrl>
+    </developer>
+  </developers>
+
+  <licenses>
+    <license>
+      <name>The Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

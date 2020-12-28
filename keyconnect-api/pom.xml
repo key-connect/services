@@ -13,6 +13,9 @@
   <groupId>app.keyconnect.api</groupId>
   <artifactId>keyconnect-api</artifactId>
 
+  <name>Key Connect API</name>
+  <description>API Spec and Client for Key Connect Server</description>
+
   <dependencies>
     <!--    Code generation dependencies-->
     <dependency>
