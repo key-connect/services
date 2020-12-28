@@ -1,5 +1,6 @@
 package app.keyconnect.server.gateways;
 
+import app.keyconnect.rippled.api.client.model.TransactionResult;
 import app.keyconnect.server.controllers.exceptions.InvalidCursorException;
 import app.keyconnect.server.factories.configuration.BlockchainNetworkConfiguration;
 import app.keyconnect.server.factories.configuration.BlockchainsConfiguration;
@@ -379,7 +380,7 @@ public class XrpGateway implements BlockchainGateway {
 
     final PublicRippledClient client = serverClients.get(selectedNetworks.get(0).getAddress());
     final TransactionResponse transaction = client.getTransaction(hash);
-    final AccountTransaction tx = transaction.getResult();
+    final TransactionResult tx = transaction.getResult();
     return new BlockchainAccountTransaction()
         .network(network)
         .server(selectedNetworks.get(0).getAddress())
