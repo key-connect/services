@@ -6,8 +6,6 @@ name: Build and Publish main
 on:
   push:
     branches: [ main ]
-  release:
-    types: [created]
 
 jobs:
   build:
