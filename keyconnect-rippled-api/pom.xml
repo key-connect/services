@@ -4,7 +4,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <artifactId>keyconnect</artifactId>
-    <groupId>com.turinglabs.keyconnect</groupId>
+    <groupId>app.keyconnect</groupId>
     <version>1.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
@@ -86,7 +86,7 @@
               <goal>generate</goal>
             </goals>
             <configuration>
-              <groupId>com.turinglabs.keyconnect.rippled.api</groupId>
+              <groupId>app.keyconnect.rippled.api</groupId>
               <inputSpec>${project.basedir}/src/main/resources/public/api.yaml</inputSpec>
               <generatorName>java</generatorName>
               <generateApis>false</generateApis>
@@ -94,8 +94,8 @@
               <configOptions>
                 <java8>true</java8>
                 <dateLibrary>java8</dateLibrary>
-                <apiPackage>com.turinglabs.keyconnect.rippled.client</apiPackage>
-                <modelPackage>com.turinglabs.keyconnect.rippled.api.client.model</modelPackage>
+                <apiPackage>app.keyconnect.rippled.client</apiPackage>
+                <modelPackage>app.keyconnect.rippled.api.client.model</modelPackage>
                 <hideGenerationTimestamp>true</hideGenerationTimestamp>
                 <bigDecimalAsString>true</bigDecimalAsString>
                 <serializableModel>true</serializableModel>

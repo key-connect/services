@@ -1,5 +1,8 @@
 
 #url: 'jdbc:sqlite:memory:myDb?cache=shared'
+#url: jdbc:postgresql://ethindexdb-lon1-do-user-821769-0.b.db.ondigitalocean.com:25060/keyconnectdb
+#username: "keyconnect"
+#password: "jaDdIDvV2kbXhSbnL22R"
 
 ethnode:
   httpAddress: 'http://localhost:8545'

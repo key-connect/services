@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="KeyConnectApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
     <module name="keyconnect-server" />
-    <option name="SPRING_BOOT_MAIN_CLASS" value="com.turinglabs.keyconnect.server.KeyConnectApplication" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="app.keyconnect.server.KeyConnectApplication" />
     <option name="VM_PARAMETERS" value="-DETH_MAINNET_ADDR=https://mainnet.infura.io/v3/INFURA_KEY -DETH_ROPSTEN_ADDR=https://ropsten.infura.io/v3/INFURA_KEY -DETHERSCAN_TOKEN=ETHERSCAN_TOKEN" />
     <option name="ALTERNATIVE_JRE_PATH" />
     <option name="UPDATE_ACTION_UPDATE_POLICY" value="UpdateClassesAndResources" />

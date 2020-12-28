@@ -17,21 +17,21 @@ Import Key Connect API using standard dependency management.
 
 ```xml
 <dependency>
-  <groupId>com.turinglabs.keyconnect.api</groupId>
+  <groupId>app.keyconnect.api</groupId>
   <artifactId>keyconnect-api</artifactId>
   <version>1.0-SNAPSHOT</version>
 </dependency> 
 ```
 
-Up-to-date packages available on github [here](https://github.com/orgs/key-connect/packages?tab=packages&ecosystem=maven&q=%22com.turinglabs.keyconnect.api.keyconnect-api%22).
+Up-to-date packages available on github [here](https://github.com/orgs/key-connect/packages?tab=packages&ecosystem=maven&q=%22app.keyconnect.api.keyconnect-api%22).
 
 Start developing!
 
 ```java
-import com.turinglabs.keyconnect.api.ApiClient;
-import com.turinglabs.keyconnect.api.ApiException;
-import com.turinglabs.keyconnect.api.client.DefaultApi;
-import com.turinglabs.keyconnect.api.client.model.ServerStatusResponse;
+import app.keyconnect.api.ApiClient;
+import app.keyconnect.api.ApiException;
+import app.keyconnect.api.client.DefaultApi;
+import app.keyconnect.api.client.model.ServerStatusResponse;
 
 class Scratch {
 

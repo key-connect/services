@@ -4,13 +4,13 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <artifactId>keyconnect</artifactId>
-    <groupId>com.turinglabs.keyconnect</groupId>
+    <groupId>app.keyconnect</groupId>
     <version>1.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <packaging>jar</packaging>
 
-  <groupId>com.turinglabs.keyconnect.api</groupId>
+  <groupId>app.keyconnect.api</groupId>
   <artifactId>keyconnect-api</artifactId>
 
   <dependencies>
@@ -82,15 +82,15 @@
               <goal>generate</goal>
             </goals>
             <configuration>
-              <groupId>com.turinglabs.keyconnect.api</groupId>
+              <groupId>app.keyconnect.api</groupId>
               <inputSpec>${project.basedir}/src/main/resources/api.yaml</inputSpec>
               <generatorName>java</generatorName>
               <!--              <configHelp>true</configHelp>-->
               <configOptions>
                 <java8>true</java8>
                 <dateLibrary>java8</dateLibrary>
-                <apiPackage>com.turinglabs.keyconnect.api.client</apiPackage>
-                <modelPackage>com.turinglabs.keyconnect.api.client.model</modelPackage>
+                <apiPackage>app.keyconnect.api.client</apiPackage>
+                <modelPackage>app.keyconnect.api.client.model</modelPackage>
                 <hideGenerationTimestamp>true</hideGenerationTimestamp>
                 <bigDecimalAsString>true</bigDecimalAsString>
                 <serializableModel>true</serializableModel>
@@ -108,7 +108,7 @@
               <goal>generate</goal>
             </goals>
             <configuration>
-              <groupId>com.turinglabs.keyconnect.api</groupId>
+              <groupId>app.keyconnect.api</groupId>
               <inputSpec>${project.basedir}/src/main/resources/api.yaml</inputSpec>
               <generatorName>typescript-node</generatorName>
               <!--              <configHelp>true</configHelp>-->
@@ -135,7 +135,7 @@
             <configuration>
 <!--              todo: Configure according to https://openapi-generator.tech/docs/generators/html2/
                   to ensure packages in the code examples are right -->
-              <groupId>com.turinglabs.keyconnect.api</groupId>
+              <groupId>app.keyconnect.api</groupId>
               <inputSpec>${project.basedir}/src/main/resources/api.yaml</inputSpec>
               <generatorName>html2</generatorName>
               <output>${project.basedir}/target/ui</output>
@@ -150,21 +150,21 @@
                 <groupId>${project.groupId}</groupId>
                 <artifactVersion>1.0.0</artifactVersion>
                 <dateLibrary>java8</dateLibrary>
-                <packageName>Com.Turinglabs.Keyconnect.Api.Client</packageName>
+                <packageName>app.keyconnect.Api.Client</packageName>
                 <pythonPackageName>keyconnectapi</pythonPackageName>
                 <perlModuleName>keyconnectapi</perlModuleName>
                 <phpInvokerPackage>keyconnectapi</phpInvokerPackage>
-                <modelPackage>com.turinglabs.keyconnect.api.client.model</modelPackage>
-                <apiPackage>com.turinglabs.keyconnect.api.client</apiPackage>
+                <modelPackage>app.keyconnect.api.client.model</modelPackage>
+                <apiPackage>app.keyconnect.api.client</apiPackage>
                 <!--                <hideGenerationTimestamp>true</hideGenerationTimestamp>-->
                 <!--                <bigDecimalAsString>true</bigDecimalAsString>-->
                 <!--                <serializableModel>true</serializableModel>-->
                 <!--                <sourceFolder>src/gen/java/main</sourceFolder>-->
               </configOptions>
 <!--              <verbose>true</verbose>-->
-              <packageName>com.turinglabs.keyconnect.api.client</packageName>
-              <apiPackage>com.turinglabs.keyconnect.api.client</apiPackage>
-              <modelPackage>com.turinglabs.keyconnect.api.client.model</modelPackage>
+              <packageName>app.keyconnect.api.client</packageName>
+              <apiPackage>app.keyconnect.api.client</apiPackage>
+              <modelPackage>app.keyconnect.api.client.model</modelPackage>
               <generateModelDocumentation>true</generateModelDocumentation>
               <!--<generateApiTests>false</generateApiTests>
               <generateApis>true</generateApis>

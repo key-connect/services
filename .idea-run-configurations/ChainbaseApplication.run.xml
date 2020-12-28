@@ -1,8 +1,18 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="ChainbaseApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
     <module name="keyconnect-chainbase" />
-    <option name="SPRING_BOOT_MAIN_CLASS" value="com.turinglabs.keyconnect.chainbase.ChainbaseApplication" />
-    <option name="VM_PARAMETERS" value="-Dlast-block=858922" />
+    <extension name="net.ashald.envfile">
+      <option name="IS_ENABLED" value="false" />
+      <option name="IS_SUBST" value="false" />
+      <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
+      <option name="IS_IGNORE_MISSING_FILES" value="false" />
+      <option name="IS_ENABLE_EXPERIMENTAL_INTEGRATIONS" value="false" />
+      <ENTRIES>
+        <ENTRY IS_ENABLED="true" PARSER="runconfig" />
+      </ENTRIES>
+    </extension>
+    <option name="SPRING_BOOT_MAIN_CLASS" value="app.keyconnect.chainbase.ChainbaseApplication" />
+    <option name="VM_PARAMETERS" value="-Dlast-block=1208900" />
     <option name="ALTERNATIVE_JRE_PATH" />
     <method v="2">
       <option name="Make" enabled="true" />
