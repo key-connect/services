@@ -19,6 +19,7 @@
       <groupId>org.openapitools</groupId>
       <artifactId>openapi-generator</artifactId>
       <version>4.3.1</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.squareup.okhttp3</groupId>
@@ -85,7 +86,6 @@
               <groupId>app.keyconnect.api</groupId>
               <inputSpec>${project.basedir}/src/main/resources/api.yaml</inputSpec>
               <generatorName>java</generatorName>
-              <!--              <configHelp>true</configHelp>-->
               <configOptions>
                 <java8>true</java8>
                 <dateLibrary>java8</dateLibrary>
@@ -111,7 +111,6 @@
               <groupId>app.keyconnect.api</groupId>
               <inputSpec>${project.basedir}/src/main/resources/api.yaml</inputSpec>
               <generatorName>typescript-node</generatorName>
-              <!--              <configHelp>true</configHelp>-->
               <gitUserId>gitlab:key-connect</gitUserId>
               <gitHost>gitlab.com</gitHost>
               <gitRepoId>keyconnect</gitRepoId>
@@ -139,9 +138,7 @@
               <inputSpec>${project.basedir}/src/main/resources/api.yaml</inputSpec>
               <generatorName>html2</generatorName>
               <output>${project.basedir}/target/ui</output>
-<!--                            <configHelp>true</configHelp>-->
               <configOptions>
-                <!--                <java8>true</java8>-->
                 <infoEmail>manthan@keyconnect.app</infoEmail>
                 <appName>Key Connect API</appName>
                 <appDescription>Aggregator API for blockchains</appDescription>
@@ -156,20 +153,11 @@
                 <phpInvokerPackage>keyconnectapi</phpInvokerPackage>
                 <modelPackage>app.keyconnect.api.client.model</modelPackage>
                 <apiPackage>app.keyconnect.api.client</apiPackage>
-                <!--                <hideGenerationTimestamp>true</hideGenerationTimestamp>-->
-                <!--                <bigDecimalAsString>true</bigDecimalAsString>-->
-                <!--                <serializableModel>true</serializableModel>-->
-                <!--                <sourceFolder>src/gen/java/main</sourceFolder>-->
               </configOptions>
-<!--              <verbose>true</verbose>-->
               <packageName>app.keyconnect.api.client</packageName>
               <apiPackage>app.keyconnect.api.client</apiPackage>
               <modelPackage>app.keyconnect.api.client.model</modelPackage>
               <generateModelDocumentation>true</generateModelDocumentation>
-              <!--<generateApiTests>false</generateApiTests>
-              <generateApis>true</generateApis>
-              <generateApiDocumentation>true</generateApiDocumentation>
-              <generateModelTests>false</generateModelTests>-->
             </configuration>
           </execution>
         </executions>
