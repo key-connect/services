@@ -19,7 +19,7 @@ Import Key Connect API using standard dependency management.
 <dependency>
   <groupId>app.keyconnect.api</groupId>
   <artifactId>keyconnect-api</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0.0</version>
 </dependency> 
 ```
 
