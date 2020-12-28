@@ -4,8 +4,7 @@
 name: Build branch
 on:
   pull_request:
-    branches: [ main ]
-    branches-ignore: [ release/** ]
+    branches: [ main, release/** ]
 jobs:
   build:
     runs-on: ubuntu-latest
