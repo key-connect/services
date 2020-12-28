@@ -6,6 +6,7 @@ name: Build and Publish main
 on:
   push:
     branches: [ main ]
+    branches-ignore: [ release/** ]
 
 jobs:
   build:
