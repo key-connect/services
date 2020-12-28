@@ -12,6 +12,9 @@
 
   <artifactId>keyconnect-rippled-api</artifactId>
 
+  <name>Key Connect XRP (Rippled) API</name>
+  <description>API Spec and Client for XRP (Rippled) Server</description>
+
   <dependencies>
     <!--    Code generation dependencies-->
     <dependency>
