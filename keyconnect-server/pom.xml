@@ -15,6 +15,9 @@
   <description>Standalone Key Connect API Server</description>
 
   <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.source>1.8</maven.compiler.source>
     <spring-boot.version>2.3.3.RELEASE</spring-boot.version>
     <junit-jupiter.version>5.3.2</junit-jupiter.version>
     <start-class>app.keyconnect.server.KeyConnectApplication</start-class>
@@ -154,6 +157,9 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>3.2.0</version>
+        <configuration>
+          <additionalOptions>-Xdoclint:none</additionalOptions>
+        </configuration>
         <executions>
           <execution>
             <id>attach-javadocs</id>
