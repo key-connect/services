@@ -2,16 +2,12 @@
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
 name: Build branch
-
 on:
   pull_request:
     branches: [ main ]
-
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK 15
@@ -24,3 +20,10 @@ jobs:
         ETH_ROPSTEN_ADDR: ${{ secrets.ETH_ROPSTEN_ADDR }}
         ETHERSCAN_TOKEN: ${{ secrets.ETHERSCAN_TOKEN }}
       run: mvn -DargLine=\"-DETH_MAINNET_ADDR=${ETH_MAINNET_ADDR} -DETH_ROPSTEN_ADDR=${ETH_ROPSTEN_ADDR} -DETHERSCAN_TOKEN=${ETHERSCAN_TOKEN}\" install --file pom.xml
+    - name: Cache local Maven repository
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
