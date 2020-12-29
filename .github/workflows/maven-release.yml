@@ -38,7 +38,7 @@ jobs:
         server-username: MAVEN_USERNAME
         server-password: MAVEN_PASSWORD
     - name: Publish package
-      run: mvn --batch-mode -Psign-artifacts -Dgpg.keyname=${GPG_KEYID} -Dgpg.passphrase=${GPG_PASSPHRASE} -DskipTests deploy
+      run: mvn --batch-mode -Psign-artifacts,javadoc,sources -Dgpg.keyname=${GPG_KEYID} -Dgpg.passphrase=${GPG_PASSPHRASE} -DskipTests deploy
       env:
         GPG_KEYID: ${{ steps.import_gpg.outputs.keyid }}
         GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
