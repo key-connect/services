@@ -37,7 +37,7 @@ class Scratch {
 
   public static void main(String[] args) {
     DefaultApi apiInstance = new DefaultApi(
-        new ApiClient().setBasePath("https://www.keyconnect.app")
+        new ApiClient().setBasePath("https://api.keyconnect.app")
     );
     
     try {
