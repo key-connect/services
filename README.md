@@ -53,7 +53,7 @@ class Scratch {
 
 Running the above code should output something like:
 
-```
+```java
 class ServerStatusResponse {
     status: healthy
     errors: null
