@@ -23,7 +23,7 @@ Import Key Connect API using standard dependency management.
 </dependency> 
 ```
 
-Up-to-date packages available on github [here](https://github.com/orgs/key-connect/packages?tab=packages&ecosystem=maven&q=%22app.keyconnect.api.keyconnect-api%22).
+Up-to-date packages available [here](https://search.maven.org/search?q=g:app.keyconnect).
 
 Start developing!
 
