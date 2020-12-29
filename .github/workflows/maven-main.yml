@@ -18,6 +18,18 @@ jobs:
         java-version: 15
         server-id: ossrhsnapshots # Value of the distributionManagement/repository/id field of the pom.xml
         settings-path: ${{ github.workspace }} # location for the settings.xml file
+    - name: Import GPG key
+      id: import_gpg
+      uses: crazy-max/ghaction-import-gpg@v3
+      with:
+        gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+        passphrase: ${{ secrets.GPG_PASSPHRASE }}
+    - name: GPG user IDs
+      run: |
+        echo "fingerprint: ${{ steps.import_gpg.outputs.fingerprint }}"
+        echo "keyid:       ${{ steps.import_gpg.outputs.keyid }}"
+        echo "name:        ${{ steps.import_gpg.outputs.name }}"
+        echo "email:       ${{ steps.import_gpg.outputs.email }}"
     - name: Set up Maven Central Repository
       uses: actions/setup-java@v1
       with:
@@ -26,8 +38,10 @@ jobs:
         server-username: MAVEN_USERNAME
         server-password: MAVEN_PASSWORD
     - name: Publish package
-      run: mvn --batch-mode -DskipTests deploy
+      run: mvn --batch-mode -Psign-artifacts -Dgpg.keyname=${GPG_KEYID} -Dgpg.passphrase=${GPG_PASSPHRASE} -DskipTests deploy
       env:
+        GPG_KEYID: ${{ steps.import_gpg.outputs.keyid }}
+        GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
         MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
     - name: Cache local Maven repository
