@@ -4,7 +4,7 @@ info:
   description: Blockchain access made easy
   version: 1.0.0
 servers:
-  - url: 'https://api.keyconnect.com'
+  - url: 'https://api.keyconnect.app'
     description: Production KeyConnect server
   - url: 'http://localhost:8080'
     description: Local KeyConnect server
