@@ -1,10 +1,17 @@
 openapi: 3.0.0
 info:
-  title: KeyConnect API
-  description: Blockchain access made easy
+  title: Key Connect API
+  description: Blockchain access made simple
   version: 1.0.0
+  contact:
+    name: Manthan Dave
+    url: https://www.manthanhd.com
+    email: manthan@keyconnect.app
+  license:
+    name: The Apache License, Version 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.txt
 servers:
-  - url: 'https://api.keyconnect.com'
+  - url: 'https://api.keyconnect.app'
     description: Production KeyConnect server
   - url: 'http://localhost:8080'
     description: Local KeyConnect server

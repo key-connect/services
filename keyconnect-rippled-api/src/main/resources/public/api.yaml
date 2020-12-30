@@ -1,18 +1,20 @@
 openapi: 3.0.0
 info:
-  title: KeyConnect Rippled API
-  description: API description in Markdown.
+  title: Key Connect Rippled API
+  description: XRP (rippled) [API](https://xrpl.org/rippled-api.html) specification
   version: 1.0.0
   contact:
     name: Manthan Dave
     url: https://www.manthanhd.com
     email: manthan@keyconnect.app
+  license:
+    name: The Apache License, Version 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.txt
 servers:
   - url: 'https://s.altnet.rippletest.net:51234'
-    description: TestNet Ripple server
+    description: TestNet Rippled server
   - url: 'https://s.devnet.rippletest.net:51234'
-    description: DevNet Ripple server
-
+    description: DevNet Rippled server
 paths:
   "/":
     post:
