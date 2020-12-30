@@ -23,7 +23,7 @@ Import Key Connect API using standard dependency management.
 </dependency> 
 ```
 
-Up-to-date packages available on github [here](https://github.com/orgs/key-connect/packages?tab=packages&ecosystem=maven&q=%22app.keyconnect.api.keyconnect-api%22).
+Up-to-date packages available [here](https://search.maven.org/search?q=g:app.keyconnect).
 
 Start developing!
 
@@ -37,7 +37,7 @@ class Scratch {
 
   public static void main(String[] args) {
     DefaultApi apiInstance = new DefaultApi(
-        new ApiClient().setBasePath("https://www.keyconnect.app")
+        new ApiClient().setBasePath("https://api.keyconnect.app")
     );
     
     try {
@@ -53,7 +53,7 @@ class Scratch {
 
 Running the above code should output something like:
 
-```
+```java
 class ServerStatusResponse {
     status: healthy
     errors: null
