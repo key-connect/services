@@ -120,10 +120,10 @@
                 <serializableModel>true</serializableModel>
                 <sourceFolder>src/gen/java/main</sourceFolder>
               </configOptions>
-              <generateApiTests>false</generateApiTests>
+              <generateApiTests>true</generateApiTests>
               <generateApis>true</generateApis>
               <generateApiDocumentation>true</generateApiDocumentation>
-              <generateModelTests>false</generateModelTests>
+              <generateModelTests>true</generateModelTests>
             </configuration>
           </execution>
           <execution>
@@ -173,6 +173,7 @@
                 <dateLibrary>java8</dateLibrary>
                 <packageName>app.keyconnect.Api.Client</packageName>
                 <pythonPackageName>keyconnectapi</pythonPackageName>
+                <invokerPackage>app.keyconnect.api.client</invokerPackage>
                 <perlModuleName>keyconnectapi</perlModuleName>
                 <phpInvokerPackage>keyconnectapi</phpInvokerPackage>
                 <modelPackage>app.keyconnect.api.client.model</modelPackage>
