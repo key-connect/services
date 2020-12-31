@@ -185,6 +185,27 @@
               <generateModelDocumentation>true</generateModelDocumentation>
             </configuration>
           </execution>
+          <execution>
+            <id>generate-markdown</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <groupId>app.keyconnect.api</groupId>
+              <inputSpec>${project.basedir}/src/main/resources/api.yaml</inputSpec>
+              <generatorName>markdown</generatorName>
+              <output>${project.basedir}/target/markdown</output>
+              <configOptions>
+                <infoEmail>manthan@keyconnect.app</infoEmail>
+                <appName>Key Connect API</appName>
+                <appDescription>Aggregator API for blockchains</appDescription>
+                <artifactId>${project.artifactId}</artifactId>
+                <artifactVersion>${project.version}</artifactVersion>
+                <groupId>${project.groupId}</groupId>
+                <artifactVersion>1.0.0</artifactVersion>
+              </configOptions>
+            </configuration>
+          </execution>
         </executions>
       </plugin>
       <plugin>
