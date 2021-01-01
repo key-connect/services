@@ -8,7 +8,7 @@ import picocli.CommandLine.Option;
 @Command(
     name = "account-transactions",
     aliases = {"transactions", "txs"},
-    description = "Prints transactions for a given account"
+    description = "Print transactions for a given account / wallet address"
 )
 public class AccountTransactionsCommand extends BaseAccountBlockchainConfig implements Callable<Integer> {
 

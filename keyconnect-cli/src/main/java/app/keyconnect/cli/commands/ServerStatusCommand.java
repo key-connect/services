@@ -8,7 +8,7 @@ import picocli.CommandLine.Command;
 @Command(
     name = "server-status",
     aliases = {"server", "srv"},
-    description = "Prints server status"
+    description = "Print server status"
 )
 public class ServerStatusCommand extends BaseClientConfig implements Callable<Integer> {
 

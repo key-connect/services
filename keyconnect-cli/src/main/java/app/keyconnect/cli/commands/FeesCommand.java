@@ -7,7 +7,7 @@ import picocli.CommandLine.Command;
 
 @Command(
     name = "fees",
-    description = "View blockchain fees"
+    description = "Print fees for a given blockchain"
 )
 public class FeesCommand extends BaseBlockchainConfig implements Callable<Integer> {
 

@@ -7,7 +7,7 @@ import picocli.CommandLine.Command;
 @Command(
     name = "status",
     aliases = "s",
-    description = "View high-level status of supported block chains"
+    description = "Print high-level status of supported block chains"
 )
 public class BlockchainStatusCommand extends BaseClientConfig implements Callable<Integer> {
 

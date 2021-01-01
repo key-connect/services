@@ -7,8 +7,8 @@ import picocli.CommandLine.Option;
 
 @Command(
     name = "transaction",
-    aliases = {"tx", "txn"},
-    description = "Prints details of a given transaction"
+    aliases = {"tx", "txn", "hash"},
+    description = "Print details of a given transaction ID (hash)"
 )
 public class TransactionCommand extends BaseBlockchainConfig implements Callable<Integer> {
 
