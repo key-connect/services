@@ -118,9 +118,9 @@
                 <sourceFolder>src/gen/java/main</sourceFolder>
                 <library>resttemplate</library>
               </configOptions>
-              <generateApiTests>true</generateApiTests>
+              <generateApiTests>false</generateApiTests>
               <generateApiDocumentation>true</generateApiDocumentation>
-              <generateModelTests>true</generateModelTests>
+              <generateModelTests>false</generateModelTests>
             </configuration>
           </execution>
         </executions>
