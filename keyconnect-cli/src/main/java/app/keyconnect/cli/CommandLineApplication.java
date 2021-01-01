@@ -11,7 +11,7 @@ import picocli.CommandLine;
 public class CommandLineApplication {
 
   public static void main(String[] args) {
-    new CommandLine(new TopLevelCommand())
+    new CommandLine(new KcCommand())
         .addSubcommand(new ServerStatusCommand())
         .addSubcommand(new BlockchainStatusCommand())
         .addSubcommand(new AccountsCommand())
