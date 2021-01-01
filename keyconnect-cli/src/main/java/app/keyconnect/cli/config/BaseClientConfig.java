@@ -14,10 +14,19 @@ public class BaseClientConfig {
   )
   protected String baseUri = "https://api.keyconnect.app";
 
+  @Option(
+      names = {"--api-debug"},
+      description = "Debug API request/responses",
+      defaultValue = "false"
+  )
+  private boolean apiDebug;
+
   @NotNull
   protected DefaultApi buildApiClient() {
     return new DefaultApi(
-        new ApiClient().setBasePath(baseUri)
+        new ApiClient()
+            .setBasePath(baseUri)
+            .setDebugging(apiDebug)
     );
   }
 }
