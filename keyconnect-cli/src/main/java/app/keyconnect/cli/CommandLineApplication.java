@@ -20,38 +20,43 @@ public class CommandLineApplication {
   public static final int CONNECTION_ERROR_CODE = 20;
 
   public static void main(String[] args) {
-    AnsiConsole.systemInstall();
-    final int exitCode = new CommandLine(new KcCommand())
-        .addSubcommand(new ServerStatusCommand())
-        .addSubcommand(new BlockchainStatusCommand())
-        .addSubcommand(new AccountsCommand())
-        .addSubcommand(new AccountTransactionsCommand())
-        .addSubcommand(new TransactionCommand())
-        .addSubcommand(new FeesCommand())
-        .setExecutionExceptionHandler((ex, commandLine, parseResult) -> {
-          if (!(ex instanceof ApiException)) {
-            System.out.println(ex);
-            return GENERIC_ERROR_CODE;
-          }
+    final int exitCode;
+    try {
+      AnsiConsole.systemInstall();
+      exitCode = new CommandLine(new KcCommand())
+          .addSubcommand(new ServerStatusCommand())
+          .addSubcommand(new BlockchainStatusCommand())
+          .addSubcommand(new AccountsCommand())
+          .addSubcommand(new AccountTransactionsCommand())
+          .addSubcommand(new TransactionCommand())
+          .addSubcommand(new FeesCommand())
+          .setExecutionExceptionHandler((ex, commandLine, parseResult) -> {
+            if (!(ex instanceof ApiException)) {
+              System.out.println(ex);
+              return GENERIC_ERROR_CODE;
+            }
 
-          final ApiException apiException = (ApiException) ex;
-          final Throwable exceptionCause = apiException.getCause();
-          if (exceptionCause instanceof ConnectException) {
-            System.out.println(exceptionCause.getMessage());
-            return CONNECTION_ERROR_CODE;
-          }
+            final ApiException apiException = (ApiException) ex;
+            final Throwable exceptionCause = apiException.getCause();
+            if (exceptionCause instanceof ConnectException) {
+              System.out.println(exceptionCause.getMessage());
+              return CONNECTION_ERROR_CODE;
+            }
 
-          final String responseBody = apiException.getResponseBody();
-          final ExceptionalResponse exceptionalResponse = new Gson()
-              .fromJson(responseBody, ExceptionalResponse.class);
+            final String responseBody = apiException.getResponseBody();
+            final ExceptionalResponse exceptionalResponse = new Gson()
+                .fromJson(responseBody, ExceptionalResponse.class);
 
-          System.out.println(exceptionalResponse);
+            System.out.println(exceptionalResponse);
 
-          return apiException.getCode();
-        })
-        .setColorScheme(CommandLine.Help.defaultColorScheme(Ansi.ON))
-        .execute(args);
-    AnsiConsole.systemUninstall();
+            return apiException.getCode();
+          })
+          .setColorScheme(CommandLine.Help.defaultColorScheme(Ansi.ON))
+          .execute(args);
+    } finally {
+      AnsiConsole.systemUninstall();
+    }
+
     System.exit(exitCode);
   }
 }
