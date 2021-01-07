@@ -9,7 +9,7 @@ import picocli.CommandLine.Command;
     exitCodeList = {
         "10:Generic non-api related error, mostly an issue with the CLI or the environment",
         "20:Network or connection related error",
-        "[HTTP Status Code]:Exit code is the HTTP status code returned by the server"
+        "[HTTP Code]:Exit code is the HTTP status code returned by the server"
     }
 )
 public class KcCommand {
