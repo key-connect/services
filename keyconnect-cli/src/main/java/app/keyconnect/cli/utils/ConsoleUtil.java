@@ -1,5 +1,6 @@
 package app.keyconnect.cli.utils;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -9,6 +10,11 @@ public class ConsoleUtil {
   private static ConsoleMode mode = ConsoleMode.Serialize;
   private static final ObjectMapper jsonWriter = new ObjectMapper();
   private static final ObjectMapper yamlWriter = new ObjectMapper(new YAMLFactory());
+
+  static {
+    jsonWriter.setSerializationInclusion(Include.NON_NULL);
+    yamlWriter.setSerializationInclusion(Include.NON_NULL);
+  }
 
   public static void print(Object message) {
     final String output;
