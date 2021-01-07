@@ -1,6 +1,7 @@
 package app.keyconnect.cli.commands;
 
 import app.keyconnect.cli.config.BaseClientConfig;
+import app.keyconnect.cli.utils.ConsoleUtil;
 import java.util.concurrent.Callable;
 import picocli.CommandLine.Command;
 
@@ -13,7 +14,7 @@ public class BlockchainStatusCommand extends BaseClientConfig implements Callabl
 
   @Override
   public Integer call() throws Exception {
-    System.out.println(
+    ConsoleUtil.print(
         buildApiClient()
           .getBlockchainsStatus()
     );

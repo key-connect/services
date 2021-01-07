@@ -2,6 +2,7 @@ package app.keyconnect.cli.commands;
 
 import app.keyconnect.api.client.DefaultApi;
 import app.keyconnect.cli.config.BaseClientConfig;
+import app.keyconnect.cli.utils.ConsoleUtil;
 import java.util.concurrent.Callable;
 import picocli.CommandLine.Command;
 
@@ -16,7 +17,7 @@ public class ServerStatusCommand extends BaseClientConfig implements Callable<In
   public Integer call() throws Exception {
     final DefaultApi api = buildApiClient();
 
-    System.out.println(api.getServerStatus());
+    ConsoleUtil.print(api.getServerStatus());
     return 0;
   }
 }

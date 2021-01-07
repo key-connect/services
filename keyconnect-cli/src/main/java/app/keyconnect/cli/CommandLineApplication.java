@@ -8,6 +8,7 @@ import app.keyconnect.cli.commands.BlockchainStatusCommand;
 import app.keyconnect.cli.commands.FeesCommand;
 import app.keyconnect.cli.commands.ServerStatusCommand;
 import app.keyconnect.cli.commands.TransactionCommand;
+import app.keyconnect.cli.utils.ConsoleUtil;
 import com.google.gson.Gson;
 import java.net.ConnectException;
 import org.fusesource.jansi.AnsiConsole;
@@ -32,14 +33,14 @@ public class CommandLineApplication {
           .addSubcommand(new FeesCommand())
           .setExecutionExceptionHandler((ex, commandLine, parseResult) -> {
             if (!(ex instanceof ApiException)) {
-              System.out.println(ex);
+              ConsoleUtil.print(ex);
               return GENERIC_ERROR_CODE;
             }
 
             final ApiException apiException = (ApiException) ex;
             final Throwable exceptionCause = apiException.getCause();
             if (exceptionCause instanceof ConnectException) {
-              System.out.println(exceptionCause.getMessage());
+              ConsoleUtil.print(exceptionCause.getMessage());
               return CONNECTION_ERROR_CODE;
             }
 
@@ -47,7 +48,7 @@ public class CommandLineApplication {
             final ExceptionalResponse exceptionalResponse = new Gson()
                 .fromJson(responseBody, ExceptionalResponse.class);
 
-            System.out.println(exceptionalResponse);
+            ConsoleUtil.print(exceptionalResponse);
 
             return apiException.getCode();
           })

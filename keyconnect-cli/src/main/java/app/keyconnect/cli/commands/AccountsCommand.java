@@ -1,6 +1,7 @@
 package app.keyconnect.cli.commands;
 
 import app.keyconnect.cli.config.BaseBlockchainConfig;
+import app.keyconnect.cli.utils.ConsoleUtil;
 import java.util.concurrent.Callable;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -21,7 +22,7 @@ public class AccountsCommand extends BaseBlockchainConfig implements Callable<In
 
   @Override
   public Integer call() throws Exception {
-    System.out.println(buildApiClient()
+    ConsoleUtil.print(buildApiClient()
         .getAccountInfo(chainId, accountAddress, network));
     return 0;
   }

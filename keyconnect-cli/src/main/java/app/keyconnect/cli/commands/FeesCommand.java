@@ -1,7 +1,7 @@
 package app.keyconnect.cli.commands;
 
 import app.keyconnect.cli.config.BaseBlockchainConfig;
-import app.keyconnect.cli.config.BaseClientConfig;
+import app.keyconnect.cli.utils.ConsoleUtil;
 import java.util.concurrent.Callable;
 import picocli.CommandLine.Command;
 
@@ -13,7 +13,7 @@ public class FeesCommand extends BaseBlockchainConfig implements Callable<Intege
 
   @Override
   public Integer call() throws Exception {
-    System.out.println(
+    ConsoleUtil.print(
         buildApiClient()
           .getFee(chainId, network)
     );
