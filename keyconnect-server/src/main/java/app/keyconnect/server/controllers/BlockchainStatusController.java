@@ -66,7 +66,7 @@ public class BlockchainStatusController {
   )
   public ResponseEntity<BlockchainStatus> getBlockchainStatus(
       @PathVariable("chainId") String chainId,
-      @RequestParam(value = "network", required = false) String network
+      @RequestParam(value = "network", required = false, defaultValue = "mainnet") String network
   ) {
     final BlockchainGateway g = gatewayFactory.getGateway(chainId);
     if (network != null) {
@@ -118,7 +118,7 @@ public class BlockchainStatusController {
   )
   public ResponseEntity<BlockchainFee> getBlockchainFee(
       @PathVariable("chainId") String chainId,
-      @RequestParam(value = "network", required = false) String network
+      @RequestParam(value = "network", required = false, defaultValue = "mainnet") String network
   ) throws UnknownNetworkException {
     final BlockchainGateway gateway = gatewayFactory.getGateway(chainId);
     final BlockchainFee fee = gateway.getFee(network);

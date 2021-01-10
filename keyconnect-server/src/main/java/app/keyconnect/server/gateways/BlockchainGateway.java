@@ -16,6 +16,8 @@ public interface BlockchainGateway {
 
   String[] getNetworks();
 
+  String validateNetworkOrDefault(String network) throws UnknownNetworkException;
+
   BlockchainNetworkServerStatus[] getNetworkServerStatus(String network)
       throws UnknownNetworkException;
 

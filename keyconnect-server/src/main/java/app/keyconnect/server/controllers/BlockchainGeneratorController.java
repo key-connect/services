@@ -37,7 +37,7 @@ public class BlockchainGeneratorController {
       @RequestParam(value = "destinationTag", required = false) int destinationTag,
       @RequestParam("amount") String amountInDrops,
       @RequestParam(value = "fee", required = false) String feeInDrops,
-      @RequestParam(value = "network", required = false) String network
+      @RequestParam(value = "network", required = false, defaultValue = "mainnet") String network
   ) throws UnknownNetworkException {
     final BlockchainGateway xrpGateway = blockchainGatewayFactory.getGateway(XrpGateway.CHAIN_ID);
 

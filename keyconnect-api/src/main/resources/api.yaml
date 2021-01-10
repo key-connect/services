@@ -705,3 +705,21 @@ components:
           example: "https://s.altnet.rippletest.net:51234/"
         fee:
           $ref: '#/components/schemas/CurrencyValue'
+    ExceptionalResponse:
+      properties:
+        timestamp:
+          type: number
+          example: 1609519112841
+        status:
+          type: integer
+          example: 400
+        error:
+          type: string
+          example: Bad Request
+        message:
+          type: string
+          example: "Specified network is not a valid network for the block chain"
+        path:
+          type: string
+          example: "/v1/blockchains/xrp/accounts/rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv/transactions"
+
