@@ -298,7 +298,7 @@ public class EthereumGateway implements
       transactionItems = Arrays.stream(transactions.getResult())
           .map(t -> {
             final BigDecimal amountInEth = new BigDecimal(t.getValue())
-                .divide(ETH_SCALE, SCALE, RoundingMode.DOWN);
+                .divide(ETH_SCALE, SCALE, ROUNDING_MODE);
             return new BlockchainAccountTransactionItem()
                 .amount(
                     new CurrencyValue()
@@ -377,7 +377,7 @@ public class EthereumGateway implements
             .get(30, TimeUnit.SECONDS);
         final Transaction transaction = ethTransaction.getTransaction().get();
         final BigDecimal amountInEth = new BigDecimal(transaction.getValue())
-            .divide(ETH_SCALE, SCALE, RoundingMode.DOWN);
+            .divide(ETH_SCALE, SCALE, ROUNDING_MODE);
         return new BlockchainAccountTransaction()
             .network(network)
             .server(toHost(serverUrl))
