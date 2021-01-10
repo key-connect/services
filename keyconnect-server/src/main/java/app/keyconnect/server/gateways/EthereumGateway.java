@@ -21,6 +21,7 @@ import app.keyconnect.server.gateways.exceptions.EthTransactionsCursorMustBePage
 import app.keyconnect.server.gateways.exceptions.FailedToSubmitEthTransactionException;
 import app.keyconnect.server.gateways.exceptions.UnknownNetworkException;
 import app.keyconnect.server.gateways.exceptions.UnsupportedNetworkForEthTransactionsException;
+import app.keyconnect.server.services.Erc20TokenService;
 import app.keyconnect.server.utils.EtherscanUtil;
 import app.keyconnect.server.utils.models.EtherscanResponse;
 import com.google.common.base.Strings;
@@ -57,7 +58,7 @@ import org.web3j.protocol.http.HttpService;
 public class EthereumGateway implements
     BlockchainGateway {
 
-  private static final BigDecimal ETH_SCALE = BigDecimal.valueOf(1000000000000000000L);
+  public static final BigDecimal ETH_SCALE = BigDecimal.valueOf(1000000000000000000L);
   private static final Logger logger = LoggerFactory.getLogger(EthereumGateway.class);
   public static final String CHAIN_ID = "eth";
   public static final int SCALE = 18;
@@ -68,16 +69,19 @@ public class EthereumGateway implements
   private final Map<String, Web3j> serverClients;
   private final LoadingCache<String, EthBlock> latestEthBlockCache;
   private EtherscanUtil etherscanUtil;
+  private final Erc20TokenService tokenService;
 
   public EthereumGateway(
       YamlConfiguration configuration,
-      EtherscanUtil etherscanUtil) {
+      EtherscanUtil etherscanUtil,
+      Erc20TokenService tokenService) {
     this.configuration = configuration.getBlockchains()
         .stream()
         .filter(b -> b.getType().equalsIgnoreCase(CHAIN_ID))
         .findFirst()
         .orElse(new BlockchainsConfiguration());
     this.etherscanUtil = etherscanUtil;
+    this.tokenService = tokenService;
 
     // pre populate server clients cache
     this.serverClients = new ConcurrentHashMap<>(this.configuration.getNetworks().size());
@@ -89,6 +93,7 @@ public class EthereumGateway implements
           final Web3j client = Web3j.build(new HttpService(a));
           this.serverClients.put(a, client);
         });
+
     this.latestEthBlockCache = CacheBuilder.newBuilder()
         .expireAfterWrite(10, TimeUnit.SECONDS)
         .build(new CacheLoader<>() {
@@ -222,7 +227,8 @@ public class EthereumGateway implements
                             .toString()
                     )
                     .currency(CurrencyEnum.ETH)
-            );
+            )
+            .subAccounts(tokenService.getAllSubAccountInfo(network, accountId));
       } catch (InterruptedException | ExecutionException | TimeoutException e) {
         logger.warn("Unable to get eth.accountInfo, network=" + eligibleNetwork, e);
       }

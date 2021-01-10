@@ -718,7 +718,7 @@ components:
           description: ID of the sub account. Contract hash in case of ethereum token.
           example: 0xfF20817765cB7f73d4bde2e66e067E58D11095C2
         balance:
-          $ref: '#/components/schemas/CurrencyValue'
+          $ref: '#/components/schemas/GenericCurrencyValue'
     ExceptionalResponse:
       properties:
         timestamp:
@@ -736,4 +736,12 @@ components:
         path:
           type: string
           example: "/v1/blockchains/xrp/accounts/rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv/transactions"
-
+    GenericCurrencyValue:
+      properties:
+        amount:
+          type: string
+        issuer:
+          type: string
+          nullable: true
+        currency:
+          type: string
