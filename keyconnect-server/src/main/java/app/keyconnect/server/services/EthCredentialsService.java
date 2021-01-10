@@ -1,6 +1,5 @@
 package app.keyconnect.server.services;
 
-import app.keyconnect.server.services.networks.NetworkClientService;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -17,18 +16,17 @@ import org.springframework.core.env.Environment;
 import org.web3j.crypto.CipherException;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.WalletUtils;
-import org.web3j.protocol.Web3j;
 
 public class EthCredentialsService implements CredentialsService<Credentials> {
 
   public static final String CREDENTIALS_DIRECTORY_RELATIVE =
       ".kcs" + File.separator + "credentials";
   public static final String PROPERTY_CREDENTIALS_PASSWORD = "kc.credentials.password";
+  public static final String PROPERTY_CREDENTIALS_HOME = "kc.credentials.home";
   private static final Logger logger = LoggerFactory.getLogger(EthCredentialsService.class);
   private final Credentials credentials;
 
-  public EthCredentialsService(Environment environment,
-      NetworkClientService<Web3j> ethNetworkClientService) {
+  public EthCredentialsService(Environment environment) {
     String password = environment.getProperty(PROPERTY_CREDENTIALS_PASSWORD, String.class);
     if (null == password) {
       // we generate one
@@ -39,7 +37,11 @@ public class EthCredentialsService implements CredentialsService<Credentials> {
       password = generatedPassword;
     }
 
-    final String userHomeAbsolutePath = SystemUtils.getUserHome().getAbsolutePath();
+    final String userHomeAbsolutePath = environment.getProperty(
+        PROPERTY_CREDENTIALS_HOME,
+        String.class,
+        SystemUtils.getUserHome().getAbsolutePath()
+    );
     final String kcPath = userHomeAbsolutePath + File.separator + CREDENTIALS_DIRECTORY_RELATIVE;
     final Path kcDirPath = Paths.get(kcPath);
     if (Files.notExists(kcDirPath)) {
@@ -54,8 +56,12 @@ public class EthCredentialsService implements CredentialsService<Credentials> {
       final String walletFile;
       try {
         walletFile = WalletUtils.generateNewWalletFile(password, kcDirPath.toFile());
-        credentials = WalletUtils.loadCredentials(password, walletFile);
-      } catch (CipherException | InvalidAlgorithmParameterException | NoSuchAlgorithmException | NoSuchProviderException | IOException e) {
+        final String walletFilePath = kcDirPath + File.separator + walletFile;
+        credentials = WalletUtils
+            .loadCredentials(password, walletFilePath);
+        logger.info("Generated encrypted wallet {}", walletFilePath);
+      } catch (CipherException | InvalidAlgorithmParameterException | NoSuchAlgorithmException
+          | NoSuchProviderException | IOException e) {
         throw new IllegalStateException("Failed to generate wallet", e);
       }
     } else {
