@@ -23,11 +23,13 @@ public class EthCredentialsService implements CredentialsService<Credentials> {
       ".kcs" + File.separator + "credentials";
   public static final String PROPERTY_CREDENTIALS_PASSWORD = "kc.credentials.password";
   public static final String PROPERTY_CREDENTIALS_HOME = "kc.credentials.home";
+  public static final String PROPERTY_CREDENTIALS_FILE = "kc.credentials.file";
   private static final Logger logger = LoggerFactory.getLogger(EthCredentialsService.class);
   private final Credentials credentials;
+  private String password;
 
   public EthCredentialsService(Environment environment) {
-    String password = environment.getProperty(PROPERTY_CREDENTIALS_PASSWORD, String.class);
+    password = environment.getProperty(PROPERTY_CREDENTIALS_PASSWORD, String.class);
     if (null == password) {
       // we generate one
       final String generatedPassword = RandomStringUtils.randomAlphanumeric(32, 64);
@@ -68,7 +70,20 @@ public class EthCredentialsService implements CredentialsService<Credentials> {
       // path exists
       // read wallet credentials
       try {
-        credentials = WalletUtils.loadCredentials(password, kcDirPath.toFile());
+        String walletFile = environment.getProperty(PROPERTY_CREDENTIALS_FILE, String.class);
+        if (null == walletFile) {
+          // find wallet
+          final File[] foundWallets = kcDirPath.toFile().listFiles();
+          StringBuilder walletString = new StringBuilder("Found wallets in " + kcDirPath.toAbsolutePath());
+          walletString.append(System.lineSeparator());
+          for (File foundWallet : foundWallets) {
+            walletString.append("- " + foundWallet.getName());
+          }
+        logger.info(walletString.toString());
+          walletFile = foundWallets[0].getName();
+        }
+        logger.info("Using wallet {}", walletFile);
+        credentials = WalletUtils.loadCredentials(password, kcDirPath.toFile() + File.separator + walletFile);
       } catch (IOException | CipherException e) {
         throw new IllegalStateException("Failed to load wallet from " + kcDirPath.toAbsolutePath(),
             e);
@@ -79,5 +94,10 @@ public class EthCredentialsService implements CredentialsService<Credentials> {
   @Override
   public Credentials getCredentials() {
     return credentials;
+  }
+
+  // for testing
+  String getPassword() {
+    return this.password;
   }
 }
