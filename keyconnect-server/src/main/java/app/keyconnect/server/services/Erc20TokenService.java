@@ -94,6 +94,8 @@ public class Erc20TokenService {
             throw new IllegalStateException(e);
           }
         })
+        .filter(subAccountInfo -> !new BigDecimal(subAccountInfo.getBalance().getAmount())
+            .equals(BigDecimal.ZERO.setScale(SCALE, ROUNDING_MODE)))
         .collect(Collectors.toList());
   }
 
