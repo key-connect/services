@@ -77,7 +77,7 @@ public class EthCredentialsService implements CredentialsService<Credentials> {
           StringBuilder walletString = new StringBuilder("Found wallets in " + kcDirPath.toAbsolutePath());
           walletString.append(System.lineSeparator());
           for (File foundWallet : foundWallets) {
-            walletString.append("- " + foundWallet.getName());
+            walletString.append("- ").append(foundWallet.getName());
           }
         logger.info(walletString.toString());
           walletFile = foundWallets[0].getName();
