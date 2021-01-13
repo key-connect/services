@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.util.Objects;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
@@ -73,7 +74,7 @@ public class EthCredentialsService implements CredentialsService<Credentials> {
         String walletFile = environment.getProperty(PROPERTY_CREDENTIALS_FILE, String.class);
         if (null == walletFile) {
           // find wallet
-          final File[] foundWallets = kcDirPath.toFile().listFiles();
+          final File[] foundWallets = Objects.requireNonNull(kcDirPath.toFile().listFiles(), "Listing wallet directory must return at least one wallet");
           StringBuilder walletString = new StringBuilder("Found wallets in " + kcDirPath.toAbsolutePath());
           walletString.append(System.lineSeparator());
           for (File foundWallet : foundWallets) {
