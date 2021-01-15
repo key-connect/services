@@ -115,8 +115,10 @@ public class Erc20TokenService {
     final Credentials credentials = ethCredentialsService.getCredentials();
     // load contract hash
     final ERC20 contract = ERC20.load(contractHash, client, credentials, new DefaultGasProvider());
+    final String tokenSymbol;
     final BigInteger balanceNum;
     try {
+      tokenSymbol = contract.symbol().sendAsync().get();
       balanceNum = contract.balanceOf(address).sendAsync().get();
     } catch (InterruptedException | ExecutionException e) {
       throw new IllegalStateException("Unable to get balance, contract=" + contractHash + ", address=" + address, e);
@@ -129,7 +131,7 @@ public class Erc20TokenService {
         .balance(
             new GenericCurrencyValue()
               .amount(tokenBalance.toString())
-              .currency(token.toUpperCase(Locale.getDefault(Category.DISPLAY)))
+              .currency(tokenSymbol)
         );
   }
 }
