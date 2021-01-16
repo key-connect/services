@@ -1,18 +1,5 @@
 package app.keyconnect.server.gateways;
 
-import app.keyconnect.server.factories.configuration.BlockchainNetworkConfiguration;
-import app.keyconnect.server.factories.configuration.BlockchainsConfiguration;
-import app.keyconnect.server.factories.configuration.YamlConfiguration;
-import app.keyconnect.server.gateways.exceptions.EthTransactionsCursorMustBePageNumberException;
-import app.keyconnect.server.gateways.exceptions.FailedToSubmitEthTransactionException;
-import app.keyconnect.server.gateways.exceptions.UnknownNetworkException;
-import app.keyconnect.server.gateways.exceptions.UnsupportedNetworkForEthTransactionsException;
-import app.keyconnect.server.utils.EtherscanUtil;
-import app.keyconnect.server.utils.models.EtherscanResponse;
-import com.google.common.base.Strings;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import app.keyconnect.api.client.model.BlockchainAccountInfo;
 import app.keyconnect.api.client.model.BlockchainAccountInfo.ChainIdEnum;
 import app.keyconnect.api.client.model.BlockchainAccountPaymentItem;
@@ -27,6 +14,19 @@ import app.keyconnect.api.client.model.CurrencyValue;
 import app.keyconnect.api.client.model.CurrencyValue.CurrencyEnum;
 import app.keyconnect.api.client.model.SubmitTransactionRequest;
 import app.keyconnect.api.client.model.SubmitTransactionResult;
+import app.keyconnect.server.factories.configuration.BlockchainNetworkConfiguration;
+import app.keyconnect.server.factories.configuration.BlockchainsConfiguration;
+import app.keyconnect.server.factories.configuration.YamlConfiguration;
+import app.keyconnect.server.gateways.exceptions.EthTransactionsCursorMustBePageNumberException;
+import app.keyconnect.server.gateways.exceptions.FailedToSubmitEthTransactionException;
+import app.keyconnect.server.gateways.exceptions.UnknownNetworkException;
+import app.keyconnect.server.gateways.exceptions.UnsupportedNetworkForEthTransactionsException;
+import app.keyconnect.server.utils.EtherscanUtil;
+import app.keyconnect.server.utils.models.EtherscanResponse;
+import com.google.common.base.Strings;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
@@ -62,6 +62,7 @@ public class EthereumGateway implements
   public static final String CHAIN_ID = "eth";
   public static final int SCALE = 18;
   public static final RoundingMode ROUNDING_MODE = RoundingMode.HALF_UP;
+  private static final String DEFAULT_NETWORK = "mainnet";
   private final BlockchainsConfiguration configuration;
   // cache key is network
   private final Map<String, Web3j> serverClients;
@@ -112,6 +113,18 @@ public class EthereumGateway implements
         .map(BlockchainNetworkConfiguration::getGroup)
         .distinct()
         .toArray(String[]::new);
+  }
+
+  @Override
+  public String validateNetworkOrDefault(String network) throws UnknownNetworkException {
+    if (Strings.isNullOrEmpty(network)) return DEFAULT_NETWORK;
+
+    if (configuration.getNetworks()
+        .stream()
+        .anyMatch(n -> n.getGroup().equalsIgnoreCase(network))
+    ) return network;
+
+    throw new UnknownNetworkException(CHAIN_ID, network);
   }
 
   @Override

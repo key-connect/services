@@ -6,6 +6,7 @@ import app.keyconnect.server.factories.configuration.BlockchainNetworkConfigurat
 import app.keyconnect.server.factories.configuration.BlockchainsConfiguration;
 import app.keyconnect.server.factories.configuration.YamlConfiguration;
 import app.keyconnect.server.gateways.exceptions.UnknownNetworkException;
+import com.google.common.base.Strings;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -59,6 +60,7 @@ public class XrpGateway implements BlockchainGateway {
   public static final String CHAIN_ID = "xrp";
   public static final BigDecimal DROPS_PER_XRP = BigDecimal.valueOf(100000);
   private static final Duration SERVER_INFO_CACHE_EXPIRY = Duration.of(30, ChronoUnit.SECONDS);
+  private static final String DEFAULT_NETWORK = "mainnet";
   private final BlockchainsConfiguration configuration;
   // key is serverUrl
   private final Map<String, PublicRippledClient> serverClients;
@@ -139,6 +141,18 @@ public class XrpGateway implements BlockchainGateway {
   }
 
   @Override
+  public String validateNetworkOrDefault(String network) throws UnknownNetworkException {
+    if (Strings.isNullOrEmpty(network)) return DEFAULT_NETWORK;
+
+    if (configuration.getNetworks()
+        .stream()
+        .anyMatch(n -> n.getGroup().equalsIgnoreCase(network))
+    ) return network;
+
+    throw new UnknownNetworkException(CHAIN_ID, network);
+  }
+
+  @Override
   public BlockchainNetworkServerStatus[] getNetworkServerStatus(String network)
       throws UnknownNetworkException {
     final List<BlockchainNetworkConfiguration> foundNetworks = configuration.getNetworks()
@@ -172,7 +186,8 @@ public class XrpGateway implements BlockchainGateway {
         .toArray(BlockchainNetworkServerStatus[]::new);
   }
 
-  public BlockchainFee getFee(String network) throws UnknownNetworkException {
+  public BlockchainFee getFee(String specifiedNetwork) throws UnknownNetworkException {
+    final String network = validateNetworkOrDefault(specifiedNetwork);
     final List<BlockchainNetworkConfiguration> eligibleNetworks = configuration.getNetworks()
         .stream()
         .filter(n -> n.getGroup().equalsIgnoreCase(network))
