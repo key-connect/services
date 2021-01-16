@@ -4,23 +4,25 @@ All URIs are relative to *https://api.keyconnect.app*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**generateTransaction**](DefaultApi.md#generateTransaction) | **GET** /v1/blockchains/xrp/generator/payment | Generate a transaction
-[**getAccountInfo**](DefaultApi.md#getAccountInfo) | **GET** /v1/blockchains/{chainId}/accounts/{accountId} | Returns account / wallet information for the provided chainId representing the blockchain.
-[**getAccountPayments**](DefaultApi.md#getAccountPayments) | **GET** /v1/blockchains/{chainId}/accounts/{accountId}/payments | Gets payments for a given account on a given blockchain specified by the &#x60;chainId&#x60; parameter.
-[**getAccountTransactions**](DefaultApi.md#getAccountTransactions) | **GET** /v1/blockchains/{chainId}/accounts/{accountId}/transactions | Gets transactions for given account on a given blockchain specified by the &#x60;chainId&#x60; parameter.
-[**getBlockchainStatus**](DefaultApi.md#getBlockchainStatus) | **GET** /v1/blockchains/{chainId}/status | Returns status of the provided chainId.
-[**getBlockchainsStatus**](DefaultApi.md#getBlockchainsStatus) | **GET** /v1/blockchains/status | Returns list of available blockchains and their statuses.
-[**getFee**](DefaultApi.md#getFee) | **GET** /v1/blockchains/{chainId}/fee | Returns fee of the provided chainId.
-[**getServerStatus**](DefaultApi.md#getServerStatus) | **GET** /v1/server/status | Returns status of the server.
-[**getTransaction**](DefaultApi.md#getTransaction) | **GET** /v1/blockchains/{chainId}/transactions/{hash} | Get a single transaction by its hash on the specified &#x60;chainId&#x60;.
-[**submitTransaction**](DefaultApi.md#submitTransaction) | **POST** /v1/blockchains/{chainId}/transactions | Submit a transaction to the blockchain
+[**generateTransaction**](DefaultApi.md#generateTransaction) | **GET** /v1/blockchains/xrp/generator/payment | Generates a transaction as a payment.
+[**getAccountInfo**](DefaultApi.md#getAccountInfo) | **GET** /v1/blockchains/{chainId}/accounts/{accountId} | Returns account / wallet information for the provided &#x60;chainId&#x60; representing the blockchain.
+[**getAccountPayments**](DefaultApi.md#getAccountPayments) | **GET** /v1/blockchains/{chainId}/accounts/{accountId}/payments | Returns paginated list of payments.
+[**getAccountTransactions**](DefaultApi.md#getAccountTransactions) | **GET** /v1/blockchains/{chainId}/accounts/{accountId}/transactions | Returns paginated list of transactions.
+[**getBlockchainStatus**](DefaultApi.md#getBlockchainStatus) | **GET** /v1/blockchains/{chainId}/status | Returns the status of the provided blockchain.
+[**getBlockchainsStatus**](DefaultApi.md#getBlockchainsStatus) | **GET** /v1/blockchains/status | Gets a list of all supported blockchains and their statuses.
+[**getFee**](DefaultApi.md#getFee) | **GET** /v1/blockchains/{chainId}/fee | Returns the blockchain transaction fee.
+[**getServerStatus**](DefaultApi.md#getServerStatus) | **GET** /v1/server/status | Gets the Key Connect server status.
+[**getTransaction**](DefaultApi.md#getTransaction) | **GET** /v1/blockchains/{chainId}/transactions/{hash} | Get a single transaction object by its provided &#x60;hash&#x60; on the specified &#x60;chainId&#x60;.
+[**submitTransaction**](DefaultApi.md#submitTransaction) | **POST** /v1/blockchains/{chainId}/transactions | Submit a transaction to the blockchain.
 
 
 <a name="generateTransaction"></a>
 # **generateTransaction**
 > Object generateTransaction(sourceAccount, destinationAccount, amount, destinationTag, fee, network)
 
-Generate a transaction
+Generates a transaction as a payment.
+
+    Helper method to generate a transaction object for the purpose of a payment between the source account identified by &#x60;sourceAccount&#x60; and destination account idenfied by &#x60;destinationAccount&#x60; for the value of &#x60;amount&#x60;.
 
 ### Parameters
 
@@ -50,9 +52,9 @@ No authorization required
 # **getAccountInfo**
 > BlockchainAccountInfo getAccountInfo(chainId, accountId, network)
 
-Returns account / wallet information for the provided chainId representing the blockchain.
+Returns account / wallet information for the provided &#x60;chainId&#x60; representing the blockchain.
 
-    Used to get walletInfo for a given blockchain, i.e. for chainId&#x3D;xrp this endpoint will return info regarding a provided accountId.
+    Gets account / wallet information like &#x60;balance&#x60;, &#x60;lastTransactionId&#x60; etc of the specified blockchain identified by &#x60;chainId&#x60;.
 
 ### Parameters
 
@@ -79,9 +81,9 @@ No authorization required
 # **getAccountPayments**
 > BlockchainAccountPayments getAccountPayments(chainId, accountId, network, cursor)
 
-Gets payments for a given account on a given blockchain specified by the &#x60;chainId&#x60; parameter.
+Returns paginated list of payments.
 
-    Returns paginated list of payments.
+    Gets payments for given &#x60;accountId&#x60; on a given blockchain identified by the &#x60;chainId&#x60; parameter. Return the &#x60;cursor&#x60; value in the next call to get the next page.
 
 ### Parameters
 
@@ -109,9 +111,9 @@ No authorization required
 # **getAccountTransactions**
 > BlockchainAccountTransactions getAccountTransactions(chainId, accountId, network, cursor)
 
-Gets transactions for given account on a given blockchain specified by the &#x60;chainId&#x60; parameter.
+Returns paginated list of transactions.
 
-    Returns paginated list of transactions.
+    Gets transactions for given &#x60;accountId&#x60; on a given blockchain identified by the &#x60;chainId&#x60; parameter. Return the &#x60;cursor&#x60; value in the next call to get the next page.
 
 ### Parameters
 
@@ -139,9 +141,9 @@ No authorization required
 # **getBlockchainStatus**
 > BlockchainStatus getBlockchainStatus(chainId, network)
 
-Returns status of the provided chainId.
+Returns the status of the provided blockchain.
 
-    Optional extended description in Markdown.
+    Gets status of the provided blockchain identified by &#x60;chainId&#x60;.
 
 ### Parameters
 
@@ -167,7 +169,9 @@ No authorization required
 # **getBlockchainsStatus**
 > AvailableBlockchains getBlockchainsStatus()
 
-Returns list of available blockchains and their statuses.
+Gets a list of all supported blockchains and their statuses.
+
+    Key Connect server keeps track of the individual status of the supported blockchains. Use this API to check the blockchain statuses.
 
 ### Parameters
 This endpoint does not need any parameter.
@@ -189,7 +193,9 @@ No authorization required
 # **getFee**
 > BlockchainFee getFee(chainId, network)
 
-Returns fee of the provided chainId.
+Returns the blockchain transaction fee.
+
+    Gets fee of the provided blockchain identified by &#x60;chainId&#x60;.
 
 ### Parameters
 
@@ -215,9 +221,9 @@ No authorization required
 # **getServerStatus**
 > ServerStatusResponse getServerStatus()
 
-Returns status of the server.
+Gets the Key Connect server status.
 
-    Returns server status along with any error information (if any).
+    Gets the Key Connect server status along with any error information.
 
 ### Parameters
 This endpoint does not need any parameter.
@@ -239,7 +245,9 @@ No authorization required
 # **getTransaction**
 > BlockchainAccountTransaction getTransaction(chainId, hash, network)
 
-Get a single transaction by its hash on the specified &#x60;chainId&#x60;.
+Get a single transaction object by its provided &#x60;hash&#x60; on the specified &#x60;chainId&#x60;.
+
+    Returned transaction object might be in greater detail than the one provided in the list.
 
 ### Parameters
 
@@ -266,7 +274,9 @@ No authorization required
 # **submitTransaction**
 > SubmitTransactionResult submitTransaction(chainId, network, SubmitTransactionRequest)
 
-Submit a transaction to the blockchain
+Submit a transaction to the blockchain.
+
+    Provided transaction object is submitted directly to the blockchain identified by &#x60;chainId&#x60; as is.
 
 ### Parameters
 
