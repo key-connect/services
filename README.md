@@ -7,7 +7,14 @@ Services included:
 * XRP Gateway
 * ETH Gateway
 
-## Developing with KeyConnect
+## Quick links
+
+* [API Documentation](docs/api/README.md)
+* [Website](https://keyconnect.app/)
+* [Key Connect API Client (maven)](https://mvnrepository.com/artifact/app.keyconnect.api/keyconnect-api)
+* [Key Connect Server (maven)](https://mvnrepository.com/artifact/app.keyconnect/keyconnect-server)
+
+## Developing with Key Connect
 
 Key Connect SDK is available across multiple programming languages. Here are a few examples:
 
@@ -62,7 +69,7 @@ class ServerStatusResponse {
 
 For more information about the API usage, visit the [API documentation](https://www.keyconnect.app/api-docs/index.html).
 
-## Developing KeyConnect
+## Developing Key Connect
 
 ### Pre-requisites
 
