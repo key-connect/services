@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   title: Key Connect API
   description: Blockchain access made simple
-  version: 1.0.0
+  version: 1.1.0
   contact:
     name: Manthan Dave
     url: https://www.manthanhd.com
@@ -18,8 +18,8 @@ servers:
 paths:
   /v1/server/status:
     get:
-      summary: Returns status of the server.
-      description: Returns server status along with any error information (if any).
+      summary: Gets the Key Connect server status.
+      description: Gets the Key Connect server status along with any error information.
       operationId: getServerStatus
       responses:
         '200':
@@ -30,7 +30,8 @@ paths:
                 $ref: '#/components/schemas/ServerStatusResponse'
   /v1/blockchains/status:
     get:
-      summary: Returns list of available blockchains and their statuses.
+      summary: Gets a list of all supported blockchains and their statuses.
+      description: Key Connect server keeps track of the individual status of the supported blockchains. Use this API to check the blockchain statuses.
       operationId: getBlockchainsStatus
       responses:
         '200':
@@ -41,8 +42,8 @@ paths:
                 $ref: '#/components/schemas/AvailableBlockchains'
   /v1/blockchains/{chainId}/status:
     get:
-      summary: Returns status of the provided chainId.
-      description: Optional extended description in Markdown.
+      summary: Returns the status of the provided blockchain.
+      description: Gets status of the provided blockchain identified by `chainId`.
       operationId: getBlockchainStatus
       parameters:
         - name: chainId
@@ -71,7 +72,8 @@ paths:
                 $ref: '#/components/schemas/BlockchainStatus'
   /v1/blockchains/{chainId}/fee:
     get:
-      summary: Returns fee of the provided chainId.
+      summary: Returns the blockchain transaction fee.
+      description: Gets fee of the provided blockchain identified by `chainId`.
       operationId: getFee
       parameters:
         - name: chainId
@@ -100,8 +102,8 @@ paths:
                 $ref: '#/components/schemas/BlockchainFee'
   /v1/blockchains/{chainId}/accounts/{accountId}:
     get:
-      summary: Returns account / wallet information for the provided chainId representing the blockchain.
-      description: Used to get walletInfo for a given blockchain, i.e. for chainId=xrp this endpoint will return info regarding a provided accountId.
+      summary: Returns account / wallet information for the provided `chainId` representing the blockchain.
+      description: Gets account / wallet information like `balance`, `lastTransactionId` etc of the specified blockchain identified by `chainId`.
       operationId: getAccountInfo
       parameters:
         - name: chainId
@@ -144,8 +146,8 @@ paths:
                 $ref: '#/components/schemas/BlockchainAccountInfo'
   /v1/blockchains/{chainId}/accounts/{accountId}/transactions:
     get:
-      summary: Gets transactions for given account on a given blockchain specified by the `chainId` parameter.
-      description: Returns paginated list of transactions.
+      summary: Returns paginated list of transactions.
+      description: Gets transactions for given `accountId` on a given blockchain identified by the `chainId` parameter. Return the `cursor` value in the next call to get the next page.
       operationId: getAccountTransactions
       parameters:
         - name: chainId
@@ -195,8 +197,8 @@ paths:
                 $ref: '#/components/schemas/BlockchainAccountTransactions'
   /v1/blockchains/{chainId}/accounts/{accountId}/payments:
     get:
-      summary: Gets payments for a given account on a given blockchain specified by the `chainId` parameter.
-      description: Returns paginated list of payments.
+      summary: Returns paginated list of payments.
+      description: Gets payments for given `accountId` on a given blockchain identified by the `chainId` parameter. Return the `cursor` value in the next call to get the next page.
       operationId: getAccountPayments
       parameters:
         - name: chainId
@@ -246,7 +248,8 @@ paths:
                 $ref: '#/components/schemas/BlockchainAccountPayments'
   /v1/blockchains/{chainId}/transactions/{hash}:
     get:
-      summary: Get a single transaction by its hash on the specified `chainId`.
+      summary: Get a single transaction object by its provided `hash` on the specified `chainId`.
+      description: Returned transaction object might be in greater detail than the one provided in the list.
       operationId: getTransaction
       parameters:
         - name: chainId
@@ -286,7 +289,8 @@ paths:
                 $ref: '#/components/schemas/BlockchainAccountTransaction'
   /v1/blockchains/{chainId}/transactions:
     post:
-      summary: Submit a transaction to the blockchain
+      summary: Submit a transaction to the blockchain.
+      description: Provided transaction object is submitted directly to the blockchain identified by `chainId` as is.
       operationId: submitTransaction
       parameters:
         - name: chainId
@@ -326,7 +330,8 @@ paths:
                 $ref: '#/components/schemas/SubmitTransactionResult'
   /v1/blockchains/xrp/generator/payment:
     get:
-      summary: Generate a transaction
+      summary: Generates a transaction as a payment.
+      description: Helper method to generate a transaction object for the purpose of a payment between the source account identified by `sourceAccount` and destination account idenfied by `destinationAccount` for the value of `amount`.
       operationId: generateTransaction
       parameters:
         - name: sourceAccount
@@ -389,6 +394,7 @@ paths:
 components:
   schemas:
     ServerStatusResponse:
+      description: Represents the status of the Key Connect server.
       properties:
         status:
           type: string
@@ -423,8 +429,8 @@ components:
               message:
                 type: string
                 description: Error message
-#            $ref: '#/components/schemas/ServerErrorObject'
     BlockchainStatusResponse:
+      description: Represents the status of the block chain. This object is cached as per the `lastCheck` attribute.
       properties:
         status:
           type: string
@@ -436,8 +442,7 @@ components:
           type: string
           description: UTC timestamp representing when the status was last checked
     ServerErrorObject:
-      type: object
-      description: Object representing server error
+      description: Represents information regarding a error.
       properties:
         category:
           type: string
@@ -460,13 +465,14 @@ components:
           type: string
           description: Error message
     AvailableBlockchains:
-      description: List of available blockchains
+      description: List of available blockchains and their statuses
       properties:
         blockchains:
           type: array
           items:
             $ref: '#/components/schemas/BlockchainStatus'
     BlockchainStatus:
+      description: Represents a blockchain and its status.
       properties:
         chainId:
           type: string
@@ -476,6 +482,7 @@ components:
           items:
             $ref: '#/components/schemas/BlockchainNetwork'
     BlockchainNetwork:
+      description: Blockchain network object identifying the group and the list of servers under this group.
       properties:
         group:
           type: string
@@ -485,6 +492,7 @@ components:
           items:
             $ref: '#/components/schemas/BlockchainNetworkServerStatus'
     BlockchainNetworkServerStatus:
+      description: Represents status of a blockchain network.
       properties:
         host:
           type: string
@@ -497,6 +505,7 @@ components:
           type: string
           example: '2020-09-20 08:32:20'
     BlockchainAccountInfo:
+      description: Represents information regarding a blockchain wallet / account.
       properties:
         chainId:
           type: string
@@ -524,6 +533,7 @@ components:
           type: string
           example: "4294BEBE5B569A18C0A2702387C9B1E7146DC3A5850C1E87204951C6FDAA4C42"
     CurrencyValue:
+      description: Simple object representing `amount` as string in a specific `currency`.
       properties:
         amount:
           type: string
@@ -541,6 +551,7 @@ components:
         - amount
         - currency
     BlockchainAccountTransactions:
+      description: List of transactions for a specified blockchain account / wallet within the specified `cursor`.
       properties:
         chainId:
           type: string
@@ -566,6 +577,7 @@ components:
           items:
             $ref: '#/components/schemas/BlockchainAccountTransactionItem'
     BlockchainAccountTransactionItem:
+      description: Individual transaction for a specific blockchain account / wallet.
       properties:
         status:
           type: string
@@ -574,25 +586,6 @@ components:
         type:
           type: string
           example: "Payment"
-#          enum:
-#            - Payment
-#            - AccountSet
-#            - AccountDelete
-#            - CheckCancel
-#            - CheckCash
-#            - CheckCreate
-#            - DepositPreAuth
-#            - EscrowCancel
-#            - EscrowCreate
-#            - EscrowFinish
-#            - OfferCancel
-#            - OfferCreate
-#            - PaymentChannelCreate
-#            - PaymentChannelClaim
-#            - PaymentChannelFund
-#            - SetRegularKey
-#            - SignerListSet
-#            - TrustSet
         sourceAccount:
           type: string
           example: "rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv"
@@ -610,6 +603,7 @@ components:
           type: string
           example: "558FB77C856092E191D3117C13A1BDB299050B5140CDF6916F50F026620463FE"
     BlockchainAccountTransaction:
+      description: Represents a blockchain account transaction.
       properties:
         chainId:
           type: string
@@ -632,6 +626,7 @@ components:
           example: "1200002280000000240000001E61D4838D7EA4C6800000000000000000000000000055534400000000004B4E9C06F24296074F7BC48F92A97916C6DC5EA968400000000000000B732103AB40A0490F9B7ED8DF29D246BF2D6269820A0EE7742ACDD457BEA7C7D0931EDB7447304502210095D23D8AF107DF50651F266259CC7139D0CD0C64ABBA3A958156352A0D95A21E02207FCF9B77D7510380E49FF250C21B57169E14E9B4ACFD314CEDC79DDD0A38B8A681144B4E9C06F24296074F7BC48F92A97916C6DC5EA983143E9D4A2B8AA0780F682D136F7A56D6724EF53754"
           description: The transaction blob as required by the blockchain you are submitting to.
     SubmitTransactionResult:
+      description: Represents the result of the submission of a given blockchain transaction.
       properties:
         chainId:
           type: string
@@ -695,6 +690,7 @@ components:
           type: string
           example: "558FB77C856092E191D3117C13A1BDB299050B5140CDF6916F50F026620463FE"
     BlockchainFee:
+      description: Blockchain fee.
       properties:
         chainId:
           type: string
