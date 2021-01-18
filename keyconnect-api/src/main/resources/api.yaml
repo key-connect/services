@@ -524,6 +524,11 @@ components:
           example: "rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv"
         balance:
           $ref: '#/components/schemas/CurrencyValue'
+        subAccounts:
+          type: array
+          description: List of sub accounts and their balances. ERC20 tokens and their balances in case of ethereum.
+          items:
+            $ref: '#/components/schemas/SubAccountInfo'
         lastTransactionId:
           type: string
           example: "4294BEBE5B569A18C0A2702387C9B1E7146DC3A5850C1E87204951C6FDAA4C42"
@@ -701,6 +706,15 @@ components:
           example: "https://s.altnet.rippletest.net:51234/"
         fee:
           $ref: '#/components/schemas/CurrencyValue'
+    SubAccountInfo:
+      description: Represents a sub-account. ERC20 token account in case of ethereum.
+      properties:
+        accountId:
+          type: string
+          description: ID of the sub account. Contract hash in case of ethereum token.
+          example: 0xfF20817765cB7f73d4bde2e66e067E58D11095C2
+        balance:
+          $ref: '#/components/schemas/GenericCurrencyValue'
     ExceptionalResponse:
       properties:
         timestamp:
@@ -718,4 +732,12 @@ components:
         path:
           type: string
           example: "/v1/blockchains/xrp/accounts/rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv/transactions"
-
+    GenericCurrencyValue:
+      properties:
+        amount:
+          type: string
+        issuer:
+          type: string
+          nullable: true
+        currency:
+          type: string

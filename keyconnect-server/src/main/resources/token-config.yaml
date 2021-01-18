@@ -1,0 +1,6 @@
+tokens:
+  amp:
+    mainnet: "0xfF20817765cB7f73d4bde2e66e067E58D11095C2"
+    ropsten: "0x17b8745e4bd371b57d284b248047ca483881572c"
+  usdt:
+    mainnet: "0xdac17f958d2ee523a2206206994597c13d831ec7"

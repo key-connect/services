@@ -14,6 +14,7 @@ import app.keyconnect.api.client.model.BlockchainFee;
 import app.keyconnect.api.client.model.CurrencyValue;
 import app.keyconnect.api.client.model.CurrencyValue.CurrencyEnum;
 import app.keyconnect.server.factories.configuration.YamlConfiguration;
+import app.keyconnect.server.services.Erc20TokenService;
 import app.keyconnect.server.utils.EtherscanUtil;
 import app.keyconnect.server.utils.models.EtherscanAccountTransaction;
 import app.keyconnect.server.utils.models.EtherscanResponse;
@@ -33,11 +34,13 @@ public class EthereumGatewayTest {
   private final String testMainTx = "0x70ba342f52b859dd0391e01c4643ca9c86cb7d8890737c19f0f91ddd30b387ef";
   private BlockchainGateway subject;
   private EtherscanUtil mockEtherscan;
+  private Erc20TokenService mockTokenService;
 
   @BeforeEach
   public void setUp() throws Exception {
     mockEtherscan = mock(EtherscanUtil.class);
-    subject = new EthereumGateway(yamlConfiguration, mockEtherscan);
+    mockTokenService = mock(Erc20TokenService.class);
+    subject = new EthereumGateway(yamlConfiguration, mockEtherscan, mockTokenService);
   }
 
   @Test
