@@ -21,5 +21,12 @@ public class EtherscanAccountTransaction {
   private String gas;
   private String gasPrice;
   private String gasUsed;
+  private String contractAddress;
+  private String tokenName;
+  private String tokenSymbol;
+  private String tokenDecimal;
+  private String confirmations;
+  private String blockNumber;
+  private String blockHash;
 
 }
