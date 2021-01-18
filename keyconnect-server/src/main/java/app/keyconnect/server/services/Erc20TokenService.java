@@ -99,7 +99,7 @@ public class Erc20TokenService {
           .getTokenTransactionsForAccount(network, address, latestBlock.toString(),
               String.valueOf(++pageNumber),
               pageSize);
-      if (response == null || response.getResult() == null) break;  // we've reached end of page
+      if (response == null || response.getResult() == null || response.getResult().length == 0) break;  // we've reached end of page
       pageTx = Arrays.stream(response.getResult()).collect(Collectors.toList());
       transactions.addAll(pageTx);
     }
@@ -107,7 +107,7 @@ public class Erc20TokenService {
         .stream()
         .map(t -> new Erc20Token(t.getContractAddress(), t.getTokenSymbol(), t.getTokenDecimal()))
         .collect(Collectors.toSet()); // Set makes it distinct by default
-    logger.info("{} contracts found for account {}", contractsOnAccount.size(), address);
+    logger.info("{} contracts found over {} transactions for account {}", contractsOnAccount.size(), transactions.size(), address);
 
     return contractsOnAccount.stream()
         .map(c -> getSubAccountInfo(network, address, c))
