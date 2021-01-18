@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import app.keyconnect.server.services.networks.NetworkClientService;
+import app.keyconnect.server.utils.EtherscanUtil;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,7 +22,8 @@ class Erc20TokenServiceTest {
   void setUp() {
     mockCredentialsService = mock(CredentialsService.class);
     mockNetworkClientService = mock(NetworkClientService.class);
-    subject = new Erc20TokenService(mockCredentialsService, mockNetworkClientService);
+    subject = new Erc20TokenService(mockCredentialsService, mockNetworkClientService, mock(
+        EtherscanUtil.class));
   }
 
   @Test

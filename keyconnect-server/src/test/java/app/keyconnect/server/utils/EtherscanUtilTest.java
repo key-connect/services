@@ -35,7 +35,7 @@ public class EtherscanUtilTest {
 
   @Test
   public void returnsAllTokenTransactionsForGivenAccount() {
-    final EtherscanResponse tokenTransactions = subject.getTokenTransactionsForAccount("mainnet", "0x4E83362442B8d1beC281594cEa3050c8EB01311C", "11514883", "1", "10");
+    final EtherscanResponse tokenTransactions = subject.getTokenTransactionsForAccount("mainnet", "0x4E83362442B8d1beC281594cEa3050c8EB01311C", "11514883", "1", "10000");
     assertThat(tokenTransactions.getResult()).hasSize(10);
   }
 }

@@ -217,6 +217,7 @@ public class EthereumGateway implements
             .ethGetBalance(accountId, DefaultBlockParameter.valueOf("latest")).sendAsync()
             .get(30, TimeUnit.SECONDS);
 
+        final BigInteger latestBlock = latestEthBlockCache.get(serverUrl).getBlock().getNumber();
         return accountInfo
             .server(toHost(serverUrl))
             .balance(
@@ -228,7 +229,8 @@ public class EthereumGateway implements
                     )
                     .currency(CurrencyEnum.ETH)
             )
-            .subAccounts(tokenService.getAllSubAccountInfo(network, accountId));
+            .subAccounts(tokenService.getAllSubAccountInfo(network, accountId,
+                latestBlock));
       } catch (InterruptedException | ExecutionException | TimeoutException e) {
         logger.warn("Unable to get eth.accountInfo, network=" + eligibleNetwork, e);
       }

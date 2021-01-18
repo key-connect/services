@@ -11,17 +11,22 @@ import app.keyconnect.server.gateways.exceptions.UnknownNetworkException;
 import app.keyconnect.server.gateways.exceptions.UnknownTokenException;
 import app.keyconnect.server.gateways.exceptions.UnknownTokenNetworkException;
 import app.keyconnect.server.services.networks.NetworkClientService;
+import app.keyconnect.server.utils.EtherscanUtil;
+import app.keyconnect.server.utils.models.EtherscanAccountTransaction;
+import app.keyconnect.server.utils.models.EtherscanResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Locale.Category;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -32,6 +37,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.web3j.contracts.eip20.generated.ERC20;
 import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
+import org.web3j.tx.exceptions.ContractCallException;
 import org.web3j.tx.gas.DefaultGasProvider;
 
 public class Erc20TokenService {
@@ -41,13 +47,16 @@ public class Erc20TokenService {
   private final Set<String> availableNetworks;
   private final CredentialsService<Credentials> ethCredentialsService;
   private final NetworkClientService<Web3j> ethNetworkClientService;
+  private final EtherscanUtil etherscanUtil;
 
   public Erc20TokenService(
       CredentialsService<Credentials> ethCredentialsService,
-      NetworkClientService<Web3j> ethNetworkClientService
+      NetworkClientService<Web3j> ethNetworkClientService,
+      EtherscanUtil etherscanUtil
   ) {
     this.ethCredentialsService = ethCredentialsService;
     this.ethNetworkClientService = ethNetworkClientService;
+    this.etherscanUtil = etherscanUtil;
     logger.info("Reading token config from {}", TOKEN_CONFIG_FILE_NAME);
     this.tokenConfig = readTokenConfig();
     logger.info("{} tokens read", this.tokenConfig.getTokens().size());
@@ -75,8 +84,19 @@ public class Erc20TokenService {
     }
   }
 
-  public List<SubAccountInfo> getAllSubAccountInfo(String network, String address) {
-    final Map<String, Map<String, String>> tokens = this.tokenConfig
+  public List<SubAccountInfo> getAllSubAccountInfo(String network, String address, BigInteger latestBlock) {
+    final EtherscanAccountTransaction[] transactions = etherscanUtil.getTokenTransactionsForAccount(network, address, latestBlock.toString(), "1", "10000").getResult();  // todo support for more than 10000 transactions
+    final Set<Erc20Token> contractsOnAccount = Arrays.stream(transactions)
+        .map(t -> new Erc20Token(t.getContractAddress(), t.getTokenSymbol(), t.getTokenDecimal()))
+        .collect(Collectors.toSet()); // Set makes it distinct by default
+    logger.info("{} contracts found for account {}", contractsOnAccount.size(), address);
+    return contractsOnAccount.stream()
+        .map(c -> getSubAccountInfo(network, address, c))
+        .filter(Objects::nonNull)
+        .collect(Collectors.toList());
+
+    // by tokens
+    /*final Map<String, Map<String, String>> tokens = this.tokenConfig
         .getTokens();
     return tokens
         .keySet()
@@ -96,38 +116,34 @@ public class Erc20TokenService {
         })
         .filter(subAccountInfo -> !new BigDecimal(subAccountInfo.getBalance().getAmount())
             .equals(BigDecimal.ZERO.setScale(SCALE, ROUNDING_MODE)))
-        .collect(Collectors.toList());
+        .collect(Collectors.toList());*/
   }
 
-  private SubAccountInfo getSubAccountInfo(String network, String address, String token)
-      throws UnknownNetworkException, UnknownTokenException, UnknownTokenNetworkException {
-    if (!availableNetworks.contains(network)) throw new UnknownNetworkException(EthereumGateway.CHAIN_ID, network);
-
-    final Map<String, Map<String, String>> tokens = tokenConfig.getTokens();
-    if (!tokens.containsKey(token)) throw new UnknownTokenException(EthereumGateway.CHAIN_ID, token);
-
-    final Map<String, String> envContractConfig = tokens.get(token);
-    if (!envContractConfig.containsKey(network)) throw new UnknownTokenNetworkException(EthereumGateway.CHAIN_ID, token, network);
-
-    final String contractHash = envContractConfig.get(network);
+  private SubAccountInfo getSubAccountInfo(String network, String address, Erc20Token token) {
     final Web3j client = ethNetworkClientService.getClients(network).stream().findFirst().orElseThrow();
     // get credentials from credentials service
     final Credentials credentials = ethCredentialsService.getCredentials();
     // load contract hash
-    final ERC20 contract = ERC20.load(contractHash, client, credentials, new DefaultGasProvider());
-    final String tokenSymbol;
+    final ERC20 contract = ERC20.load(token.getContractAddress(), client, credentials, new DefaultGasProvider());
+    final String tokenSymbol = token.getTokenSymbol();
     final BigInteger balanceNum;
     try {
-      tokenSymbol = contract.symbol().sendAsync().get();
       balanceNum = contract.balanceOf(address).sendAsync().get();
     } catch (InterruptedException | ExecutionException e) {
-      throw new IllegalStateException("Unable to get balance, contract=" + contractHash + ", address=" + address, e);
+      if (e.getCause() instanceof ContractCallException && e.getCause().getMessage().equals("Empty value (0x) returned from contract")) {
+        logger.warn("Contract returned null balance, token={}, address={}", token, address);
+        // we skip these contracts, eg 0x4f4a591dfa6bb5ca83f996195654cf7fddd43433 that called self-destruct and are no longer queryable
+        return null;
+      } else {
+        throw new IllegalStateException(
+            "Unable to get balance, token=" + token + ", address=" + address, e);
+      }
     }
     final BigDecimal tokenBalance = new BigDecimal(balanceNum)
         .divide(ETH_SCALE, SCALE, ROUNDING_MODE);
     // get balance
     return new SubAccountInfo()
-        .accountId(contractHash)
+        .accountId(token.getContractAddress())
         .balance(
             new GenericCurrencyValue()
               .amount(tokenBalance.toString())
