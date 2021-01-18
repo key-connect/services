@@ -6,10 +6,6 @@ import static app.keyconnect.server.gateways.EthereumGateway.SCALE;
 
 import app.keyconnect.api.client.model.GenericCurrencyValue;
 import app.keyconnect.api.client.model.SubAccountInfo;
-import app.keyconnect.server.gateways.EthereumGateway;
-import app.keyconnect.server.gateways.exceptions.UnknownNetworkException;
-import app.keyconnect.server.gateways.exceptions.UnknownTokenException;
-import app.keyconnect.server.gateways.exceptions.UnknownTokenNetworkException;
 import app.keyconnect.server.services.networks.NetworkClientService;
 import app.keyconnect.server.utils.EtherscanUtil;
 import app.keyconnect.server.utils.models.EtherscanAccountTransaction;
@@ -24,14 +20,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
-import java.util.Locale.Category;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -42,6 +34,7 @@ import org.web3j.tx.exceptions.ContractCallException;
 import org.web3j.tx.gas.DefaultGasProvider;
 
 public class Erc20TokenService {
+
   public static final String TOKEN_CONFIG_FILE_NAME = "token-config.yaml";
   private static final Logger logger = LoggerFactory.getLogger(Erc20TokenService.class);
   private final TokenConfig tokenConfig;
@@ -77,29 +70,37 @@ public class Erc20TokenService {
 
   private TokenConfig readTokenConfig() {
     try {
-      final InputStream inputStream = new ClassPathResource(TOKEN_CONFIG_FILE_NAME).getInputStream();
+      final InputStream inputStream = new ClassPathResource(TOKEN_CONFIG_FILE_NAME)
+          .getInputStream();
       final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
       return mapper.readValue(inputStream, TokenConfig.class);
     } catch (IOException e) {
-      throw new RuntimeException("Unable to read token-config.yaml from classpath when instantiating Erc20TokenService", e);
+      throw new RuntimeException(
+          "Unable to read token-config.yaml from classpath when instantiating Erc20TokenService",
+          e);
     }
   }
 
-  public List<SubAccountInfo> getAllSubAccountInfo(String network, String address, BigInteger latestBlock) {
+  public List<SubAccountInfo> getAllSubAccountInfo(String network, String address,
+      BigInteger latestBlock) {
     int pageNumber = 1;
     final String pageSize = "1000";
     final List<EtherscanAccountTransaction> transactions = Arrays.stream(etherscanUtil
         .getTokenTransactionsForAccount(network, address, latestBlock.toString(),
             String.valueOf(pageNumber),
             pageSize).getResult()).collect(Collectors.toList());
-    if (transactions.size() == 0) return new ArrayList<>(0);
+    if (transactions.size() == 0) {
+      return new ArrayList<>(0);
+    }
     List<EtherscanAccountTransaction> pageTx = transactions;
-    while(pageTx.size() > 0) {
+    while (pageTx.size() > 0) {
       final EtherscanResponse response = etherscanUtil
           .getTokenTransactionsForAccount(network, address, latestBlock.toString(),
               String.valueOf(++pageNumber),
               pageSize);
-      if (response == null || response.getResult() == null || response.getResult().length == 0) break;  // we've reached end of page
+      if (response == null || response.getResult() == null || response.getResult().length == 0) {
+        break;  // we've reached end of page
+      }
       pageTx = Arrays.stream(response.getResult()).collect(Collectors.toList());
       transactions.addAll(pageTx);
     }
@@ -107,7 +108,8 @@ public class Erc20TokenService {
         .stream()
         .map(t -> new Erc20Token(t.getContractAddress(), t.getTokenSymbol(), t.getTokenDecimal()))
         .collect(Collectors.toSet()); // Set makes it distinct by default
-    logger.info("{} contracts found over {} transactions for account {}", contractsOnAccount.size(), transactions.size(), address);
+    logger.info("{} contracts found over {} transactions for account {}", contractsOnAccount.size(),
+        transactions.size(), address);
 
     return contractsOnAccount.stream()
         .map(c -> getSubAccountInfo(network, address, c))
@@ -139,17 +141,20 @@ public class Erc20TokenService {
   }
 
   private SubAccountInfo getSubAccountInfo(String network, String address, Erc20Token token) {
-    final Web3j client = ethNetworkClientService.getClients(network).stream().findFirst().orElseThrow();
+    final Web3j client = ethNetworkClientService.getClients(network).stream().findFirst()
+        .orElseThrow();
     // get credentials from credentials service
     final Credentials credentials = ethCredentialsService.getCredentials();
     // load contract hash
-    final ERC20 contract = ERC20.load(token.getContractAddress(), client, credentials, new DefaultGasProvider());
+    final ERC20 contract = ERC20
+        .load(token.getContractAddress(), client, credentials, new DefaultGasProvider());
     final String tokenSymbol = token.getTokenSymbol();
     final BigInteger balanceNum;
     try {
       balanceNum = contract.balanceOf(address).sendAsync().get();
     } catch (InterruptedException | ExecutionException e) {
-      if (e.getCause() instanceof ContractCallException && e.getCause().getMessage().equals("Empty value (0x) returned from contract")) {
+      if (e.getCause() instanceof ContractCallException && e.getCause().getMessage()
+          .equals("Empty value (0x) returned from contract")) {
         logger.warn("Contract returned null balance, token={}, address={}", token, address);
         // we skip these contracts, eg 0x4f4a591dfa6bb5ca83f996195654cf7fddd43433 that called self-destruct and are no longer queryable
         return null;
@@ -165,8 +170,8 @@ public class Erc20TokenService {
         .accountId(token.getContractAddress())
         .balance(
             new GenericCurrencyValue()
-              .amount(tokenBalance.toString())
-              .currency(tokenSymbol)
+                .amount(tokenBalance.toString())
+                .currency(tokenSymbol)
         );
   }
 }
