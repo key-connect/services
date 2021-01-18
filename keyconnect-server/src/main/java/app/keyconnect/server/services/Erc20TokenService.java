@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -85,11 +86,29 @@ public class Erc20TokenService {
   }
 
   public List<SubAccountInfo> getAllSubAccountInfo(String network, String address, BigInteger latestBlock) {
-    final EtherscanAccountTransaction[] transactions = etherscanUtil.getTokenTransactionsForAccount(network, address, latestBlock.toString(), "1", "10000").getResult();  // todo support for more than 10000 transactions
-    final Set<Erc20Token> contractsOnAccount = Arrays.stream(transactions)
+    int pageNumber = 1;
+    final String pageSize = "1000";
+    final List<EtherscanAccountTransaction> transactions = Arrays.stream(etherscanUtil
+        .getTokenTransactionsForAccount(network, address, latestBlock.toString(),
+            String.valueOf(pageNumber),
+            pageSize).getResult()).collect(Collectors.toList());
+    if (transactions.size() == 0) return new ArrayList<>(0);
+    List<EtherscanAccountTransaction> pageTx = transactions;
+    while(pageTx.size() > 0) {
+      final EtherscanResponse response = etherscanUtil
+          .getTokenTransactionsForAccount(network, address, latestBlock.toString(),
+              String.valueOf(++pageNumber),
+              pageSize);
+      if (response == null || response.getResult() == null) break;  // we've reached end of page
+      pageTx = Arrays.stream(response.getResult()).collect(Collectors.toList());
+      transactions.addAll(pageTx);
+    }
+    final Set<Erc20Token> contractsOnAccount = transactions
+        .stream()
         .map(t -> new Erc20Token(t.getContractAddress(), t.getTokenSymbol(), t.getTokenDecimal()))
         .collect(Collectors.toSet()); // Set makes it distinct by default
     logger.info("{} contracts found for account {}", contractsOnAccount.size(), address);
+
     return contractsOnAccount.stream()
         .map(c -> getSubAccountInfo(network, address, c))
         .filter(Objects::nonNull)
