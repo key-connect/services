@@ -1,1 +1,1 @@
-web: java -Dserver.port=$PORT -jar keyconnect-server/target/keyconnect-server-*.jar
+web: java -Dserver.port=$PORT ${JVMARGS} -jar keyconnect-server/target/keyconnect-server-*.jar
