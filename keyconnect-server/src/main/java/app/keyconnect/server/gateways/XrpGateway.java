@@ -120,7 +120,7 @@ public class XrpGateway implements BlockchainGateway {
 
   @Override
   public String[] getNetworks() {
-    return configuration.getNetworks()
+    return networkClientService.getNetworks()
         .stream()
         .map(BlockchainNetworkConfiguration::getGroup)
         .distinct()

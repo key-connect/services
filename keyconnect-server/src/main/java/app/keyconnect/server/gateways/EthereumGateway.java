@@ -104,7 +104,7 @@ public class EthereumGateway implements
 
   @Override
   public String[] getNetworks() {
-    return configuration.getNetworks()
+    return networkClientService.getNetworks()
         .stream()
         .map(BlockchainNetworkConfiguration::getGroup)
         .distinct()

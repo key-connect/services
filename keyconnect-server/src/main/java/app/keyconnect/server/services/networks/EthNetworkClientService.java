@@ -43,6 +43,7 @@ public class EthNetworkClientService implements NetworkClientService<Web3j> {
         });
   }
 
+
   public Set<NetworkClient<Web3j>> getAllMatching(String network) {
     final List<BlockchainNetworkConfiguration> networks = this.configuration.getNetworks()
         .stream()
@@ -77,5 +78,10 @@ public class EthNetworkClientService implements NetworkClientService<Web3j> {
   @Override
   public Web3j getClientForServer(String serverUrl) {
     return this.serverClients.get(serverUrl);
+  }
+
+  @Override
+  public List<BlockchainNetworkConfiguration> getNetworks() {
+    return this.configuration.getNetworks();
   }
 }

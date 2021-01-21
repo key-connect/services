@@ -72,4 +72,9 @@ public class XrpNetworkClientService implements NetworkClientService<PublicRippl
   public PublicRippledClient getClientForServer(String serverUrl) {
     return this.serverClients.get(serverUrl);
   }
+
+  @Override
+  public List<BlockchainNetworkConfiguration> getNetworks() {
+    return this.configuration.getNetworks();
+  }
 }
