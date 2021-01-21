@@ -1,56 +1,54 @@
 package app.keyconnect.server.services.networks;
 
+import app.keyconnect.rippled.api.client.PublicRippledClient;
+import app.keyconnect.rippled.api.client.config.PublicRippledClientConfig;
 import app.keyconnect.server.factories.configuration.BlockchainNetworkConfiguration;
 import app.keyconnect.server.factories.configuration.BlockchainsConfiguration;
 import app.keyconnect.server.factories.configuration.YamlConfiguration;
-import app.keyconnect.server.gateways.EthereumGateway;
+import app.keyconnect.server.gateways.XrpGateway;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.web3j.protocol.Web3j;
-import org.web3j.protocol.http.HttpService;
+import org.springframework.web.client.RestTemplate;
 
-/**
- * {@link NetworkClientService} implementation for Ethereum based on {@link Web3j} client
- */
-public class EthNetworkClientService implements NetworkClientService<Web3j> {
+public class XrpNetworkClientService implements NetworkClientService<PublicRippledClient> {
 
-  private static final Logger logger = LoggerFactory.getLogger(EthNetworkClientService.class);
   private final BlockchainsConfiguration configuration;
-  private final Map<String, Web3j> serverClients;
+  // key is serverUrl
+  private final Map<String, PublicRippledClient> serverClients;
 
-  public EthNetworkClientService(YamlConfiguration yamlConfiguration) {
+  public XrpNetworkClientService(YamlConfiguration yamlConfiguration,
+      Supplier<RestTemplate> restTemplateSupplier) {
     this.configuration = yamlConfiguration.getBlockchains()
         .stream()
-        .filter(b -> b.getType().equalsIgnoreCase(EthereumGateway.CHAIN_ID))
+        .filter(b -> b.getType().equalsIgnoreCase(XrpGateway.CHAIN_ID))
         .findFirst()
         .orElse(new BlockchainsConfiguration());
 
-    this.serverClients = new ConcurrentHashMap<>();
+    this.serverClients = new ConcurrentHashMap<>(this.configuration.getNetworks().size());
+
     this.configuration.getNetworks()
         .stream()
         .map(BlockchainNetworkConfiguration::getAddress)
         .distinct()
         .forEach(a -> {
-          final Web3j client = Web3j.build(new HttpService(a));
-          logger.info("Connected to node {}", a);
+          final PublicRippledClient client = new PublicRippledClient(restTemplateSupplier.get(),
+              PublicRippledClientConfig.builder().jsonRpcEndpoint(a).build());
           this.serverClients.put(a, client);
         });
   }
 
-
-  public Set<NetworkClient<Web3j>> getAllMatching(String network) {
-    final List<BlockchainNetworkConfiguration> networks = this.configuration.getNetworks()
+  @Override
+  public Set<NetworkClient<PublicRippledClient>> getAllMatching(String network) {
+    final List<BlockchainNetworkConfiguration> networks = configuration.getNetworks()
         .stream()
         .filter(n -> n.getGroup().equalsIgnoreCase(network))
         .collect(Collectors.toList());
-
-    final Set<NetworkClient<Web3j>> clientSet = new HashSet<>(networks.size());
+    final Set<NetworkClient<PublicRippledClient>> clientSet = new HashSet<>(networks.size());
     for (BlockchainNetworkConfiguration eligibleNetwork : networks) {
       final String serverUrl = eligibleNetwork.getAddress();
       // todo maybe cache the whole thing in `this.serverClients`?
@@ -60,13 +58,8 @@ public class EthNetworkClientService implements NetworkClientService<Web3j> {
     return clientSet;
   }
 
-  /**
-   * Returns the first client found for a given network
-   * @param network Network to return the blockchain client for.
-   * @return First Web3j client found for the specified network.
-   */
   @Override
-  public NetworkClient<Web3j> getFirst(String network) {
+  public NetworkClient<PublicRippledClient> getFirst(String network) {
     return this.configuration.getNetworks()
         .stream()
         .filter(n -> n.getGroup().equalsIgnoreCase(network))
@@ -76,7 +69,7 @@ public class EthNetworkClientService implements NetworkClientService<Web3j> {
   }
 
   @Override
-  public Web3j getClientForServer(String serverUrl) {
+  public PublicRippledClient getClientForServer(String serverUrl) {
     return this.serverClients.get(serverUrl);
   }
 

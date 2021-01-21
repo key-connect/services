@@ -15,6 +15,8 @@ import app.keyconnect.api.client.model.CurrencyValue;
 import app.keyconnect.api.client.model.CurrencyValue.CurrencyEnum;
 import app.keyconnect.server.factories.configuration.YamlConfiguration;
 import app.keyconnect.server.services.Erc20TokenService;
+import app.keyconnect.server.services.networks.EthNetworkClientService;
+import app.keyconnect.server.services.networks.NetworkClientService;
 import app.keyconnect.server.utils.EtherscanUtil;
 import app.keyconnect.server.utils.models.EtherscanAccountTransaction;
 import app.keyconnect.server.utils.models.EtherscanResponse;
@@ -23,6 +25,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.web3j.protocol.Web3j;
 
 @SpringBootTest
 public class EthereumGatewayTest {
@@ -35,12 +38,19 @@ public class EthereumGatewayTest {
   private BlockchainGateway subject;
   private EtherscanUtil mockEtherscan;
   private Erc20TokenService mockTokenService;
+  private NetworkClientService<Web3j> networkClientService;
 
   @BeforeEach
   public void setUp() throws Exception {
     mockEtherscan = mock(EtherscanUtil.class);
     mockTokenService = mock(Erc20TokenService.class);
-    subject = new EthereumGateway(yamlConfiguration, mockEtherscan, mockTokenService);
+
+    if (networkClientService == null) {
+      networkClientService = new EthNetworkClientService(yamlConfiguration);
+    }
+
+    subject = new EthereumGateway(mockEtherscan, mockTokenService,
+        networkClientService);
   }
 
   @Test

@@ -5,7 +5,7 @@
 #password: "jaDdIDvV2kbXhSbnL22R"
 
 ethnode:
-  httpAddress: 'http://localhost:8545'
+  httpAddress: 'https://eth.keyconnect.app'
 spring:
   datasource:
     # docker run --rm --name postgres -p 5432:5432 -e POSTGRES_PASSWORD=pgpassword -e POSTGRES_USER=chains -e POSTGRES_DB=chainsdb -it postgres:12

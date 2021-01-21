@@ -1,17 +1,5 @@
 package app.keyconnect.server.gateways;
 
-import app.keyconnect.rippled.api.client.model.TransactionResult;
-import app.keyconnect.server.controllers.exceptions.InvalidCursorException;
-import app.keyconnect.server.factories.configuration.BlockchainNetworkConfiguration;
-import app.keyconnect.server.factories.configuration.BlockchainsConfiguration;
-import app.keyconnect.server.factories.configuration.YamlConfiguration;
-import app.keyconnect.server.gateways.exceptions.UnknownNetworkException;
-import com.google.common.base.Strings;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import app.keyconnect.rippled.api.client.PublicRippledClient;
-import app.keyconnect.rippled.api.client.config.PublicRippledClientConfig;
 import app.keyconnect.api.client.model.BlockchainAccountInfo;
 import app.keyconnect.api.client.model.BlockchainAccountInfo.ChainIdEnum;
 import app.keyconnect.api.client.model.BlockchainAccountPaymentItem;
@@ -26,15 +14,29 @@ import app.keyconnect.api.client.model.CurrencyValue;
 import app.keyconnect.api.client.model.CurrencyValue.CurrencyEnum;
 import app.keyconnect.api.client.model.SubmitTransactionRequest;
 import app.keyconnect.api.client.model.SubmitTransactionResult;
+import app.keyconnect.rippled.api.client.PublicRippledClient;
 import app.keyconnect.rippled.api.client.model.AccountInfoResponse;
 import app.keyconnect.rippled.api.client.model.AccountTransaction;
 import app.keyconnect.rippled.api.client.model.AccountTransactionItem;
 import app.keyconnect.rippled.api.client.model.AccountTransactionMarker;
+import app.keyconnect.rippled.api.client.model.AccountTransactionMeta;
 import app.keyconnect.rippled.api.client.model.AccountTransactionResponse;
 import app.keyconnect.rippled.api.client.model.FeeResponse;
 import app.keyconnect.rippled.api.client.model.ServerInfoResponse;
 import app.keyconnect.rippled.api.client.model.SubmitTransactionResponse;
 import app.keyconnect.rippled.api.client.model.TransactionResponse;
+import app.keyconnect.rippled.api.client.model.TransactionResult;
+import app.keyconnect.server.controllers.exceptions.InvalidCursorException;
+import app.keyconnect.server.factories.configuration.BlockchainNetworkConfiguration;
+import app.keyconnect.server.factories.configuration.BlockchainsConfiguration;
+import app.keyconnect.server.factories.configuration.YamlConfiguration;
+import app.keyconnect.server.gateways.exceptions.UnknownNetworkException;
+import app.keyconnect.server.services.networks.NetworkClient;
+import app.keyconnect.server.services.networks.NetworkClientService;
+import com.google.common.base.Strings;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URI;
@@ -44,15 +46,13 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.client.RestTemplate;
 
 public class XrpGateway implements BlockchainGateway {
 
@@ -61,46 +61,28 @@ public class XrpGateway implements BlockchainGateway {
   public static final BigDecimal DROPS_PER_XRP = BigDecimal.valueOf(100000);
   private static final Duration SERVER_INFO_CACHE_EXPIRY = Duration.of(30, ChronoUnit.SECONDS);
   private static final String DEFAULT_NETWORK = "mainnet";
-  private final BlockchainsConfiguration configuration;
-  // key is serverUrl
-  private final Map<String, PublicRippledClient> serverClients;
-  // key is serverUrl
+  private final NetworkClientService<PublicRippledClient> networkClientService;
+  // key is network
   private final LoadingCache<String, ServerInfoResponse> serverInfoCache;
-  // key is serverUrl
+  // key is network
   private final LoadingCache<String, FeeResponse> networkFeeCache;
-  // key is in form of <serverUrl>|<address>
+  // key is in form of <network>|<address>
   private final LoadingCache<String, AccountInfoResponse> walletAccountInfoCache;
 
   //  private final Environment environment;
 
-  public XrpGateway(YamlConfiguration configuration, Supplier<RestTemplate> restTemplateSupplier) {
+  public XrpGateway(NetworkClientService<PublicRippledClient> networkClientService) {
     // assert configuration and networks are non null
     // populate server clients
     // for simplicity we get only configure the first xrp configuration
-    this.configuration = configuration.getBlockchains()
-        .stream()
-        .filter(b -> b.getType().equalsIgnoreCase(CHAIN_ID))
-        .findFirst()
-        .get();
-    this.serverClients = new ConcurrentHashMap<>(this.configuration.getNetworks().size());
-
-    // pre populate server clients cache
-    this.configuration.getNetworks()
-        .stream()
-        .map(BlockchainNetworkConfiguration::getAddress)
-        .distinct()
-        .forEach(a -> {
-          final PublicRippledClient client = new PublicRippledClient(restTemplateSupplier.get(),
-              PublicRippledClientConfig.builder().jsonRpcEndpoint(a).build());
-          this.serverClients.put(a, client);
-        });
+    this.networkClientService = networkClientService;
 
     serverInfoCache = CacheBuilder.newBuilder()
         .expireAfterWrite(SERVER_INFO_CACHE_EXPIRY)
         .build(new CacheLoader<>() {
           @Override
-          public ServerInfoResponse load(String key) throws Exception {
-            return serverClients.get(key).getServerInfo();
+          public ServerInfoResponse load(@NotNull String network) throws Exception {
+            return networkClientService.getFirst(network).getClient().getServerInfo();
           }
         });
 
@@ -108,11 +90,11 @@ public class XrpGateway implements BlockchainGateway {
         .expireAfterWrite(Duration.of(30, ChronoUnit.SECONDS))
         .build(new CacheLoader<>() {
           @Override
-          public AccountInfoResponse load(String key) throws Exception {
-            final String[] tokens = key.split("\\|");
-            final String serverUrl = tokens[0];
+          public AccountInfoResponse load(@NotNull String networkPipeAccountId) throws Exception {
+            final String[] tokens = networkPipeAccountId.split("\\|");
+            final String network = tokens[0];
             final String address = tokens[1];
-            return serverClients.get(serverUrl).getAccountInfo(address);
+            return networkClientService.getFirst(network).getClient().getAccountInfo(address);
           }
         });
 
@@ -120,8 +102,8 @@ public class XrpGateway implements BlockchainGateway {
         .expireAfterWrite(Duration.of(1, ChronoUnit.MINUTES))
         .build(new CacheLoader<>() {
           @Override
-          public FeeResponse load(String key) throws Exception {
-            return serverClients.get(key).getFee();
+          public FeeResponse load(@NotNull String network) throws Exception {
+            return networkClientService.getFirst(network).getClient().getFee();
           }
         });
   }
@@ -133,7 +115,7 @@ public class XrpGateway implements BlockchainGateway {
 
   @Override
   public String[] getNetworks() {
-    return configuration.getNetworks()
+    return networkClientService.getNetworks()
         .stream()
         .map(BlockchainNetworkConfiguration::getGroup)
         .distinct()
@@ -144,7 +126,7 @@ public class XrpGateway implements BlockchainGateway {
   public String validateNetworkOrDefault(String network) throws UnknownNetworkException {
     if (Strings.isNullOrEmpty(network)) return DEFAULT_NETWORK;
 
-    if (configuration.getNetworks()
+    if (networkClientService.getNetworks()
         .stream()
         .anyMatch(n -> n.getGroup().equalsIgnoreCase(network))
     ) return network;
@@ -155,31 +137,33 @@ public class XrpGateway implements BlockchainGateway {
   @Override
   public BlockchainNetworkServerStatus[] getNetworkServerStatus(String network)
       throws UnknownNetworkException {
-    final List<BlockchainNetworkConfiguration> foundNetworks = configuration.getNetworks()
-        .stream()
-        .filter(n -> n.getGroup().equalsIgnoreCase(network))
-        .collect(Collectors.toList());
-    if (foundNetworks.size() == 0) {
+    final Set<NetworkClient<PublicRippledClient>> clients = networkClientService
+        .getAllMatching(network);
+
+    if (clients.size() == 0) {
+      // we could not find the specified network
       throw new UnknownNetworkException(CHAIN_ID, network);
     }
 
-    return foundNetworks.stream()
-        .map(c -> {
+    return clients.stream()
+        .map(networkClient -> {
+          final BlockchainNetworkConfiguration networkConfiguration = networkClient.getNetwork();
           try {
-            final ServerInfoResponse serverInfoResponse = serverInfoCache.get(c.getAddress());
+            final ServerInfoResponse serverInfoResponse = serverInfoCache.get(
+                networkConfiguration.getGroup());
             // todo refine the way the BlockchainNetworkStatus is constructed
             return new BlockchainNetworkServerStatus()
                 // todo be defensive, this is relying too much on rippled behaving correctly
                 .status(serverInfoResponse.getResult().getStatus().equalsIgnoreCase("success")
                     ? StatusEnum.HEALTHY : StatusEnum.UNHEALTHY)
-                .host(toURI(c))
+                .host(toURI(networkConfiguration.getAddress()))
                 // todo either remove lastCheck or find more reliable way to get this
                 .lastCheck(Instant.now().toString());
           } catch (Throwable e) {
-            logger.warn("Unable to get serverInfo to obtain status for network=" + c, e);
+            logger.warn("Unable to get serverInfo to obtain status for network=" + network, e);
             return new BlockchainNetworkServerStatus()
                 .status(StatusEnum.UNHEALTHY)
-                .host(toURI(c))
+                .host(toURI(networkConfiguration.getAddress()))
                 .lastCheck(Instant.now().toString());
           }
         })
@@ -188,20 +172,17 @@ public class XrpGateway implements BlockchainGateway {
 
   public BlockchainFee getFee(String specifiedNetwork) throws UnknownNetworkException {
     final String network = validateNetworkOrDefault(specifiedNetwork);
-    final List<BlockchainNetworkConfiguration> eligibleNetworks = configuration.getNetworks()
-        .stream()
-        .filter(n -> n.getGroup().equalsIgnoreCase(network))
-        // there's a better way to do this
-        .collect(Collectors.toList());
-    if (eligibleNetworks.size() == 0) {
+    final Set<NetworkClient<PublicRippledClient>> clients = networkClientService
+        .getAllMatching(network);
+    if (clients.size() == 0) {
       // we could not find the specified network
       throw new UnknownNetworkException(CHAIN_ID, network);
     }
 
-    for (BlockchainNetworkConfiguration eligibleNetwork : eligibleNetworks) {
-      final String serverUrl = eligibleNetwork.getAddress();
+    for (NetworkClient<PublicRippledClient> client : clients) {
+      final BlockchainNetworkConfiguration networkConfig = client.getNetwork();
       try {
-        final FeeResponse feeResponse = networkFeeCache.get(serverUrl);
+        final FeeResponse feeResponse = networkFeeCache.get(networkConfig.getGroup());
         final CurrencyValue fee = new CurrencyValue()
             .amount(feeResponse.getResult().getDrops().getMinimumFee())
             .currency(CurrencyEnum.DROPS);
@@ -209,7 +190,7 @@ public class XrpGateway implements BlockchainGateway {
             .chainId(BlockchainFee.ChainIdEnum.XRP)
             .fee(fee)
             .network(network)
-            .server(serverUrl);
+            .server(toURI(networkConfig.getAddress()));
       } catch (ExecutionException e) {
         logger.warn("Unable to get xrp.fee, network=" + network, e);
       }
@@ -222,12 +203,9 @@ public class XrpGateway implements BlockchainGateway {
   @Override
   public BlockchainAccountInfo getAccount(String network, String accountId)
       throws UnknownNetworkException {
-    final List<BlockchainNetworkConfiguration> eligibleNetworks = configuration.getNetworks()
-        .stream()
-        .filter(n -> n.getGroup().equalsIgnoreCase(network))
-        // there's a better way to do this
-        .collect(Collectors.toList());
-    if (eligibleNetworks.size() == 0) {
+    final Set<NetworkClient<PublicRippledClient>> networkClients = networkClientService
+        .getAllMatching(network);
+    if (networkClients.size() == 0) {
       // we could not find the specified network
       throw new UnknownNetworkException(CHAIN_ID, network);
     }
@@ -235,16 +213,14 @@ public class XrpGateway implements BlockchainGateway {
     // we do this to allow fallback
     AccountInfoResponse accountInfoResponse = null;
     BlockchainNetworkConfiguration selectedNetwork = null;
-    for (BlockchainNetworkConfiguration eligibleNetwork : eligibleNetworks) {
-      final String networkAddress = eligibleNetwork.getAddress();
-      final String key = networkAddress + "|" + accountId;
+    for (NetworkClient<PublicRippledClient> networkClient : networkClients) {
+      final String key = network + "|" + accountId;
       try {
         accountInfoResponse = walletAccountInfoCache.get(key);
-        selectedNetwork = eligibleNetwork;
+        selectedNetwork = networkClient.getNetwork();
         break;
       } catch (Throwable e) {
         // swallow all exceptions
-
 
       }
     }
@@ -283,70 +259,70 @@ public class XrpGateway implements BlockchainGateway {
   public BlockchainAccountTransactions getTransactions(String accountId, String network,
       int limit, String cursor)
       throws UnknownNetworkException {
-    final List<BlockchainNetworkConfiguration> selectedNetworks = configuration.getNetworks()
-        .stream()
-        .filter(c -> c.getGroup().equalsIgnoreCase(network))
-        .collect(Collectors.toList());
+    final Set<NetworkClient<PublicRippledClient>> networkClients = networkClientService.getAllMatching(network);
 
-    if (selectedNetworks.size() == 0) {
+    if (networkClients.size() == 0) {
       throw new UnknownNetworkException(CHAIN_ID, network);
     }
 
-    final PublicRippledClient client = serverClients.get(selectedNetworks.get(0).getAddress());
-    AccountTransactionMarker requestMarker = null;
-    if (StringUtils.isNotBlank(cursor) && cursor.contains(":")) {
-      final String[] markerLedgerAndSeq = cursor.split(":");
-      try {
-        requestMarker = new AccountTransactionMarker()
-            .ledger(Integer.valueOf(markerLedgerAndSeq[0]))
-            .seq(Integer.valueOf(markerLedgerAndSeq[1]));
-      } catch (NumberFormatException e) {
-        throw new InvalidCursorException();
+    for (NetworkClient<PublicRippledClient> networkClient : networkClients) {
+      final PublicRippledClient client = networkClient.getClient();
+      AccountTransactionMarker requestMarker = null;
+      if (StringUtils.isNotBlank(cursor) && cursor.contains(":")) {
+        final String[] markerLedgerAndSeq = cursor.split(":");
+        try {
+          requestMarker = new AccountTransactionMarker()
+              .ledger(Integer.valueOf(markerLedgerAndSeq[0]))
+              .seq(Integer.valueOf(markerLedgerAndSeq[1]));
+        } catch (NumberFormatException e) {
+          throw new InvalidCursorException();
+        }
       }
-    }
-    final AccountTransactionResponse accountTransactionsResponse = client
-        .getAccountTransactions(accountId, limit, requestMarker);
-    final List<AccountTransactionItem> transactions = accountTransactionsResponse.getResult()
-        .getTransactions();
+      final AccountTransactionResponse accountTransactionsResponse = client
+          .getAccountTransactions(accountId, limit, requestMarker);
+      final List<AccountTransactionItem> transactions = accountTransactionsResponse.getResult()
+          .getTransactions();
 
-    final AccountTransactionMarker responseMarker = accountTransactionsResponse.getResult()
-        .getMarker();
-    if (responseMarker != null) {
-      cursor = responseMarker.getLedger() + ":" + responseMarker.getSeq();
-    } else {
-      cursor = null;
-    }
+      final AccountTransactionMarker responseMarker = accountTransactionsResponse.getResult()
+          .getMarker();
+      if (responseMarker != null) {
+        cursor = responseMarker.getLedger() + ":" + responseMarker.getSeq();
+      } else {
+        cursor = null;
+      }
 
-    return new BlockchainAccountTransactions()
-        .accountId(accountId)
-        .network(network)
-        .server(selectedNetworks.get(0).getAddress())
-        .chainId(BlockchainAccountTransactions.ChainIdEnum.XRP)
-        .cursor(cursor)
-        .transactions(
-            transactions.stream()
-                .map(t -> {
-                  final AccountTransaction tx = t.getTx();
-                  return new BlockchainAccountTransactionItem()
-                      .amount(
-                          new CurrencyValue()
-                              .amount(tx.getAmount())  // todo handle issued currencies
-                              .currency(CurrencyEnum.DROPS)
-                      )
-                      .sourceAccount(tx.getAccount())
-                      .destinationAccount(tx.getDestination())
-                      .destinationTag(String.valueOf(tx.getDestinationTag()))
-                      .fee(
-                          new CurrencyValue()
-                              .amount(tx.getFee())
-                              .currency(CurrencyEnum.DROPS)
-                      )
-                      .type(tx.getTransactionType())
-                      .hash(tx.getHash())
-                      .status(toSimpleStatus(t.getMeta().getTransactionResult()));
-                })
-                .collect(Collectors.toList())
-        );
+      return new BlockchainAccountTransactions()
+          .accountId(accountId)
+          .network(network)
+          .server(toURI(networkClient.getNetwork().getAddress()))
+          .chainId(BlockchainAccountTransactions.ChainIdEnum.XRP)
+          .cursor(cursor)
+          .transactions(
+              transactions.stream()
+                  .map(t -> {
+                    final AccountTransaction tx = t.getTx();
+                    return new BlockchainAccountTransactionItem()
+                        .amount(
+                            new CurrencyValue()
+                                .amount(tx.getAmount())  // todo handle issued currencies
+                                .currency(CurrencyEnum.DROPS)
+                        )
+                        .sourceAccount(tx.getAccount())
+                        .destinationAccount(tx.getDestination())
+                        .destinationTag(String.valueOf(tx.getDestinationTag()))
+                        .fee(
+                            new CurrencyValue()
+                                .amount(tx.getFee())
+                                .currency(CurrencyEnum.DROPS)
+                        )
+                        .type(tx.getTransactionType())
+                        .hash(tx.getHash())
+                        .status(toSimpleStatus(t.getMeta().getTransactionResult()));
+                  })
+                  .collect(Collectors.toList())
+          );
+    }
+    return null;
   }
 
   @Override
@@ -384,86 +360,89 @@ public class XrpGateway implements BlockchainGateway {
   @Override
   public BlockchainAccountTransaction getTransaction(String network, String hash)
       throws UnknownNetworkException {
-    final List<BlockchainNetworkConfiguration> selectedNetworks = configuration.getNetworks()
-        .stream()
-        .filter(c -> c.getGroup().equalsIgnoreCase(network))
-        .collect(Collectors.toList());
+    final Set<NetworkClient<PublicRippledClient>> networkClients = networkClientService.getAllMatching(network);
 
-    if (selectedNetworks.size() == 0) {
+    if (networkClients.size() == 0) {
       throw new UnknownNetworkException(CHAIN_ID, network);
     }
 
-    final PublicRippledClient client = serverClients.get(selectedNetworks.get(0).getAddress());
-    final TransactionResponse transaction = client.getTransaction(hash);
-    final TransactionResult tx = transaction.getResult();
-    return new BlockchainAccountTransaction()
-        .network(network)
-        .server(selectedNetworks.get(0).getAddress())
-        .chainId(BlockchainAccountTransaction.ChainIdEnum.XRP)
-        .transaction(
-            new BlockchainAccountTransactionItem()
-                .amount(
-                    new CurrencyValue()
-                        .amount(tx.getAmount())  // todo handle issued currencies
-                        .currency(CurrencyEnum.DROPS)
-                )
-                .sourceAccount(tx.getAccount())
-                .destinationAccount(tx.getDestination())
-                .destinationTag(String.valueOf(tx.getDestinationTag()))
-                .fee(
-                    new CurrencyValue()
-                        .amount(tx.getFee())
-                        .currency(CurrencyEnum.DROPS)
-                )
-                .type(tx.getTransactionType())
-                .hash(tx.getHash())
-                .status(toSimpleStatus(tx.getMeta().getTransactionResult()))
-        );
+    for (NetworkClient<PublicRippledClient> networkClient : networkClients) {
+      final PublicRippledClient client = networkClient.getClient();
+      final TransactionResponse transaction = client.getTransaction(hash);
+      final TransactionResult tx = transaction.getResult();
+      final AccountTransactionMeta meta = tx.getMeta();
+      return new BlockchainAccountTransaction()
+          .network(network)
+          .server(toURI(networkClient.getNetwork().getAddress()))
+          .chainId(BlockchainAccountTransaction.ChainIdEnum.XRP)
+          .transaction(
+              new BlockchainAccountTransactionItem()
+                  .amount(
+                      new CurrencyValue()
+                          .amount(tx.getAmount())  // todo handle issued currencies
+                          .currency(CurrencyEnum.DROPS)
+                  )
+                  .sourceAccount(tx.getAccount())
+                  .destinationAccount(tx.getDestination())
+                  .destinationTag(String.valueOf(tx.getDestinationTag()))
+                  .fee(
+                      new CurrencyValue()
+                          .amount(tx.getFee())
+                          .currency(CurrencyEnum.DROPS)
+                  )
+                  .type(tx.getTransactionType())
+                  .hash(tx.getHash())
+                  .status(meta != null ? toSimpleStatus(meta.getTransactionResult()) : "unknown")
+          );
+    }
+    return null;
   }
 
   @Override
   public SubmitTransactionResult submitTransaction(String network,
       SubmitTransactionRequest submitTransactionRequest) throws UnknownNetworkException {
-    final List<BlockchainNetworkConfiguration> selectedNetworks = configuration.getNetworks()
-        .stream()
-        .filter(c -> c.getGroup().equalsIgnoreCase(network))
-        .collect(Collectors.toList());
+    final Set<NetworkClient<PublicRippledClient>> networkClients = networkClientService.getAllMatching(network);
 
-    if (selectedNetworks.size() == 0) {
+    if (networkClients.size() == 0) {
       throw new UnknownNetworkException(CHAIN_ID, network);
     }
 
-    final PublicRippledClient client = serverClients.get(selectedNetworks.get(0).getAddress());
-    final SubmitTransactionResponse submitTransaction = client
-        .submitTransaction(submitTransactionRequest.getTransaction());
-    final AccountTransaction tx = submitTransaction.getResult().getTxJson();
-    return new SubmitTransactionResult()
-        .chainId(SubmitTransactionResult.ChainIdEnum.XRP)
-        .network(network)
-        .server(selectedNetworks.get(0).getAddress())
-        .transaction(
-            new BlockchainAccountTransactionItem()
-                .amount(
-                    new CurrencyValue()
-                        .amount(tx.getAmount())  // todo handle issued currencies
-                        .currency(CurrencyEnum.DROPS)
-                )
-                .sourceAccount(tx.getAccount())
-                .destinationAccount(tx.getDestination())
-                .destinationTag(String.valueOf(tx.getDestinationTag()))
-                .fee(
-                    new CurrencyValue()
-                        .amount(tx.getFee())
-                        .currency(CurrencyEnum.DROPS)
-                )
-                .type(tx.getTransactionType())
-                .hash(tx.getHash())
-                .status(toSimpleStatus(tx.getMeta().getTransactionResult()))
-        );
+    for (NetworkClient<PublicRippledClient> networkClient : networkClients) {
+      final PublicRippledClient client = networkClient.getClient();
+      final SubmitTransactionResponse submitTransaction = client
+          .submitTransaction(submitTransactionRequest.getTransaction());
+      final AccountTransaction tx = submitTransaction.getResult().getTxJson();
+      return new SubmitTransactionResult()
+          .chainId(SubmitTransactionResult.ChainIdEnum.XRP)
+          .network(network)
+          .server(networkClient.getNetwork().getAddress())
+          .transaction(
+              new BlockchainAccountTransactionItem()
+                  .amount(
+                      new CurrencyValue()
+                          .amount(tx.getAmount())  // todo handle issued currencies
+                          .currency(CurrencyEnum.DROPS)
+                  )
+                  .sourceAccount(tx.getAccount())
+                  .destinationAccount(tx.getDestination())
+                  .destinationTag(String.valueOf(tx.getDestinationTag()))
+                  .fee(
+                      new CurrencyValue()
+                          .amount(tx.getFee())
+                          .currency(CurrencyEnum.DROPS)
+                  )
+                  .type(tx.getTransactionType())
+                  .hash(tx.getHash())
+                  .status(toSimpleStatus(tx.getMeta().getTransactionResult()))
+          );
+    }
+    return null;
   }
 
   private String toSimpleStatus(String transactionResult) {
     // as per https://xrpl.org/transaction-results.html
+    if (transactionResult == null) return "null";
+
     if (transactionResult.startsWith("tes") && transactionResult.endsWith("SUCCESS")) {
       return "success";
     }
@@ -476,6 +455,14 @@ public class XrpGateway implements BlockchainGateway {
     }
     // we don't understand this, return as is
     return transactionResult;
+  }
+
+  private String toURI(String address) {
+    try {
+      return new URI(address).getHost();
+    } catch (URISyntaxException e) {
+      return null;
+    }
   }
 
   private String toURI(BlockchainNetworkConfiguration c) {

@@ -6,6 +6,7 @@ import static app.keyconnect.server.gateways.EthereumGateway.SCALE;
 
 import app.keyconnect.api.client.model.GenericCurrencyValue;
 import app.keyconnect.api.client.model.SubAccountInfo;
+import app.keyconnect.server.services.networks.NetworkClient;
 import app.keyconnect.server.services.networks.NetworkClientService;
 import app.keyconnect.server.utils.EtherscanUtil;
 import app.keyconnect.server.utils.models.EtherscanAccountTransaction;
@@ -141,8 +142,9 @@ public class Erc20TokenService {
   }
 
   private SubAccountInfo getSubAccountInfo(String network, String address, Erc20Token token) {
-    final Web3j client = ethNetworkClientService.getClients(network).stream().findFirst()
+    final NetworkClient<Web3j> networkClient = ethNetworkClientService.getAllMatching(network).stream().findFirst()
         .orElseThrow();
+    final Web3j client = networkClient.getClient();
     // get credentials from credentials service
     final Credentials credentials = ethCredentialsService.getCredentials();
     // load contract hash

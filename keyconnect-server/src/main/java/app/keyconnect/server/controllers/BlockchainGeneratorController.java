@@ -8,6 +8,7 @@ import app.keyconnect.server.factories.BlockchainGatewayFactory;
 import app.keyconnect.server.gateways.BlockchainGateway;
 import app.keyconnect.server.gateways.XrpGateway;
 import java.math.BigDecimal;
+import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -43,6 +44,7 @@ public class BlockchainGeneratorController {
 
     if (StringUtils.isBlank(feeInDrops)) {
       final CurrencyValue fee = xrpGateway.getFee(network).getFee();
+      Objects.requireNonNull(fee, "Fee for network " + network + " should not be null");
       if (fee.getCurrency() == CurrencyEnum.DROPS) {
         feeInDrops = fee.getAmount();
       } else if (fee.getCurrency() == CurrencyEnum.XRP) {
