@@ -91,6 +91,7 @@ public class EthereumGateway implements
         .distinct()
         .forEach(a -> {
           final Web3j client = Web3j.build(new HttpService(a));
+          logger.info("Connected to eth node {}", a);
           this.serverClients.put(a, client);
         });
 
