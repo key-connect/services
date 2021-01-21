@@ -68,7 +68,7 @@ public class EthereumGateway implements
   // cache key is network
   private final Map<String, Web3j> serverClients;
   private final LoadingCache<String, EthBlock> latestEthBlockCache;
-  private EtherscanUtil etherscanUtil;
+  private final EtherscanUtil etherscanUtil;
   private final Erc20TokenService tokenService;
 
   public EthereumGateway(
