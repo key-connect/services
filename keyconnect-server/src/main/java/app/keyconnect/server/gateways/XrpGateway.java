@@ -145,6 +145,11 @@ public class XrpGateway implements BlockchainGateway {
     final Set<NetworkClient<PublicRippledClient>> clients = networkClientService
         .getAllMatching(network);
 
+    if (clients.size() == 0) {
+      // we could not find the specified network
+      throw new UnknownNetworkException(CHAIN_ID, network);
+    }
+
     return clients.stream()
         .map(networkClient -> {
           final BlockchainNetworkConfiguration networkConfiguration = networkClient.getNetwork();
