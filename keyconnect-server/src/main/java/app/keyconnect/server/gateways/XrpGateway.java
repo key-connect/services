@@ -64,7 +64,7 @@ public class XrpGateway implements BlockchainGateway {
   private final NetworkClientService<PublicRippledClient> networkClientService;
   // key is network
   private final LoadingCache<String, ServerInfoResponse> serverInfoCache;
-  // key is serverUrl
+  // key is network
   private final LoadingCache<String, FeeResponse> networkFeeCache;
   // key is in form of <network>|<address>
   private final LoadingCache<String, AccountInfoResponse> walletAccountInfoCache;
@@ -107,8 +107,8 @@ public class XrpGateway implements BlockchainGateway {
         .expireAfterWrite(Duration.of(1, ChronoUnit.MINUTES))
         .build(new CacheLoader<>() {
           @Override
-          public FeeResponse load(@NotNull String key) throws Exception {
-            return networkClientService.getClientForServer(key).getFee();
+          public FeeResponse load(@NotNull String network) throws Exception {
+            return networkClientService.getFirst(network).getClient().getFee();
           }
         });
   }
@@ -177,20 +177,17 @@ public class XrpGateway implements BlockchainGateway {
 
   public BlockchainFee getFee(String specifiedNetwork) throws UnknownNetworkException {
     final String network = validateNetworkOrDefault(specifiedNetwork);
-    final List<BlockchainNetworkConfiguration> eligibleNetworks = configuration.getNetworks()
-        .stream()
-        .filter(n -> n.getGroup().equalsIgnoreCase(network))
-        // there's a better way to do this
-        .collect(Collectors.toList());
-    if (eligibleNetworks.size() == 0) {
+    final Set<NetworkClient<PublicRippledClient>> clients = networkClientService
+        .getAllMatching(network);
+    if (clients.size() == 0) {
       // we could not find the specified network
       throw new UnknownNetworkException(CHAIN_ID, network);
     }
 
-    for (BlockchainNetworkConfiguration eligibleNetwork : eligibleNetworks) {
-      final String serverUrl = eligibleNetwork.getAddress();
+    for (NetworkClient<PublicRippledClient> client : clients) {
+      final BlockchainNetworkConfiguration networkConfig = client.getNetwork();
       try {
-        final FeeResponse feeResponse = networkFeeCache.get(serverUrl);
+        final FeeResponse feeResponse = networkFeeCache.get(networkConfig.getGroup());
         final CurrencyValue fee = new CurrencyValue()
             .amount(feeResponse.getResult().getDrops().getMinimumFee())
             .currency(CurrencyEnum.DROPS);
@@ -198,7 +195,7 @@ public class XrpGateway implements BlockchainGateway {
             .chainId(BlockchainFee.ChainIdEnum.XRP)
             .fee(fee)
             .network(network)
-            .server(serverUrl);
+            .server(toURI(networkConfig.getAddress()));
       } catch (ExecutionException e) {
         logger.warn("Unable to get xrp.fee, network=" + network, e);
       }
