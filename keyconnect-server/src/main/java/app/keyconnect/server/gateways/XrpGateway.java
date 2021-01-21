@@ -30,6 +30,7 @@ import app.keyconnect.server.factories.configuration.BlockchainNetworkConfigurat
 import app.keyconnect.server.factories.configuration.BlockchainsConfiguration;
 import app.keyconnect.server.factories.configuration.YamlConfiguration;
 import app.keyconnect.server.gateways.exceptions.UnknownNetworkException;
+import app.keyconnect.server.services.networks.NetworkClient;
 import app.keyconnect.server.services.networks.NetworkClientService;
 import com.google.common.base.Strings;
 import com.google.common.cache.CacheBuilder;
@@ -44,6 +45,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -60,7 +62,7 @@ public class XrpGateway implements BlockchainGateway {
   private static final String DEFAULT_NETWORK = "mainnet";
   private final BlockchainsConfiguration configuration;
   private final NetworkClientService<PublicRippledClient> networkClientService;
-  // key is serverUrl
+  // key is network
   private final LoadingCache<String, ServerInfoResponse> serverInfoCache;
   // key is serverUrl
   private final LoadingCache<String, FeeResponse> networkFeeCache;
@@ -84,8 +86,8 @@ public class XrpGateway implements BlockchainGateway {
         .expireAfterWrite(SERVER_INFO_CACHE_EXPIRY)
         .build(new CacheLoader<>() {
           @Override
-          public ServerInfoResponse load(@NotNull String key) throws Exception {
-            return networkClientService.getClientForServer(key).getServerInfo();
+          public ServerInfoResponse load(@NotNull String network) throws Exception {
+            return networkClientService.getFirst(network).getClient().getServerInfo();
           }
         });
 
@@ -140,31 +142,28 @@ public class XrpGateway implements BlockchainGateway {
   @Override
   public BlockchainNetworkServerStatus[] getNetworkServerStatus(String network)
       throws UnknownNetworkException {
-    final List<BlockchainNetworkConfiguration> foundNetworks = configuration.getNetworks()
-        .stream()
-        .filter(n -> n.getGroup().equalsIgnoreCase(network))
-        .collect(Collectors.toList());
-    if (foundNetworks.size() == 0) {
-      throw new UnknownNetworkException(CHAIN_ID, network);
-    }
+    final Set<NetworkClient<PublicRippledClient>> clients = networkClientService
+        .getAllMatching(network);
 
-    return foundNetworks.stream()
-        .map(c -> {
+    return clients.stream()
+        .map(networkClient -> {
+          final BlockchainNetworkConfiguration networkConfiguration = networkClient.getNetwork();
           try {
-            final ServerInfoResponse serverInfoResponse = serverInfoCache.get(c.getAddress());
+            final ServerInfoResponse serverInfoResponse = serverInfoCache.get(
+                networkConfiguration.getGroup());
             // todo refine the way the BlockchainNetworkStatus is constructed
             return new BlockchainNetworkServerStatus()
                 // todo be defensive, this is relying too much on rippled behaving correctly
                 .status(serverInfoResponse.getResult().getStatus().equalsIgnoreCase("success")
                     ? StatusEnum.HEALTHY : StatusEnum.UNHEALTHY)
-                .host(toURI(c))
+                .host(toURI(networkConfiguration.getAddress()))
                 // todo either remove lastCheck or find more reliable way to get this
                 .lastCheck(Instant.now().toString());
           } catch (Throwable e) {
-            logger.warn("Unable to get serverInfo to obtain status for network=" + c, e);
+            logger.warn("Unable to get serverInfo to obtain status for network=" + network, e);
             return new BlockchainNetworkServerStatus()
                 .status(StatusEnum.UNHEALTHY)
-                .host(toURI(c))
+                .host(toURI(networkConfiguration.getAddress()))
                 .lastCheck(Instant.now().toString());
           }
         })
@@ -461,6 +460,14 @@ public class XrpGateway implements BlockchainGateway {
     }
     // we don't understand this, return as is
     return transactionResult;
+  }
+
+  private String toURI(String address) {
+    try {
+      return new URI(address).getHost();
+    } catch (URISyntaxException e) {
+      return null;
+    }
   }
 
   private String toURI(BlockchainNetworkConfiguration c) {
