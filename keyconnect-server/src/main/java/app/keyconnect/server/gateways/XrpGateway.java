@@ -392,7 +392,7 @@ public class XrpGateway implements BlockchainGateway {
                   )
                   .type(tx.getTransactionType())
                   .hash(tx.getHash())
-                  .status(toSimpleStatus(meta != null ? meta.getTransactionResult() : "unknown"))
+                  .status(meta != null ? toSimpleStatus(meta.getTransactionResult()) : "unknown")
           );
     }
     return null;
@@ -441,6 +441,8 @@ public class XrpGateway implements BlockchainGateway {
 
   private String toSimpleStatus(String transactionResult) {
     // as per https://xrpl.org/transaction-results.html
+    if (transactionResult == null) return "null";
+
     if (transactionResult.startsWith("tes") && transactionResult.endsWith("SUCCESS")) {
       return "success";
     }
