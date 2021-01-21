@@ -4,6 +4,8 @@ import java.util.Set;
 
 public interface NetworkClientService<T> {
 
-  Set<T> getClients(String network);
+  Set<NetworkClient<T>> getAllMatching(String network);
+  NetworkClient<T> getFirst(String network);
+  T getClientForServer(String serverUrl);
 
 }

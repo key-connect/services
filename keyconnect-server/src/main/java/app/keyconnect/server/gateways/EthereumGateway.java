@@ -22,6 +22,8 @@ import app.keyconnect.server.gateways.exceptions.FailedToSubmitEthTransactionExc
 import app.keyconnect.server.gateways.exceptions.UnknownNetworkException;
 import app.keyconnect.server.gateways.exceptions.UnsupportedNetworkForEthTransactionsException;
 import app.keyconnect.server.services.Erc20TokenService;
+import app.keyconnect.server.services.networks.NetworkClient;
+import app.keyconnect.server.services.networks.NetworkClientService;
 import app.keyconnect.server.utils.EtherscanUtil;
 import app.keyconnect.server.utils.models.EtherscanResponse;
 import com.google.common.base.Strings;
@@ -37,8 +39,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -54,7 +55,6 @@ import org.web3j.protocol.core.methods.response.EthGetBalance;
 import org.web3j.protocol.core.methods.response.EthSendTransaction;
 import org.web3j.protocol.core.methods.response.EthTransaction;
 import org.web3j.protocol.core.methods.response.Transaction;
-import org.web3j.protocol.http.HttpService;
 
 public class EthereumGateway implements
     BlockchainGateway {
@@ -66,16 +66,16 @@ public class EthereumGateway implements
   public static final RoundingMode ROUNDING_MODE = RoundingMode.HALF_UP;
   private static final String DEFAULT_NETWORK = "mainnet";
   private final BlockchainsConfiguration configuration;
-  // cache key is network
-  private final Map<String, Web3j> serverClients;
   private final LoadingCache<String, EthBlock> latestEthBlockCache;
   private final EtherscanUtil etherscanUtil;
   private final Erc20TokenService tokenService;
+  private final NetworkClientService<Web3j> networkClientService;
 
   public EthereumGateway(
       YamlConfiguration configuration,
       EtherscanUtil etherscanUtil,
-      Erc20TokenService tokenService) {
+      Erc20TokenService tokenService,
+      NetworkClientService<Web3j> networkClientService) {
     this.configuration = configuration.getBlockchains()
         .stream()
         .filter(b -> b.getType().equalsIgnoreCase(CHAIN_ID))
@@ -83,25 +83,14 @@ public class EthereumGateway implements
         .orElse(new BlockchainsConfiguration());
     this.etherscanUtil = etherscanUtil;
     this.tokenService = tokenService;
-
-    // pre populate server clients cache
-    this.serverClients = new ConcurrentHashMap<>(this.configuration.getNetworks().size());
-    this.configuration.getNetworks()
-        .stream()
-        .map(BlockchainNetworkConfiguration::getAddress)
-        .distinct()
-        .forEach(a -> {
-          final Web3j client = Web3j.build(new HttpService(a));
-          logger.info("Connected to eth node {}", a);
-          this.serverClients.put(a, client);
-        });
+    this.networkClientService = networkClientService;
 
     this.latestEthBlockCache = CacheBuilder.newBuilder()
         .expireAfterWrite(10, TimeUnit.SECONDS)
         .build(new CacheLoader<>() {
           @Override
-          public EthBlock load(@NotNull String network) throws Exception {
-            final Web3j client = serverClients.get(network);
+          public EthBlock load(@NotNull String serverUrl) throws Exception {
+            final Web3j client = EthereumGateway.this.networkClientService.getClientForServer(serverUrl);
             return client.ethGetBlockByNumber(DefaultBlockParameter.valueOf("latest"), false)
                 .sendAsync().get(30, TimeUnit.SECONDS);
           }
@@ -136,17 +125,12 @@ public class EthereumGateway implements
 
   @Override
   public BlockchainNetworkServerStatus[] getNetworkServerStatus(String network) {
-    final List<BlockchainNetworkConfiguration> eligibleNetworks = this.configuration.getNetworks()
+    return networkClientService.getAllMatching(network)
         .stream()
-        .filter(n -> n.getGroup().equalsIgnoreCase(network))
-        .collect(Collectors.toList());
-
-    return eligibleNetworks.stream()
         .map(n -> {
-          final String serverUrl = n.getAddress();
-          final Web3j client = serverClients.get(serverUrl);
+          final String serverUrl = n.getNetwork().getAddress();
           try {
-            final EthBlock latestEthBlock = client
+            final EthBlock latestEthBlock = n.getClient()
                 .ethGetBlockByNumber(DefaultBlockParameter.valueOf("latest"), false)
                 .sendAsync().get(30, TimeUnit.SECONDS);
             return new BlockchainNetworkServerStatus()
@@ -167,15 +151,12 @@ public class EthereumGateway implements
 
   @Override
   public BlockchainFee getFee(String network) {
-    final List<BlockchainNetworkConfiguration> eligibleNetworks = this.configuration.getNetworks()
-        .stream()
-        .filter(n -> n.getGroup().equalsIgnoreCase(network))
-        .collect(Collectors.toList());
+    final Set<NetworkClient<Web3j>> networkClients = networkClientService.getAllMatching(network);
 
-    for (BlockchainNetworkConfiguration eligibleNetwork : eligibleNetworks) {
-      final String serverUrl = eligibleNetwork.getAddress();
+    for (NetworkClient<Web3j> networkClient : networkClients) {
+      final String serverUrl = networkClient.getNetwork().getAddress();
       try {
-        final Web3j client = serverClients.get(serverUrl);
+        final Web3j client = networkClient.getClient();
         final EthGasPrice gasPrice = client.ethGasPrice().sendAsync().get(30, TimeUnit.SECONDS);
         return new BlockchainFee()
             .server(toHost(serverUrl))
@@ -197,11 +178,8 @@ public class EthereumGateway implements
   @Override
   public BlockchainAccountInfo getAccount(String network, String accountId)
       throws UnknownNetworkException {
-    final List<BlockchainNetworkConfiguration> eligibleNetworks = this.configuration.getNetworks()
-        .stream()
-        .filter(n -> n.getGroup().equalsIgnoreCase(network))
-        .collect(Collectors.toList());
-    if (eligibleNetworks.size() == 0) {
+    final Set<NetworkClient<Web3j>> networkClients = networkClientService.getAllMatching(network);
+    if (networkClients.size() == 0) {
       // we could not find the specified network
       throw new UnknownNetworkException(CHAIN_ID, network);
     }
@@ -211,9 +189,9 @@ public class EthereumGateway implements
         .accountId(accountId)
         .network(network);
 
-    for (BlockchainNetworkConfiguration eligibleNetwork : eligibleNetworks) {
-      final String serverUrl = eligibleNetwork.getAddress();
-      final Web3j client = serverClients.get(serverUrl);
+    for (NetworkClient<Web3j> networkClient : networkClients) {
+      final String serverUrl = networkClient.getNetwork().getAddress();
+      final Web3j client = networkClient.getClient();
       try {
         final EthGetBalance balance = client
             .ethGetBalance(accountId, DefaultBlockParameter.valueOf("latest")).sendAsync()
@@ -234,7 +212,7 @@ public class EthereumGateway implements
             .subAccounts(tokenService.getAllSubAccountInfo(network, accountId,
                 latestBlock));
       } catch (InterruptedException | ExecutionException | TimeoutException e) {
-        logger.warn("Unable to get eth.accountInfo, network=" + eligibleNetwork, e);
+        logger.warn("Unable to get eth.accountInfo, network=" + network, e);
       }
     }
     // todo pending lastTransactionId
@@ -369,13 +347,11 @@ public class EthereumGateway implements
   @Override
   public BlockchainAccountTransaction getTransaction(String network, String hash)
       throws UnknownNetworkException {
-    final List<BlockchainNetworkConfiguration> eligibleNetworks = this.configuration.getNetworks()
-        .stream()
-        .filter(n -> n.getGroup().equalsIgnoreCase(network))
-        .collect(Collectors.toList());
-    for (BlockchainNetworkConfiguration eligibleNetwork : eligibleNetworks) {
-      final String serverUrl = eligibleNetwork.getAddress();
-      final Web3j client = serverClients.get(serverUrl);
+    final Set<NetworkClient<Web3j>> networkClients = networkClientService.getAllMatching(network);
+
+    for (NetworkClient<Web3j> networkClient : networkClients) {
+      final String serverUrl = networkClient.getNetwork().getAddress();
+      final Web3j client = networkClient.getClient();
       try {
         final EthTransaction ethTransaction = client.ethGetTransactionByHash(hash).sendAsync()
             .get(30, TimeUnit.SECONDS);
@@ -434,13 +410,10 @@ public class EthereumGateway implements
   @Override
   public SubmitTransactionResult submitTransaction(String network,
       SubmitTransactionRequest submitTransactionRequest) throws UnknownNetworkException {
-    final List<BlockchainNetworkConfiguration> eligibleNetworks = this.configuration.getNetworks()
-        .stream()
-        .filter(n -> n.getGroup().equalsIgnoreCase(network))
-        .collect(Collectors.toList());
-    for (BlockchainNetworkConfiguration eligibleNetwork : eligibleNetworks) {
-      final String serverUrl = eligibleNetwork.getAddress();
-      final Web3j client = serverClients.get(serverUrl);
+    final Set<NetworkClient<Web3j>> networkClients = networkClientService.getAllMatching(network);
+    for (NetworkClient<Web3j> networkClient : networkClients) {
+      final String serverUrl = networkClient.getNetwork().getAddress();
+      final Web3j client = networkClient.getClient();
       final EthSendTransaction response;
       try {
         response = client
