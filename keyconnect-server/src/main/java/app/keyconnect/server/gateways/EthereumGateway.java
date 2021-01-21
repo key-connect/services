@@ -43,6 +43,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.web3j.protocol.Web3j;
@@ -99,7 +100,7 @@ public class EthereumGateway implements
         .expireAfterWrite(10, TimeUnit.SECONDS)
         .build(new CacheLoader<>() {
           @Override
-          public EthBlock load(String network) throws Exception {
+          public EthBlock load(@NotNull String network) throws Exception {
             final Web3j client = serverClients.get(network);
             return client.ethGetBlockByNumber(DefaultBlockParameter.valueOf("latest"), false)
                 .sendAsync().get(30, TimeUnit.SECONDS);

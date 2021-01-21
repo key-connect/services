@@ -50,6 +50,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestTemplate;
@@ -99,7 +100,7 @@ public class XrpGateway implements BlockchainGateway {
         .expireAfterWrite(SERVER_INFO_CACHE_EXPIRY)
         .build(new CacheLoader<>() {
           @Override
-          public ServerInfoResponse load(String key) throws Exception {
+          public ServerInfoResponse load(@NotNull String key) throws Exception {
             return serverClients.get(key).getServerInfo();
           }
         });
@@ -108,7 +109,7 @@ public class XrpGateway implements BlockchainGateway {
         .expireAfterWrite(Duration.of(30, ChronoUnit.SECONDS))
         .build(new CacheLoader<>() {
           @Override
-          public AccountInfoResponse load(String key) throws Exception {
+          public AccountInfoResponse load(@NotNull String key) throws Exception {
             final String[] tokens = key.split("\\|");
             final String serverUrl = tokens[0];
             final String address = tokens[1];
@@ -120,7 +121,7 @@ public class XrpGateway implements BlockchainGateway {
         .expireAfterWrite(Duration.of(1, ChronoUnit.MINUTES))
         .build(new CacheLoader<>() {
           @Override
-          public FeeResponse load(String key) throws Exception {
+          public FeeResponse load(@NotNull String key) throws Exception {
             return serverClients.get(key).getFee();
           }
         });
