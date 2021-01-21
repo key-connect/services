@@ -5,6 +5,7 @@ import app.keyconnect.rippled.api.spring.JacksonConfig;
 import app.keyconnect.server.factories.configuration.YamlConfiguration;
 import app.keyconnect.server.services.networks.NetworkClientService;
 import app.keyconnect.server.services.networks.XrpNetworkClientService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -27,9 +28,8 @@ public class XrpGatewayConfiguration {
 
   @Bean(XRP_GATEWAY)
   public XrpGateway xrpGateway(YamlConfiguration configuration,
-      MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter) {
-    return new XrpGateway(configuration,
-        () -> JacksonConfig.constructRestTemplate(mappingJackson2HttpMessageConverter));
+      @Qualifier(BEAN_XRP_NETWORK_SERVICE) NetworkClientService<PublicRippledClient> xrpNetworkClientService) {
+    return new XrpGateway(configuration, xrpNetworkClientService);
   }
 
 }

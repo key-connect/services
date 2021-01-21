@@ -1,17 +1,5 @@
 package app.keyconnect.server.gateways;
 
-import app.keyconnect.rippled.api.client.model.TransactionResult;
-import app.keyconnect.server.controllers.exceptions.InvalidCursorException;
-import app.keyconnect.server.factories.configuration.BlockchainNetworkConfiguration;
-import app.keyconnect.server.factories.configuration.BlockchainsConfiguration;
-import app.keyconnect.server.factories.configuration.YamlConfiguration;
-import app.keyconnect.server.gateways.exceptions.UnknownNetworkException;
-import com.google.common.base.Strings;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import app.keyconnect.rippled.api.client.PublicRippledClient;
-import app.keyconnect.rippled.api.client.config.PublicRippledClientConfig;
 import app.keyconnect.api.client.model.BlockchainAccountInfo;
 import app.keyconnect.api.client.model.BlockchainAccountInfo.ChainIdEnum;
 import app.keyconnect.api.client.model.BlockchainAccountPaymentItem;
@@ -26,6 +14,7 @@ import app.keyconnect.api.client.model.CurrencyValue;
 import app.keyconnect.api.client.model.CurrencyValue.CurrencyEnum;
 import app.keyconnect.api.client.model.SubmitTransactionRequest;
 import app.keyconnect.api.client.model.SubmitTransactionResult;
+import app.keyconnect.rippled.api.client.PublicRippledClient;
 import app.keyconnect.rippled.api.client.model.AccountInfoResponse;
 import app.keyconnect.rippled.api.client.model.AccountTransaction;
 import app.keyconnect.rippled.api.client.model.AccountTransactionItem;
@@ -35,6 +24,17 @@ import app.keyconnect.rippled.api.client.model.FeeResponse;
 import app.keyconnect.rippled.api.client.model.ServerInfoResponse;
 import app.keyconnect.rippled.api.client.model.SubmitTransactionResponse;
 import app.keyconnect.rippled.api.client.model.TransactionResponse;
+import app.keyconnect.rippled.api.client.model.TransactionResult;
+import app.keyconnect.server.controllers.exceptions.InvalidCursorException;
+import app.keyconnect.server.factories.configuration.BlockchainNetworkConfiguration;
+import app.keyconnect.server.factories.configuration.BlockchainsConfiguration;
+import app.keyconnect.server.factories.configuration.YamlConfiguration;
+import app.keyconnect.server.gateways.exceptions.UnknownNetworkException;
+import app.keyconnect.server.services.networks.NetworkClientService;
+import com.google.common.base.Strings;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URI;
@@ -44,16 +44,12 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.client.RestTemplate;
 
 public class XrpGateway implements BlockchainGateway {
 
@@ -63,8 +59,7 @@ public class XrpGateway implements BlockchainGateway {
   private static final Duration SERVER_INFO_CACHE_EXPIRY = Duration.of(30, ChronoUnit.SECONDS);
   private static final String DEFAULT_NETWORK = "mainnet";
   private final BlockchainsConfiguration configuration;
-  // key is serverUrl
-  private final Map<String, PublicRippledClient> serverClients;
+  private final NetworkClientService<PublicRippledClient> networkClientService;
   // key is serverUrl
   private final LoadingCache<String, ServerInfoResponse> serverInfoCache;
   // key is serverUrl
@@ -74,7 +69,7 @@ public class XrpGateway implements BlockchainGateway {
 
   //  private final Environment environment;
 
-  public XrpGateway(YamlConfiguration configuration, Supplier<RestTemplate> restTemplateSupplier) {
+  public XrpGateway(YamlConfiguration configuration, NetworkClientService<PublicRippledClient> networkClientService) {
     // assert configuration and networks are non null
     // populate server clients
     // for simplicity we get only configure the first xrp configuration
@@ -83,25 +78,14 @@ public class XrpGateway implements BlockchainGateway {
         .filter(b -> b.getType().equalsIgnoreCase(CHAIN_ID))
         .findFirst()
         .get();
-    this.serverClients = new ConcurrentHashMap<>(this.configuration.getNetworks().size());
-
-    // pre populate server clients cache
-    this.configuration.getNetworks()
-        .stream()
-        .map(BlockchainNetworkConfiguration::getAddress)
-        .distinct()
-        .forEach(a -> {
-          final PublicRippledClient client = new PublicRippledClient(restTemplateSupplier.get(),
-              PublicRippledClientConfig.builder().jsonRpcEndpoint(a).build());
-          this.serverClients.put(a, client);
-        });
+    this.networkClientService = networkClientService;
 
     serverInfoCache = CacheBuilder.newBuilder()
         .expireAfterWrite(SERVER_INFO_CACHE_EXPIRY)
         .build(new CacheLoader<>() {
           @Override
           public ServerInfoResponse load(@NotNull String key) throws Exception {
-            return serverClients.get(key).getServerInfo();
+            return networkClientService.getClientForServer(key).getServerInfo();
           }
         });
 
@@ -113,7 +97,7 @@ public class XrpGateway implements BlockchainGateway {
             final String[] tokens = key.split("\\|");
             final String serverUrl = tokens[0];
             final String address = tokens[1];
-            return serverClients.get(serverUrl).getAccountInfo(address);
+            return networkClientService.getClientForServer(serverUrl).getAccountInfo(address);
           }
         });
 
@@ -122,7 +106,7 @@ public class XrpGateway implements BlockchainGateway {
         .build(new CacheLoader<>() {
           @Override
           public FeeResponse load(@NotNull String key) throws Exception {
-            return serverClients.get(key).getFee();
+            return networkClientService.getClientForServer(key).getFee();
           }
         });
   }
@@ -293,7 +277,7 @@ public class XrpGateway implements BlockchainGateway {
       throw new UnknownNetworkException(CHAIN_ID, network);
     }
 
-    final PublicRippledClient client = serverClients.get(selectedNetworks.get(0).getAddress());
+    final PublicRippledClient client = networkClientService.getClientForServer(selectedNetworks.get(0).getAddress());
     AccountTransactionMarker requestMarker = null;
     if (StringUtils.isNotBlank(cursor) && cursor.contains(":")) {
       final String[] markerLedgerAndSeq = cursor.split(":");
@@ -394,7 +378,7 @@ public class XrpGateway implements BlockchainGateway {
       throw new UnknownNetworkException(CHAIN_ID, network);
     }
 
-    final PublicRippledClient client = serverClients.get(selectedNetworks.get(0).getAddress());
+    final PublicRippledClient client = networkClientService.getClientForServer(selectedNetworks.get(0).getAddress());
     final TransactionResponse transaction = client.getTransaction(hash);
     final TransactionResult tx = transaction.getResult();
     return new BlockchainAccountTransaction()
@@ -434,7 +418,7 @@ public class XrpGateway implements BlockchainGateway {
       throw new UnknownNetworkException(CHAIN_ID, network);
     }
 
-    final PublicRippledClient client = serverClients.get(selectedNetworks.get(0).getAddress());
+    final PublicRippledClient client = networkClientService.getClientForServer(selectedNetworks.get(0).getAddress());
     final SubmitTransactionResponse submitTransaction = client
         .submitTransaction(submitTransactionRequest.getTransaction());
     final AccountTransaction tx = submitTransaction.getResult().getTxJson();
