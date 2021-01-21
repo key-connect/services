@@ -51,10 +51,9 @@ public class EthereumGatewayConfiguration {
   }
 
   @Bean(BEAN_ETHEREUM_GATEWAY)
-  public EthereumGateway ethereumGateway(YamlConfiguration configuration,
-      EtherscanUtil etherscanUtil,
+  public EthereumGateway ethereumGateway(EtherscanUtil etherscanUtil,
       Erc20TokenService erc20TokenService,
       @Qualifier(BEAN_ETH_NETWORK_SERVICE) NetworkClientService<Web3j> ethNetworkClientService) {
-    return new EthereumGateway(configuration, etherscanUtil, erc20TokenService, ethNetworkClientService);
+    return new EthereumGateway(etherscanUtil, erc20TokenService, ethNetworkClientService);
   }
 }

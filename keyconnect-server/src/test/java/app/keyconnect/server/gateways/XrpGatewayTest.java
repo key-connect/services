@@ -28,7 +28,6 @@ public class XrpGatewayTest {
         }
     );
     final XrpGateway gateway = new XrpGateway(
-        yamlConfiguration,
         networkClientService
     );
     try {

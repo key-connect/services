@@ -65,22 +65,15 @@ public class EthereumGateway implements
   public static final int SCALE = 18;
   public static final RoundingMode ROUNDING_MODE = RoundingMode.HALF_UP;
   private static final String DEFAULT_NETWORK = "mainnet";
-  private final BlockchainsConfiguration configuration;
   private final LoadingCache<String, EthBlock> latestEthBlockCache;
   private final EtherscanUtil etherscanUtil;
   private final Erc20TokenService tokenService;
   private final NetworkClientService<Web3j> networkClientService;
 
   public EthereumGateway(
-      YamlConfiguration configuration,
       EtherscanUtil etherscanUtil,
       Erc20TokenService tokenService,
       NetworkClientService<Web3j> networkClientService) {
-    this.configuration = configuration.getBlockchains()
-        .stream()
-        .filter(b -> b.getType().equalsIgnoreCase(CHAIN_ID))
-        .findFirst()
-        .orElse(new BlockchainsConfiguration());
     this.etherscanUtil = etherscanUtil;
     this.tokenService = tokenService;
     this.networkClientService = networkClientService;
@@ -115,7 +108,7 @@ public class EthereumGateway implements
   public String validateNetworkOrDefault(String network) throws UnknownNetworkException {
     if (Strings.isNullOrEmpty(network)) return DEFAULT_NETWORK;
 
-    if (configuration.getNetworks()
+    if (networkClientService.getNetworks()
         .stream()
         .anyMatch(n -> n.getGroup().equalsIgnoreCase(network))
     ) return network;
@@ -256,14 +249,11 @@ public class EthereumGateway implements
     final String pageNumber = Strings.isNullOrEmpty(cursor) || "null".equalsIgnoreCase(cursor) ? "1" : cursor;
     final int iCursor = Integer.parseInt(pageNumber);
 
-    final List<BlockchainNetworkConfiguration> eligibleNetworks = this.configuration.getNetworks()
-        .stream()
-        .filter(n -> n.getGroup().equalsIgnoreCase(network))
-        .collect(Collectors.toList());
+    final Set<NetworkClient<Web3j>> networkClients = networkClientService.getAllMatching(network);
 
     List<BlockchainAccountTransactionItem> transactionItems = null;
-    for (BlockchainNetworkConfiguration eligibleNetwork : eligibleNetworks) {
-      final String serverUrl = eligibleNetwork.getAddress();
+    for (NetworkClient<Web3j> networkClient : networkClients) {
+      final String serverUrl = networkClient.getNetwork().getAddress();
       final String latestBlockNumber;
       try {
         latestBlockNumber = latestEthBlockCache.get(serverUrl).getBlock().getNumber()

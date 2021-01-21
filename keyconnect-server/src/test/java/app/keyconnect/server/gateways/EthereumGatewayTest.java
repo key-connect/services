@@ -49,7 +49,7 @@ public class EthereumGatewayTest {
       networkClientService = new EthNetworkClientService(yamlConfiguration);
     }
 
-    subject = new EthereumGateway(yamlConfiguration, mockEtherscan, mockTokenService,
+    subject = new EthereumGateway(mockEtherscan, mockTokenService,
         networkClientService);
   }
 

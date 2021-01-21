@@ -27,9 +27,9 @@ public class XrpGatewayConfiguration {
   }
 
   @Bean(XRP_GATEWAY)
-  public XrpGateway xrpGateway(YamlConfiguration configuration,
+  public XrpGateway xrpGateway(
       @Qualifier(BEAN_XRP_NETWORK_SERVICE) NetworkClientService<PublicRippledClient> xrpNetworkClientService) {
-    return new XrpGateway(configuration, xrpNetworkClientService);
+    return new XrpGateway(xrpNetworkClientService);
   }
 
 }
