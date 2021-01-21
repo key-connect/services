@@ -66,7 +66,7 @@ public class XrpGateway implements BlockchainGateway {
   private final LoadingCache<String, ServerInfoResponse> serverInfoCache;
   // key is serverUrl
   private final LoadingCache<String, FeeResponse> networkFeeCache;
-  // key is in form of <serverUrl>|<address>
+  // key is in form of <network>|<address>
   private final LoadingCache<String, AccountInfoResponse> walletAccountInfoCache;
 
   //  private final Environment environment;
@@ -95,11 +95,11 @@ public class XrpGateway implements BlockchainGateway {
         .expireAfterWrite(Duration.of(30, ChronoUnit.SECONDS))
         .build(new CacheLoader<>() {
           @Override
-          public AccountInfoResponse load(@NotNull String key) throws Exception {
-            final String[] tokens = key.split("\\|");
-            final String serverUrl = tokens[0];
+          public AccountInfoResponse load(@NotNull String networkPipeAccountId) throws Exception {
+            final String[] tokens = networkPipeAccountId.split("\\|");
+            final String network = tokens[0];
             final String address = tokens[1];
-            return networkClientService.getClientForServer(serverUrl).getAccountInfo(address);
+            return networkClientService.getFirst(network).getClient().getAccountInfo(address);
           }
         });
 
@@ -206,12 +206,9 @@ public class XrpGateway implements BlockchainGateway {
   @Override
   public BlockchainAccountInfo getAccount(String network, String accountId)
       throws UnknownNetworkException {
-    final List<BlockchainNetworkConfiguration> eligibleNetworks = configuration.getNetworks()
-        .stream()
-        .filter(n -> n.getGroup().equalsIgnoreCase(network))
-        // there's a better way to do this
-        .collect(Collectors.toList());
-    if (eligibleNetworks.size() == 0) {
+    final Set<NetworkClient<PublicRippledClient>> networkClients = networkClientService
+        .getAllMatching(network);
+    if (networkClients.size() == 0) {
       // we could not find the specified network
       throw new UnknownNetworkException(CHAIN_ID, network);
     }
@@ -219,16 +216,14 @@ public class XrpGateway implements BlockchainGateway {
     // we do this to allow fallback
     AccountInfoResponse accountInfoResponse = null;
     BlockchainNetworkConfiguration selectedNetwork = null;
-    for (BlockchainNetworkConfiguration eligibleNetwork : eligibleNetworks) {
-      final String networkAddress = eligibleNetwork.getAddress();
-      final String key = networkAddress + "|" + accountId;
+    for (NetworkClient<PublicRippledClient> networkClient : networkClients) {
+      final String key = network + "|" + accountId;
       try {
         accountInfoResponse = walletAccountInfoCache.get(key);
-        selectedNetwork = eligibleNetwork;
+        selectedNetwork = networkClient.getNetwork();
         break;
       } catch (Throwable e) {
         // swallow all exceptions
-
 
       }
     }
