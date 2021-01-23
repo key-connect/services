@@ -3,6 +3,7 @@ package app.keyconnect.server.controllers;
 import app.keyconnect.api.client.model.AccountsInfoRequest;
 import app.keyconnect.api.client.model.AccountsInfoResponse;
 import app.keyconnect.api.client.model.BlockchainAccountInfo;
+import app.keyconnect.server.controllers.exceptions.BadRequestException;
 import app.keyconnect.server.factories.BlockchainGatewayFactory;
 import app.keyconnect.server.gateways.BlockchainGateway;
 import java.util.List;
@@ -38,6 +39,10 @@ public class BatchBlockchainController {
       @RequestBody AccountsInfoRequest accountsInfoRequest,
       @RequestParam(value = "network", required = false, defaultValue = "mainnet") String network
   ) {
+    if (accountsInfoRequest.getAccounts() == null) {
+      throw new BadRequestException("accounts cannot be null");
+    }
+
     final List<BlockchainAccountInfo> blockchainAccountInfoList = accountsInfoRequest.getAccounts()
         .stream()
         .map(request -> workPool.submit(() -> {

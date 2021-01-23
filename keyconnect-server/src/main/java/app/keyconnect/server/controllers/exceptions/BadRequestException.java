@@ -11,6 +11,10 @@ public class BadRequestException extends RuntimeException {
     super(cause.getMessage(), cause);
   }
 
+  public BadRequestException(String message) {
+    super(message);
+  }
+
   @Override
   @ResponseBody
   public String getMessage() {
