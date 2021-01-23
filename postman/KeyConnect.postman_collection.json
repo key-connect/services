@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "a0099a24-fb22-48ee-9ec9-844108d5b44f",
+		"_postman_id": "188f4434-e60f-4972-9c72-84158d4de48c",
 		"name": "KeyConnectV2",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -42,7 +42,7 @@
 					}
 				],
 				"url": {
-					"raw": "{{ServerUrl}}/v1/blockchains/xrp/status?network=testnet",
+					"raw": "{{ServerUrl}}/v1/blockchains/xrp/status?network=mainnet",
 					"host": [
 						"{{ServerUrl}}"
 					],
@@ -55,7 +55,7 @@
 					"query": [
 						{
 							"key": "network",
-							"value": "testnet",
+							"value": "mainnet",
 							"description": "Optional network parameter"
 						}
 					]
@@ -190,12 +190,48 @@
 			"response": []
 		},
 		{
+			"name": "GET batch account info",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"accounts\": [\r\n        {\r\n            \"chainId\": \"xrp\",\r\n            \"accountId\": \"rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv\"\r\n        },\r\n        {\r\n            \"chainId\": \"eth\",\r\n            \"accountId\": \"0x4E83362442B8d1beC281594cEa3050c8EB01311C\"\r\n        }\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{ServerUrl}}/v1/batch/blockchains/accounts/info?network=mainnet",
+					"host": [
+						"{{ServerUrl}}"
+					],
+					"path": [
+						"v1",
+						"batch",
+						"blockchains",
+						"accounts",
+						"info"
+					],
+					"query": [
+						{
+							"key": "network",
+							"value": "mainnet"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "GET account info (eth)",
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{ServerUrl}}/v1/blockchains/eth/accounts/0x6c8C5d80B9C9C644E342d60Cc904A9D5E3C7a8e3?network=mainnet",
+					"raw": "{{ServerUrl}}/v1/blockchains/eth/accounts/0x4E83362442B8d1beC281594cEa3050c8EB01311C?network=mainnet",
 					"host": [
 						"{{ServerUrl}}"
 					],
@@ -204,7 +240,7 @@
 						"blockchains",
 						"eth",
 						"accounts",
-						"0x6c8C5d80B9C9C644E342d60Cc904A9D5E3C7a8e3"
+						"0x4E83362442B8d1beC281594cEa3050c8EB01311C"
 					],
 					"query": [
 						{
