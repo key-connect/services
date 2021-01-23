@@ -38,8 +38,7 @@ spring:
     serialization:
       WRITE_ENUMS_USING_TO_STRING: true
   banner:
-    image:
-      location: classpath:banner.txt
+    location: banner.txt
 application:
   title: Key Connect Server
   version: 1.0.0
