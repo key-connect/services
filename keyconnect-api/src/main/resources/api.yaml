@@ -558,6 +558,10 @@ components:
         lastTransactionId:
           type: string
           example: "4294BEBE5B569A18C0A2702387C9B1E7146DC3A5850C1E87204951C6FDAA4C42"
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServerErrorObject'
     CurrencyValue:
       description: Simple object representing `amount` as string in a specific `currency`.
       properties:

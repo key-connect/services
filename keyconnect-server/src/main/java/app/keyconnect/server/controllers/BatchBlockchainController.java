@@ -3,14 +3,21 @@ package app.keyconnect.server.controllers;
 import app.keyconnect.api.client.model.AccountsInfoRequest;
 import app.keyconnect.api.client.model.AccountsInfoResponse;
 import app.keyconnect.api.client.model.BlockchainAccountInfo;
+import app.keyconnect.api.client.model.ServerErrorObject;
+import app.keyconnect.api.client.model.ServerErrorObject.CategoryEnum;
+import app.keyconnect.api.client.model.ServerErrorObject.SeverityEnum;
 import app.keyconnect.server.controllers.exceptions.BadRequestException;
 import app.keyconnect.server.factories.BlockchainGatewayFactory;
 import app.keyconnect.server.gateways.BlockchainGateway;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class BatchBlockchainController {
 
   private static final int MAX_ACCOUNTS_INFO_BATCH_SIZE = 32;
+  private static final Logger logger = LoggerFactory.getLogger(BatchBlockchainController.class);
   private final BlockchainGatewayFactory blockchainGatewayFactory;
   private final ExecutorService workPool = Executors.newWorkStealingPool(
       MAX_ACCOUNTS_INFO_BATCH_SIZE);
@@ -51,8 +59,10 @@ public class BatchBlockchainController {
               + " per batch request");
     }
 
-    if (accountsInfoRequest.getAccounts().stream().anyMatch(a -> a.getChainId() == null || a.getAccountId() == null)) {
-      throw new BadRequestException("Both chainId and accountId must be specified for every account in the batch request");
+    if (accountsInfoRequest.getAccounts().stream()
+        .anyMatch(a -> a.getChainId() == null || a.getAccountId() == null)) {
+      throw new BadRequestException(
+          "Both chainId and accountId must be specified for every account in the batch request");
     }
 
     final List<BlockchainAccountInfo> blockchainAccountInfoList = accountsInfoRequest.getAccounts()
@@ -67,7 +77,19 @@ public class BatchBlockchainController {
             return c.get();
           } catch (InterruptedException | ExecutionException e) {
             // ignore
-            return new BlockchainAccountInfo(); // fill in error
+            logger.warn("Error getting account balance", e);
+            return new BlockchainAccountInfo().errors(
+                Collections.singletonList(
+                    new ServerErrorObject()
+                        .message(
+                            "Failed to get account info, please try again. If this message persists, please contact the server administrator"
+                        )
+                        .category(
+                            CategoryEnum.INTERNAL
+                        )
+                        .severity(SeverityEnum.MEDIUM)
+                )
+            ); // fill in error
           }
         })
         .collect(Collectors.toList());
