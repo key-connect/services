@@ -799,9 +799,11 @@ components:
                         endpoint. This field is required if `fee` is not specified in order to
                         dynamically obtain the fee from the network.
                       "
-          required: false
           default: "mainnet"
         accountId:
           type: string
           description: Identifier representing the account. This is most likely the wallet address.
           example: "rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv"
+      required:
+        - chainId
+        - accountId
