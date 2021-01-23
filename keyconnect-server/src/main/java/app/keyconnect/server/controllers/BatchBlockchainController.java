@@ -22,8 +22,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class BatchBlockchainController {
 
+  private static final int MAX_ACCOUNTS_INFO_BATCH_SIZE = 32;
   private final BlockchainGatewayFactory blockchainGatewayFactory;
-  private final ExecutorService workPool = Executors.newWorkStealingPool(32);
+  private final ExecutorService workPool = Executors.newWorkStealingPool(
+      MAX_ACCOUNTS_INFO_BATCH_SIZE);
 
   @Autowired
   public BatchBlockchainController(
@@ -40,7 +42,12 @@ public class BatchBlockchainController {
       @RequestParam(value = "network", required = false, defaultValue = "mainnet") String network
   ) {
     if (accountsInfoRequest.getAccounts() == null) {
-      throw new BadRequestException("accounts cannot be null");
+      throw new BadRequestException("accounts field cannot be null");
+    }
+
+    if (accountsInfoRequest.getAccounts().size() > MAX_ACCOUNTS_INFO_BATCH_SIZE) {
+      throw new BadRequestException("Number of accounts exceed the maximum allowed " + MAX_ACCOUNTS_INFO_BATCH_SIZE
+          + " per batch request");
     }
 
     final List<BlockchainAccountInfo> blockchainAccountInfoList = accountsInfoRequest.getAccounts()
