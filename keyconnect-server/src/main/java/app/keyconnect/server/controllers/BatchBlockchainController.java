@@ -51,6 +51,10 @@ public class BatchBlockchainController {
               + " per batch request");
     }
 
+    if (accountsInfoRequest.getAccounts().stream().anyMatch(a -> a.getChainId() == null || a.getAccountId() == null)) {
+      throw new BadRequestException("Both chainId and accountId must be specified for every account in the batch request");
+    }
+
     final List<BlockchainAccountInfo> blockchainAccountInfoList = accountsInfoRequest.getAccounts()
         .stream()
         .map(request -> workPool.submit(() -> {
