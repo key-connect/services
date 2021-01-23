@@ -92,7 +92,7 @@ public class BatchBlockchainController implements DisposableBean {
                         )
                         .severity(SeverityEnum.MEDIUM)
                 )
-            ); // fill in error
+            );
           }
         })
         .collect(Collectors.toList());
@@ -101,7 +101,6 @@ public class BatchBlockchainController implements DisposableBean {
             .accounts(blockchainAccountInfoList)
     );
   }
-
 
   @Override
   @PreDestroy
