@@ -15,9 +15,12 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import javax.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +30,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class BatchBlockchainController {
+public class BatchBlockchainController implements DisposableBean {
 
   private static final int MAX_ACCOUNTS_INFO_BATCH_SIZE = 32;
   private static final Logger logger = LoggerFactory.getLogger(BatchBlockchainController.class);
@@ -97,5 +100,15 @@ public class BatchBlockchainController {
         new AccountsInfoResponse()
             .accounts(blockchainAccountInfoList)
     );
+  }
+
+
+  @Override
+  @PreDestroy
+  public void destroy() throws Exception {
+    logger.info("Attempting to shutdown gracefully...");
+    workPool.shutdown();
+    workPool.awaitTermination(60, TimeUnit.MINUTES);
+    logger.info("Graceful shutdown succeeded");
   }
 }
