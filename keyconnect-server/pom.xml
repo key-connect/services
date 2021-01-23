@@ -65,15 +65,6 @@
       <version>4.9.0</version>
     </dependency>
     <dependency>
-      <groupId>app.keyconnect.api</groupId>
-      <artifactId>keyconnect-api</artifactId>
-      <version>${project.version}</version>
-      <classifier>resources</classifier>
-      <type>zip</type>
-      <scope>provided</scope>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
       <groupId>com.fasterxml.jackson.dataformat</groupId>
       <artifactId>jackson-dataformat-yaml</artifactId>
       <version>2.11.2</version>
