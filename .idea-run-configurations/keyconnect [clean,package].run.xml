@@ -2,26 +2,7 @@
   <configuration default="false" name="keyconnect [clean,package]" type="MavenRunConfiguration" factoryName="Maven" nameIsGenerated="true">
     <MavenSettings>
       <option name="myGeneralSettings" />
-      <option name="myRunnerSettings">
-        <MavenRunnerSettings>
-          <option name="delegateBuildToMaven" value="false" />
-          <option name="environmentProperties">
-            <map>
-              <entry key="ETHERSCAN_TOKEN" value="ETHERSCAN_TOKEN" />
-              <entry key="ETH_MAINNET_ADDR" value="https://mainnet.infura.io/v3/INFURA_KEY" />
-              <entry key="ETH_ROPSTEN_ADDR" value="https://ropsten.infura.io/v3/INFURA_KEY" />
-            </map>
-          </option>
-          <option name="jreName" value="#USE_PROJECT_JDK" />
-          <option name="mavenProperties">
-            <map />
-          </option>
-          <option name="passParentEnv" value="true" />
-          <option name="runMavenInBackground" value="true" />
-          <option name="skipTests" value="false" />
-          <option name="vmOptions" value="" />
-        </MavenRunnerSettings>
-      </option>
+      <option name="myRunnerSettings" />
       <option name="myRunnerParameters">
         <MavenRunnerParameters>
           <option name="profiles">

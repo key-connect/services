@@ -47,6 +47,8 @@ import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameter;
 import org.web3j.protocol.core.methods.response.EthBlock;
@@ -65,6 +67,8 @@ public class EthereumGateway implements
   public static final int SCALE = 18;
   public static final RoundingMode ROUNDING_MODE = RoundingMode.HALF_UP;
   private static final String DEFAULT_NETWORK = "mainnet";
+  public static final String TX_STATUS_OK = "ok";
+  public static final String TX_STATUS_UNKNOWN = "unknown";
   private final LoadingCache<String, EthBlock> latestEthBlockCache;
   private final EtherscanUtil etherscanUtil;
   private final Erc20TokenService tokenService;
@@ -96,6 +100,7 @@ public class EthereumGateway implements
   }
 
   @Override
+  @Cacheable("elephant")
   public String[] getNetworks() {
     return networkClientService.getNetworks()
         .stream()
@@ -117,6 +122,7 @@ public class EthereumGateway implements
   }
 
   @Override
+  @Cacheable("fast")
   public BlockchainNetworkServerStatus[] getNetworkServerStatus(String network) {
     return networkClientService.getAllMatching(network)
         .stream()
@@ -143,7 +149,9 @@ public class EthereumGateway implements
   }
 
   @Override
+  @Cacheable(value = "fast")
   public BlockchainFee getFee(String network) {
+    logger.info("Getting fee for {}", network);
     final Set<NetworkClient<Web3j>> networkClients = networkClientService.getAllMatching(network);
 
     for (NetworkClient<Web3j> networkClient : networkClients) {
@@ -169,6 +177,7 @@ public class EthereumGateway implements
   }
 
   @Override
+  @Cacheable(value = "slow")
   public BlockchainAccountInfo getAccount(String network, String accountId)
       throws UnknownNetworkException {
     final Set<NetworkClient<Web3j>> networkClients = networkClientService.getAllMatching(network);
@@ -237,6 +246,7 @@ public class EthereumGateway implements
   }
 
   @Override
+  @Cacheable(value = "slow")
   public BlockchainAccountTransactions getTransactions(String accountId, String network, int limit,
       String cursor) throws UnknownNetworkException {
     if (!"mainnet".equalsIgnoreCase(network)) {
@@ -286,7 +296,7 @@ public class EthereumGateway implements
                 )
                 .type("transaction")
                 .hash(t.getHash())
-                .status("ok");
+                .status(TX_STATUS_OK);
           })
           .collect(Collectors.toList());
     }
@@ -303,6 +313,7 @@ public class EthereumGateway implements
   }
 
   @Override
+  @Cacheable(value = "slow")
   public BlockchainAccountPayments getPayments(String accountId, String network, int limit,
       String cursor) throws UnknownNetworkException {
     BlockchainAccountTransactions blockchainAccountTransactions = getTransactions(accountId,
@@ -335,6 +346,12 @@ public class EthereumGateway implements
   }
 
   @Override
+  @Caching(
+      cacheable = {
+          @Cacheable(value = "elephant", condition = "#result.transaction.status.equalsIgnoreCase('ok')"),
+          @Cacheable(value = "slow", condition = "#result.transaction.status.equalsIgnoreCase('ok') == false")
+      }
+  )
   public BlockchainAccountTransaction getTransaction(String network, String hash)
       throws UnknownNetworkException {
     final Set<NetworkClient<Web3j>> networkClients = networkClientService.getAllMatching(network);
@@ -391,9 +408,9 @@ public class EthereumGateway implements
     final int comparedToLatestBlock = latestBlock.getBlock().getNumber()
         .compareTo(transactionBlockNumber);
     if (comparedToLatestBlock > 0) {
-      return "ok";
+      return TX_STATUS_OK;
     } else {
-      return "unknown";
+      return TX_STATUS_UNKNOWN;
     }
   }
 
