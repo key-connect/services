@@ -9,7 +9,6 @@ import app.keyconnect.api.client.model.ServerErrorObject.SeverityEnum;
 import app.keyconnect.server.controllers.exceptions.BadRequestException;
 import app.keyconnect.server.factories.BlockchainGatewayFactory;
 import app.keyconnect.server.gateways.BlockchainGateway;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
