@@ -40,6 +40,32 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AvailableBlockchains'
+  /v1/batch/blockchains/accounts/info:
+    post:
+      summary: Gets account details of all specified accounts
+      description: Batch call that returns details of all accounts in the request across all specified blockchains.
+      operationId: getBlockchainsAccounts
+      parameters:
+        - name: network
+          in: query
+          description: Blockchain network to get the status from.
+          required: false
+          schema:
+            type: string
+            example: testnet
+      requestBody:
+        description: "List of accounts with their chainIds to get info for"
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountsInfoRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountsInfoResponse'
   /v1/blockchains/{chainId}/status:
     get:
       summary: Returns the status of the provided blockchain.
@@ -532,6 +558,10 @@ components:
         lastTransactionId:
           type: string
           example: "4294BEBE5B569A18C0A2702387C9B1E7146DC3A5850C1E87204951C6FDAA4C42"
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServerErrorObject'
     CurrencyValue:
       description: Simple object representing `amount` as string in a specific `currency`.
       properties:
@@ -741,3 +771,43 @@ components:
           nullable: true
         currency:
           type: string
+    AccountsInfoRequest:
+      properties:
+        accounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountsInfoRequestItem'
+    AccountsInfoResponse:
+      properties:
+        network:
+          type: string
+        accounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/BlockchainAccountInfo'
+    AccountsInfoRequestItem:
+      properties:
+        chainId:
+          type: string
+          description: ID of the block chain
+          enum:
+            - xrp
+            - eth
+          example: xrp
+        network:
+          type: string
+          description: "
+                        Blockchain network to get the account info from. For XRP this would be
+                        one of (testnet/devnet/mainnet). More information regarding what
+                        environments are available can be obtained from /v1/blockchains/{chainId}/status
+                        endpoint. This field is required if `fee` is not specified in order to
+                        dynamically obtain the fee from the network.
+                      "
+          default: "mainnet"
+        accountId:
+          type: string
+          description: Identifier representing the account. This is most likely the wallet address.
+          example: "rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv"
+      required:
+        - chainId
+        - accountId

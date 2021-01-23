@@ -1,19 +1,15 @@
 package app.keyconnect.server.controllers.exceptions;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.server.ResponseStatusException;
 
-@ResponseStatus(HttpStatus.BAD_REQUEST)
-public class BadRequestException extends RuntimeException {
+public class BadRequestException extends ResponseStatusException {
 
   public BadRequestException(Throwable cause) {
-    super(cause.getMessage(), cause);
+    super(HttpStatus.BAD_REQUEST, cause.getMessage(), cause);
   }
 
-  @Override
-  @ResponseBody
-  public String getMessage() {
-    return super.getMessage();
+  public BadRequestException(String message) {
+    super(HttpStatus.BAD_REQUEST, message);
   }
 }
