@@ -46,8 +46,9 @@ public class BatchBlockchainController {
     }
 
     if (accountsInfoRequest.getAccounts().size() > MAX_ACCOUNTS_INFO_BATCH_SIZE) {
-      throw new BadRequestException("Number of accounts exceed the maximum allowed " + MAX_ACCOUNTS_INFO_BATCH_SIZE
-          + " per batch request");
+      throw new BadRequestException(
+          "Number of accounts exceed the maximum allowed " + MAX_ACCOUNTS_INFO_BATCH_SIZE
+              + " per batch request");
     }
 
     final List<BlockchainAccountInfo> blockchainAccountInfoList = accountsInfoRequest.getAccounts()
