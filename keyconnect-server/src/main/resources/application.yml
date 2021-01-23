@@ -45,3 +45,6 @@ application:
 server:
   error:
     include-message: always
+  jetty:
+    accesslog:
+      enabled: true
