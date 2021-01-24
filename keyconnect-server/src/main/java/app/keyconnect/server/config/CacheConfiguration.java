@@ -20,7 +20,7 @@ public class CacheConfiguration {
   public static final long FAST_MAXIMUM_SIZE = 10000L;
   public static final long SLOW_MAXIMUM_SIZE = 10000L;
 
-  @Bean // 10 seconds refresh time
+  @Bean
   @Primary
   public CacheManager fastCaffeineCacheManager() {
     final Caffeine<Object, Object> fastCaffeine = Caffeine.newBuilder()
