@@ -22,7 +22,7 @@ public class TransactionCommand extends BaseBlockchainConfig implements Callable
 
   @Override
   public Integer call() throws Exception {
-    ConsoleUtil.print(buildApiClient()
+    ConsoleUtil.print(getBlockchainApi()
         .getTransaction(chainId, transactionId, network));
     return 0;
   }

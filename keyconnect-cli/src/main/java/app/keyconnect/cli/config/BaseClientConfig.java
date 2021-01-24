@@ -1,7 +1,8 @@
 package app.keyconnect.cli.config;
 
 import app.keyconnect.api.ApiClient;
-import app.keyconnect.api.client.DefaultApi;
+import app.keyconnect.api.client.BlockchainsApi;
+import app.keyconnect.api.client.ServerApi;
 import org.jetbrains.annotations.NotNull;
 import picocli.CommandLine.Option;
 
@@ -21,12 +22,27 @@ public class BaseClientConfig extends BaseConfig {
   )
   private boolean apiDebug;
 
+  private ApiClient apiClient;
+
   @NotNull
-  protected DefaultApi buildApiClient() {
-    return new DefaultApi(
-        new ApiClient()
-            .setBasePath(baseUri)
-            .setDebugging(apiDebug)
+  protected BlockchainsApi getBlockchainApi() {
+    return new BlockchainsApi(
+        getApiClient()
     );
+  }
+
+  protected ServerApi getServerApi() {
+    return new ServerApi(
+        getApiClient()
+    );
+  }
+
+  private ApiClient getApiClient() {
+    if (null == apiClient) {
+      apiClient = new ApiClient()
+          .setBasePath(baseUri)
+          .setDebugging(apiDebug);
+    }
+    return apiClient;
   }
 }

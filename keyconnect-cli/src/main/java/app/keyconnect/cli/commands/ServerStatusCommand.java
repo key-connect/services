@@ -1,6 +1,6 @@
 package app.keyconnect.cli.commands;
 
-import app.keyconnect.api.client.DefaultApi;
+import app.keyconnect.api.client.ServerApi;
 import app.keyconnect.cli.config.BaseClientConfig;
 import app.keyconnect.cli.utils.ConsoleUtil;
 import java.util.concurrent.Callable;
@@ -15,7 +15,7 @@ public class ServerStatusCommand extends BaseClientConfig implements Callable<In
 
   @Override
   public Integer call() throws Exception {
-    final DefaultApi api = buildApiClient();
+    final ServerApi api = getServerApi();
 
     ConsoleUtil.print(api.getServerStatus());
     return 0;
