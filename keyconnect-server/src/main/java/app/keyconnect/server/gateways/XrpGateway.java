@@ -45,6 +45,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 
 public class XrpGateway implements BlockchainGateway {
 
@@ -210,6 +211,7 @@ public class XrpGateway implements BlockchainGateway {
   }
 
   @Override
+  @Cacheable(value = "slow")
   public BlockchainAccountTransactions getTransactions(String accountId, String network,
       int limit, String cursor)
       throws UnknownNetworkException {
@@ -280,6 +282,7 @@ public class XrpGateway implements BlockchainGateway {
   }
 
   @Override
+  @Cacheable(value = "slow")
   public BlockchainAccountPayments getPayments(String accountId, String network, int limit,
       String cursor) throws UnknownNetworkException {
     BlockchainAccountTransactions blockchainAccountTransactions = getTransactions(accountId,
@@ -312,10 +315,17 @@ public class XrpGateway implements BlockchainGateway {
   }
 
   @Override
+  @Caching(
+      cacheable = {
+          @Cacheable(value = "elephant", unless = "#result.transaction == null "
+              + "|| (#result.transaction.status.equalsIgnoreCase('success') == false "
+              + "&& #result.transaction.status.equalsIgnoreCase('failure') == false)"),
+          @Cacheable(value = "slow", unless = "#result.transaction == null || #result.transaction.status.equalsIgnoreCase('ok') == true")
+      }
+  )
   public BlockchainAccountTransaction getTransaction(String network, String hash)
       throws UnknownNetworkException {
     final Set<NetworkClient<PublicRippledClient>> networkClients = networkClientService.getAllMatching(network);
-
     if (networkClients.size() == 0) {
       throw new UnknownNetworkException(CHAIN_ID, network);
     }
