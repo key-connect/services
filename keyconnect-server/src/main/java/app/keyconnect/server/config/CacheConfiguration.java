@@ -1,12 +1,13 @@
 package app.keyconnect.server.config;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
+import org.springframework.cache.support.CompositeCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -22,42 +23,37 @@ public class CacheConfiguration {
   public static final long FAST_MAXIMUM_SIZE = 10000L;
   public static final long SLOW_MAXIMUM_SIZE = 10000L;
 
-  @Bean(BEAN_FAST_CACHE) // 10 seconds refresh time
+  @Bean // 10 seconds refresh time
   @Primary
   public CacheManager fastCaffeineCacheManager() {
-    final Caffeine<Object, Object> caffeine = Caffeine.newBuilder()
+    final Caffeine<Object, Object> fastCaffeine = Caffeine.newBuilder()
         .expireAfterWrite(10, TimeUnit.SECONDS)
         .maximumSize(FAST_MAXIMUM_SIZE);
 
-    logger.info("Configuring caffeine cache manager");
-    CaffeineCacheManager caffeineCacheManager = new CaffeineCacheManager();
-    caffeineCacheManager.setCaffeine(caffeine);
-    caffeineCacheManager.setCacheNames(Arrays.asList("fast"));
-    return caffeineCacheManager;
-  }
-
-  @Bean(BEAN_SLOW_CACHE) // 30 seconds refresh time
-  public CacheManager slowCaffeineCacheManager() {
-    final Caffeine<Object, Object> caffeine = Caffeine.newBuilder()
+    final Caffeine<Object, Object> slowCaffeine = Caffeine.newBuilder()
         .expireAfterWrite(30, TimeUnit.SECONDS)
         .maximumSize(SLOW_MAXIMUM_SIZE);
 
-    logger.info("Configuring caffeine cache manager");
-    CaffeineCacheManager caffeineCacheManager = new CaffeineCacheManager();
-    caffeineCacheManager.setCaffeine(caffeine);
-    caffeineCacheManager.setCacheNames(Arrays.asList("slow"));
-    return caffeineCacheManager;
-  }
+    final Caffeine<Object, Object> elephantCaffeine = Caffeine.newBuilder()
+        .expireAfterWrite(30, TimeUnit.SECONDS)
+        .maximumSize(SLOW_MAXIMUM_SIZE);
 
-  @Bean(BEAN_ELEPHANT_CACHE) // 30 seconds refresh time
-  public CacheManager elephantCaffeineCacheManager() {
-    final Caffeine<Object, Object> caffeine = Caffeine.newBuilder()
-        .maximumSize(ELEPHANT_MAX_SIZE);
+    logger.info("Configuring fast caffeine cache manager");
+    final CaffeineCacheManager fastCaffeineCacheManager = new CaffeineCacheManager();
+    fastCaffeineCacheManager.setCaffeine(fastCaffeine);
+    fastCaffeineCacheManager.setCacheNames(Collections.singletonList("fast"));
 
-    logger.info("Configuring caffeine cache manager");
-    CaffeineCacheManager caffeineCacheManager = new CaffeineCacheManager();
-    caffeineCacheManager.setCaffeine(caffeine);
-    caffeineCacheManager.setCacheNames(Arrays.asList("elephant"));
-    return caffeineCacheManager;
+    logger.info("Configuring slow caffeine cache manager");
+    final CaffeineCacheManager slowCaffeineManager = new CaffeineCacheManager();
+    slowCaffeineManager.setCaffeine(slowCaffeine);
+    slowCaffeineManager.setCacheNames(Collections.singletonList("slow"));
+
+    logger.info("Configuring elephant caffeine cache manager");
+    final CaffeineCacheManager elephantCaffeineManager = new CaffeineCacheManager();
+    elephantCaffeineManager.setCaffeine(elephantCaffeine);
+    elephantCaffeineManager.setCacheNames(Collections.singletonList("elephant"));
+
+    return new CompositeCacheManager(fastCaffeineCacheManager, slowCaffeineManager,
+        elephantCaffeineManager);
   }
 }
