@@ -198,13 +198,14 @@ public class EthereumGateway implements
             .get(30, TimeUnit.SECONDS);
 
         final BigInteger latestBlock = latestEthBlockCache.get(serverUrl).getBlock().getNumber();
+        final BigDecimal ethBalance = new BigDecimal(balance.getBalance())
+            .divide(ETH_SCALE, SCALE, ROUNDING_MODE);
         return accountInfo
             .server(toHost(serverUrl))
             .balance(
                 new CurrencyValue()
                     .amount(
-                        new BigDecimal(balance.getBalance())
-                            .divide(ETH_SCALE, SCALE, ROUNDING_MODE)
+                        ethBalance
                             .toString()
                     )
                     .currency(CurrencyEnum.ETH)

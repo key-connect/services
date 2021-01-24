@@ -181,6 +181,17 @@ paths:
           schema:
             type: string
             example: "rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv"
+        - name: fiat
+          in: query
+          description: Fiat currency to use for displaying balance value.
+          required: false
+          schema:
+            type: string
+            example: USD
+            enum:
+              - USD
+              - GBP
+              - EUR
       responses:
         '200':
           description: OK
@@ -585,6 +596,8 @@ components:
           example: "rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv"
         balance:
           $ref: '#/components/schemas/CurrencyValue'
+        value:
+          $ref: '#/components/schemas/GenericCurrencyValue'
         subAccounts:
           type: array
           description: List of sub accounts and their balances. ERC20 tokens and their balances in case of ethereum.
@@ -779,6 +792,8 @@ components:
           description: ID of the sub account. Contract hash in case of ethereum token.
           example: 0xfF20817765cB7f73d4bde2e66e067E58D11095C2
         balance:
+          $ref: '#/components/schemas/GenericCurrencyValue'
+        value:
           $ref: '#/components/schemas/GenericCurrencyValue'
     ExceptionalResponse:
       properties:

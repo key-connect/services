@@ -3,8 +3,14 @@ package app.keyconnect.server.controllers;
 import app.keyconnect.api.client.model.BlockchainAccountInfo;
 import app.keyconnect.api.client.model.BlockchainAccountPayments;
 import app.keyconnect.api.client.model.BlockchainAccountTransactions;
+import app.keyconnect.api.client.model.CurrencyValue;
+import app.keyconnect.api.client.model.GenericCurrencyValue;
 import app.keyconnect.server.factories.BlockchainGatewayFactory;
 import app.keyconnect.server.gateways.exceptions.UnknownNetworkException;
+import app.keyconnect.server.services.rate.RateService;
+import app.keyconnect.server.services.rate.models.Rate;
+import java.math.BigDecimal;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,11 +24,14 @@ public class BlockchainAccountController {
 
   private static final String DEFAULT_NETWORK_PARAM = "mainnet";
   private final BlockchainGatewayFactory blockchainGatewayFactory;
+  private final RateService rateService;
 
   @Autowired
   public BlockchainAccountController(
-      BlockchainGatewayFactory blockchainGatewayFactory) {
+      BlockchainGatewayFactory blockchainGatewayFactory,
+      RateService rateService) {
     this.blockchainGatewayFactory = blockchainGatewayFactory;
+    this.rateService = rateService;
   }
 
   @GetMapping(
@@ -36,11 +45,33 @@ public class BlockchainAccountController {
           value = "network",
           required = false,
           defaultValue = DEFAULT_NETWORK_PARAM
-      ) String network
+      ) String network,
+      @RequestParam(
+          value = "fiat",
+          required = false
+      ) String fiat
   ) throws UnknownNetworkException {
+    final BlockchainAccountInfo account = blockchainGatewayFactory.getGateway(chainId)
+        .getAccount(network, accountId);
+    if (account != null
+        && account.getBalance() != null
+        && !StringUtils.isBlank(fiat)) {
+      final CurrencyValue balance = account.getBalance();
+      final Rate rate = rateService.getRate(balance.getCurrency().getValue(), fiat);
+      if (rate != null) {
+        account.value(
+            new GenericCurrencyValue()
+                .amount(
+                    rate.calculate(
+                        new BigDecimal(balance.getAmount()))
+                        .toString()
+                )
+                .currency(fiat)
+        );
+      }
+    }
     return ResponseEntity.ok(
-        blockchainGatewayFactory.getGateway(chainId)
-            .getAccount(network, accountId)
+        account
     );
   }
 

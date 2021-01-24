@@ -20,4 +20,8 @@ public class Rate {
   public Rate reverse() {
     return new Rate(counter, base, BigDecimal.ONE.divide(price, RoundingMode.HALF_UP));
   }
+
+  public BigDecimal calculate(BigDecimal baseAmount) {
+    return baseAmount.multiply(price);
+  }
 }
