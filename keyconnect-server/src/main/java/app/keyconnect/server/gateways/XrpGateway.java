@@ -57,7 +57,6 @@ public class XrpGateway implements BlockchainGateway {
   private static final Logger logger = LoggerFactory.getLogger(XrpGateway.class);
   public static final String CHAIN_ID = "xrp";
   public static final BigDecimal DROPS_PER_XRP = BigDecimal.valueOf(100000);
-  private static final Duration SERVER_INFO_CACHE_EXPIRY = Duration.of(30, ChronoUnit.SECONDS);
   private static final String DEFAULT_NETWORK = "mainnet";
   private final NetworkClientService<PublicRippledClient> networkClientService;
   // key is in form of <network>|<address>
