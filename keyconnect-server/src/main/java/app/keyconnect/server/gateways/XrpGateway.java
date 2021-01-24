@@ -45,7 +45,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -61,8 +60,6 @@ public class XrpGateway implements BlockchainGateway {
   private static final Duration SERVER_INFO_CACHE_EXPIRY = Duration.of(30, ChronoUnit.SECONDS);
   private static final String DEFAULT_NETWORK = "mainnet";
   private final NetworkClientService<PublicRippledClient> networkClientService;
-  // key is network
-  private final LoadingCache<String, FeeResponse> networkFeeCache;
   // key is in form of <network>|<address>
   private final LoadingCache<String, AccountInfoResponse> walletAccountInfoCache;
 
@@ -83,15 +80,6 @@ public class XrpGateway implements BlockchainGateway {
             final String network = tokens[0];
             final String address = tokens[1];
             return networkClientService.getFirst(network).getClient().getAccountInfo(address);
-          }
-        });
-
-    networkFeeCache = CacheBuilder.newBuilder()
-        .expireAfterWrite(Duration.of(1, ChronoUnit.MINUTES))
-        .build(new CacheLoader<>() {
-          @Override
-          public FeeResponse load(@NotNull String network) throws Exception {
-            return networkClientService.getFirst(network).getClient().getFee();
           }
         });
   }
@@ -161,6 +149,7 @@ public class XrpGateway implements BlockchainGateway {
         .toArray(BlockchainNetworkServerStatus[]::new);
   }
 
+  @Cacheable(value = "fast")
   public BlockchainFee getFee(String specifiedNetwork) throws UnknownNetworkException {
     final String network = validateNetworkOrDefault(specifiedNetwork);
     final Set<NetworkClient<PublicRippledClient>> clients = networkClientService
@@ -172,19 +161,17 @@ public class XrpGateway implements BlockchainGateway {
 
     for (NetworkClient<PublicRippledClient> client : clients) {
       final BlockchainNetworkConfiguration networkConfig = client.getNetwork();
-      try {
-        final FeeResponse feeResponse = networkFeeCache.get(networkConfig.getGroup());
-        final CurrencyValue fee = new CurrencyValue()
-            .amount(feeResponse.getResult().getDrops().getMinimumFee())
-            .currency(CurrencyEnum.DROPS);
-        return new BlockchainFee()
-            .chainId(BlockchainFee.ChainIdEnum.XRP)
-            .fee(fee)
-            .network(network)
-            .server(toURI(networkConfig.getAddress()));
-      } catch (ExecutionException e) {
-        logger.warn("Unable to get xrp.fee, network=" + network, e);
-      }
+      final FeeResponse feeResponse = networkClientService
+          .getClientForServer(networkConfig.getAddress())
+          .getFee();
+      final CurrencyValue fee = new CurrencyValue()
+          .amount(feeResponse.getResult().getDrops().getMinimumFee())
+          .currency(CurrencyEnum.DROPS);
+      return new BlockchainFee()
+          .chainId(BlockchainFee.ChainIdEnum.XRP)
+          .fee(fee)
+          .network(network)
+          .server(toURI(networkConfig.getAddress()));
     }
 
     // todo do something if its null
