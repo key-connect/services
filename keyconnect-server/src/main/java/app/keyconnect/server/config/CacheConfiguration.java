@@ -32,7 +32,6 @@ public class CacheConfiguration {
         .maximumSize(SLOW_MAXIMUM_SIZE);
 
     final Caffeine<Object, Object> elephantCaffeine = Caffeine.newBuilder()
-        .expireAfterWrite(30, TimeUnit.SECONDS)
         .maximumSize(ELEPHANT_MAX_SIZE);
 
     logger.info("Configuring fast caffeine cache manager");
