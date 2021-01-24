@@ -16,9 +16,6 @@ import org.springframework.context.annotation.Primary;
 public class CacheConfiguration {
 
   private static final Logger logger = LoggerFactory.getLogger(CacheConfiguration.class);
-  public static final String BEAN_FAST_CACHE = "fastCache";
-  public static final String BEAN_SLOW_CACHE = "slowCache";
-  public static final String BEAN_ELEPHANT_CACHE = "elephantCache";
   private static final long ELEPHANT_MAX_SIZE = 100000L;
   public static final long FAST_MAXIMUM_SIZE = 10000L;
   public static final long SLOW_MAXIMUM_SIZE = 10000L;
