@@ -21,6 +21,9 @@ paths:
       summary: Gets the Key Connect server status.
       description: Gets the Key Connect server status along with any error information.
       operationId: getServerStatus
+      tags:
+        - server
+        - status
       responses:
         '200':
           description: OK
@@ -33,6 +36,9 @@ paths:
       summary: Gets a list of all supported blockchains and their statuses.
       description: Key Connect server keeps track of the individual status of the supported blockchains. Use this API to check the blockchain statuses.
       operationId: getBlockchainsStatus
+      tags:
+        - blockchains
+        - status
       responses:
         '200':
           description: OK
@@ -45,6 +51,10 @@ paths:
       summary: Gets account details of all specified accounts
       description: Batch call that returns details of all accounts in the request across all specified blockchains.
       operationId: getBlockchainsAccounts
+      tags:
+        - batch
+        - blockchains
+        - accounts
       parameters:
         - name: network
           in: query
@@ -71,6 +81,9 @@ paths:
       summary: Returns the status of the provided blockchain.
       description: Gets status of the provided blockchain identified by `chainId`.
       operationId: getBlockchainStatus
+      tags:
+        - blockchains
+        - status
       parameters:
         - name: chainId
           in: path
@@ -101,6 +114,8 @@ paths:
       summary: Returns the blockchain transaction fee.
       description: Gets fee of the provided blockchain identified by `chainId`.
       operationId: getFee
+      tags:
+        - blockchains
       parameters:
         - name: chainId
           in: path
@@ -131,6 +146,9 @@ paths:
       summary: Returns account / wallet information for the provided `chainId` representing the blockchain.
       description: Gets account / wallet information like `balance`, `lastTransactionId` etc of the specified blockchain identified by `chainId`.
       operationId: getAccountInfo
+      tags:
+        - blockchains
+        - accounts
       parameters:
         - name: chainId
           in: path
@@ -175,6 +193,10 @@ paths:
       summary: Returns paginated list of transactions.
       description: Gets transactions for given `accountId` on a given blockchain identified by the `chainId` parameter. Return the `cursor` value in the next call to get the next page.
       operationId: getAccountTransactions
+      tags:
+        - blockchains
+        - accounts
+        - transactions
       parameters:
         - name: chainId
           in: path
@@ -226,6 +248,10 @@ paths:
       summary: Returns paginated list of payments.
       description: Gets payments for given `accountId` on a given blockchain identified by the `chainId` parameter. Return the `cursor` value in the next call to get the next page.
       operationId: getAccountPayments
+      tags:
+        - blockchains
+        - accounts
+        - payments
       parameters:
         - name: chainId
           in: path
@@ -277,6 +303,9 @@ paths:
       summary: Get a single transaction object by its provided `hash` on the specified `chainId`.
       description: Returned transaction object might be in greater detail than the one provided in the list.
       operationId: getTransaction
+      tags:
+        - blockchains
+        - transactions
       parameters:
         - name: chainId
           in: path
@@ -318,6 +347,9 @@ paths:
       summary: Submit a transaction to the blockchain.
       description: Provided transaction object is submitted directly to the blockchain identified by `chainId` as is.
       operationId: submitTransaction
+      tags:
+        - blockchains
+        - transactions
       parameters:
         - name: chainId
           in: path
@@ -358,7 +390,10 @@ paths:
     get:
       summary: Generates a transaction as a payment.
       description: Helper method to generate a transaction object for the purpose of a payment between the source account identified by `sourceAccount` and destination account idenfied by `destinationAccount` for the value of `amount`.
-      operationId: generateTransaction
+      operationId: generateXrpTransaction
+      tags:
+        - blockchains
+        - generator
       parameters:
         - name: sourceAccount
           required: true
