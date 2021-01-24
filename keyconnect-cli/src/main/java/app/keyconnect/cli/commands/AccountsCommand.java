@@ -20,10 +20,17 @@ public class AccountsCommand extends BaseBlockchainConfig implements Callable<In
   )
   private String accountAddress;
 
+  @Option(
+      names = {"-f", "--fiat"},
+      description = "Fiat currency to convert value in",
+      required = false
+  )
+  private String fiat;
+
   @Override
   public Integer call() throws Exception {
     ConsoleUtil.print(getBlockchainApi()
-        .getAccountInfo(chainId, accountAddress, network));
+        .getAccountInfo(chainId, accountAddress, network, fiat));
     return 0;
   }
 }
