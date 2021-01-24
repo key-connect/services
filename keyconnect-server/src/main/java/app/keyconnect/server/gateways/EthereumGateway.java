@@ -15,8 +15,6 @@ import app.keyconnect.api.client.model.CurrencyValue.CurrencyEnum;
 import app.keyconnect.api.client.model.SubmitTransactionRequest;
 import app.keyconnect.api.client.model.SubmitTransactionResult;
 import app.keyconnect.server.factories.configuration.BlockchainNetworkConfiguration;
-import app.keyconnect.server.factories.configuration.BlockchainsConfiguration;
-import app.keyconnect.server.factories.configuration.YamlConfiguration;
 import app.keyconnect.server.gateways.exceptions.EthTransactionsCursorMustBePageNumberException;
 import app.keyconnect.server.gateways.exceptions.FailedToSubmitEthTransactionException;
 import app.keyconnect.server.gateways.exceptions.UnknownNetworkException;
@@ -348,8 +346,8 @@ public class EthereumGateway implements
   @Override
   @Caching(
       cacheable = {
-          @Cacheable(value = "elephant", condition = "#result.transaction.status.equalsIgnoreCase('ok')"),
-          @Cacheable(value = "slow", condition = "#result.transaction.status.equalsIgnoreCase('ok') == false")
+          @Cacheable(value = "elephant", unless = "#result.transaction == null || #result.transaction.status.equalsIgnoreCase('ok') == false"),
+          @Cacheable(value = "slow", unless = "#result.transaction == null || #result.transaction.status.equalsIgnoreCase('ok') == true")
       }
   )
   public BlockchainAccountTransaction getTransaction(String network, String hash)
