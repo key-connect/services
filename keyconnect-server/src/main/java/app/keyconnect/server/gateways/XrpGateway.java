@@ -28,84 +28,35 @@ import app.keyconnect.rippled.api.client.model.TransactionResponse;
 import app.keyconnect.rippled.api.client.model.TransactionResult;
 import app.keyconnect.server.controllers.exceptions.InvalidCursorException;
 import app.keyconnect.server.factories.configuration.BlockchainNetworkConfiguration;
-import app.keyconnect.server.factories.configuration.BlockchainsConfiguration;
-import app.keyconnect.server.factories.configuration.YamlConfiguration;
 import app.keyconnect.server.gateways.exceptions.UnknownNetworkException;
 import app.keyconnect.server.services.networks.NetworkClient;
 import app.keyconnect.server.services.networks.NetworkClientService;
 import com.google.common.base.Strings;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 
 public class XrpGateway implements BlockchainGateway {
 
   private static final Logger logger = LoggerFactory.getLogger(XrpGateway.class);
   public static final String CHAIN_ID = "xrp";
   public static final BigDecimal DROPS_PER_XRP = BigDecimal.valueOf(100000);
-  private static final Duration SERVER_INFO_CACHE_EXPIRY = Duration.of(30, ChronoUnit.SECONDS);
   private static final String DEFAULT_NETWORK = "mainnet";
   private final NetworkClientService<PublicRippledClient> networkClientService;
-  // key is network
-  private final LoadingCache<String, ServerInfoResponse> serverInfoCache;
-  // key is network
-  private final LoadingCache<String, FeeResponse> networkFeeCache;
-  // key is in form of <network>|<address>
-  private final LoadingCache<String, AccountInfoResponse> walletAccountInfoCache;
-
-  //  private final Environment environment;
 
   public XrpGateway(NetworkClientService<PublicRippledClient> networkClientService) {
-    // assert configuration and networks are non null
-    // populate server clients
-    // for simplicity we get only configure the first xrp configuration
     this.networkClientService = networkClientService;
-
-    serverInfoCache = CacheBuilder.newBuilder()
-        .expireAfterWrite(SERVER_INFO_CACHE_EXPIRY)
-        .build(new CacheLoader<>() {
-          @Override
-          public ServerInfoResponse load(@NotNull String network) throws Exception {
-            return networkClientService.getFirst(network).getClient().getServerInfo();
-          }
-        });
-
-    walletAccountInfoCache = CacheBuilder.newBuilder()
-        .expireAfterWrite(Duration.of(30, ChronoUnit.SECONDS))
-        .build(new CacheLoader<>() {
-          @Override
-          public AccountInfoResponse load(@NotNull String networkPipeAccountId) throws Exception {
-            final String[] tokens = networkPipeAccountId.split("\\|");
-            final String network = tokens[0];
-            final String address = tokens[1];
-            return networkClientService.getFirst(network).getClient().getAccountInfo(address);
-          }
-        });
-
-    networkFeeCache = CacheBuilder.newBuilder()
-        .expireAfterWrite(Duration.of(1, ChronoUnit.MINUTES))
-        .build(new CacheLoader<>() {
-          @Override
-          public FeeResponse load(@NotNull String network) throws Exception {
-            return networkClientService.getFirst(network).getClient().getFee();
-          }
-        });
   }
 
   @Override
@@ -135,6 +86,7 @@ public class XrpGateway implements BlockchainGateway {
   }
 
   @Override
+  @Cacheable("fast")
   public BlockchainNetworkServerStatus[] getNetworkServerStatus(String network)
       throws UnknownNetworkException {
     final Set<NetworkClient<PublicRippledClient>> clients = networkClientService
@@ -148,28 +100,31 @@ public class XrpGateway implements BlockchainGateway {
     return clients.stream()
         .map(networkClient -> {
           final BlockchainNetworkConfiguration networkConfiguration = networkClient.getNetwork();
+          final String serverUrl = networkConfiguration.getAddress();
           try {
-            final ServerInfoResponse serverInfoResponse = serverInfoCache.get(
-                networkConfiguration.getGroup());
+            final ServerInfoResponse serverInfoResponse = networkClientService
+                .getClientForServer(serverUrl)
+                .getServerInfo();
             // todo refine the way the BlockchainNetworkStatus is constructed
             return new BlockchainNetworkServerStatus()
                 // todo be defensive, this is relying too much on rippled behaving correctly
                 .status(serverInfoResponse.getResult().getStatus().equalsIgnoreCase("success")
                     ? StatusEnum.HEALTHY : StatusEnum.UNHEALTHY)
-                .host(toURI(networkConfiguration.getAddress()))
+                .host(toURI(serverUrl))
                 // todo either remove lastCheck or find more reliable way to get this
                 .lastCheck(Instant.now().toString());
           } catch (Throwable e) {
             logger.warn("Unable to get serverInfo to obtain status for network=" + network, e);
             return new BlockchainNetworkServerStatus()
                 .status(StatusEnum.UNHEALTHY)
-                .host(toURI(networkConfiguration.getAddress()))
+                .host(toURI(serverUrl))
                 .lastCheck(Instant.now().toString());
           }
         })
         .toArray(BlockchainNetworkServerStatus[]::new);
   }
 
+  @Cacheable(value = "fast")
   public BlockchainFee getFee(String specifiedNetwork) throws UnknownNetworkException {
     final String network = validateNetworkOrDefault(specifiedNetwork);
     final Set<NetworkClient<PublicRippledClient>> clients = networkClientService
@@ -181,19 +136,17 @@ public class XrpGateway implements BlockchainGateway {
 
     for (NetworkClient<PublicRippledClient> client : clients) {
       final BlockchainNetworkConfiguration networkConfig = client.getNetwork();
-      try {
-        final FeeResponse feeResponse = networkFeeCache.get(networkConfig.getGroup());
-        final CurrencyValue fee = new CurrencyValue()
-            .amount(feeResponse.getResult().getDrops().getMinimumFee())
-            .currency(CurrencyEnum.DROPS);
-        return new BlockchainFee()
-            .chainId(BlockchainFee.ChainIdEnum.XRP)
-            .fee(fee)
-            .network(network)
-            .server(toURI(networkConfig.getAddress()));
-      } catch (ExecutionException e) {
-        logger.warn("Unable to get xrp.fee, network=" + network, e);
-      }
+      final FeeResponse feeResponse = networkClientService
+          .getClientForServer(networkConfig.getAddress())
+          .getFee();
+      final CurrencyValue fee = new CurrencyValue()
+          .amount(feeResponse.getResult().getDrops().getMinimumFee())
+          .currency(CurrencyEnum.DROPS);
+      return new BlockchainFee()
+          .chainId(BlockchainFee.ChainIdEnum.XRP)
+          .fee(fee)
+          .network(network)
+          .server(toURI(networkConfig.getAddress()));
     }
 
     // todo do something if its null
@@ -201,6 +154,7 @@ public class XrpGateway implements BlockchainGateway {
   }
 
   @Override
+  @Cacheable(value = "slow")
   public BlockchainAccountInfo getAccount(String network, String accountId)
       throws UnknownNetworkException {
     final Set<NetworkClient<PublicRippledClient>> networkClients = networkClientService
@@ -214,14 +168,15 @@ public class XrpGateway implements BlockchainGateway {
     AccountInfoResponse accountInfoResponse = null;
     BlockchainNetworkConfiguration selectedNetwork = null;
     for (NetworkClient<PublicRippledClient> networkClient : networkClients) {
-      final String key = network + "|" + accountId;
+      final BlockchainNetworkConfiguration networkConfig = networkClient.getNetwork();
       try {
-        accountInfoResponse = walletAccountInfoCache.get(key);
-        selectedNetwork = networkClient.getNetwork();
+        accountInfoResponse = networkClientService
+            .getClientForServer(networkConfig.getAddress())
+            .getAccountInfo(accountId);
+        selectedNetwork = networkConfig;
         break;
       } catch (Throwable e) {
         // swallow all exceptions
-
       }
     }
     final BlockchainAccountInfo accountInfo = new BlockchainAccountInfo()
@@ -256,6 +211,7 @@ public class XrpGateway implements BlockchainGateway {
   }
 
   @Override
+  @Cacheable(value = "slow")
   public BlockchainAccountTransactions getTransactions(String accountId, String network,
       int limit, String cursor)
       throws UnknownNetworkException {
@@ -326,6 +282,7 @@ public class XrpGateway implements BlockchainGateway {
   }
 
   @Override
+  @Cacheable(value = "slow")
   public BlockchainAccountPayments getPayments(String accountId, String network, int limit,
       String cursor) throws UnknownNetworkException {
     BlockchainAccountTransactions blockchainAccountTransactions = getTransactions(accountId,
@@ -358,10 +315,17 @@ public class XrpGateway implements BlockchainGateway {
   }
 
   @Override
+  @Caching(
+      cacheable = {
+          @Cacheable(value = "elephant", unless = "#result.transaction == null "
+              + "|| (#result.transaction.status.equalsIgnoreCase('success') == false "
+              + "&& #result.transaction.status.equalsIgnoreCase('failure') == false)"),
+          @Cacheable(value = "slow", unless = "#result.transaction == null || #result.transaction.status.equalsIgnoreCase('ok') == true")
+      }
+  )
   public BlockchainAccountTransaction getTransaction(String network, String hash)
       throws UnknownNetworkException {
     final Set<NetworkClient<PublicRippledClient>> networkClients = networkClientService.getAllMatching(network);
-
     if (networkClients.size() == 0) {
       throw new UnknownNetworkException(CHAIN_ID, network);
     }
