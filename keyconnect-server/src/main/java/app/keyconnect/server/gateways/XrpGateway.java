@@ -28,8 +28,6 @@ import app.keyconnect.rippled.api.client.model.TransactionResponse;
 import app.keyconnect.rippled.api.client.model.TransactionResult;
 import app.keyconnect.server.controllers.exceptions.InvalidCursorException;
 import app.keyconnect.server.factories.configuration.BlockchainNetworkConfiguration;
-import app.keyconnect.server.factories.configuration.BlockchainsConfiguration;
-import app.keyconnect.server.factories.configuration.YamlConfiguration;
 import app.keyconnect.server.gateways.exceptions.UnknownNetworkException;
 import app.keyconnect.server.services.networks.NetworkClient;
 import app.keyconnect.server.services.networks.NetworkClientService;
@@ -53,6 +51,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 
 public class XrpGateway implements BlockchainGateway {
 
@@ -62,8 +61,6 @@ public class XrpGateway implements BlockchainGateway {
   private static final Duration SERVER_INFO_CACHE_EXPIRY = Duration.of(30, ChronoUnit.SECONDS);
   private static final String DEFAULT_NETWORK = "mainnet";
   private final NetworkClientService<PublicRippledClient> networkClientService;
-  // key is network
-  private final LoadingCache<String, ServerInfoResponse> serverInfoCache;
   // key is network
   private final LoadingCache<String, FeeResponse> networkFeeCache;
   // key is in form of <network>|<address>
@@ -76,15 +73,6 @@ public class XrpGateway implements BlockchainGateway {
     // populate server clients
     // for simplicity we get only configure the first xrp configuration
     this.networkClientService = networkClientService;
-
-    serverInfoCache = CacheBuilder.newBuilder()
-        .expireAfterWrite(SERVER_INFO_CACHE_EXPIRY)
-        .build(new CacheLoader<>() {
-          @Override
-          public ServerInfoResponse load(@NotNull String network) throws Exception {
-            return networkClientService.getFirst(network).getClient().getServerInfo();
-          }
-        });
 
     walletAccountInfoCache = CacheBuilder.newBuilder()
         .expireAfterWrite(Duration.of(30, ChronoUnit.SECONDS))
@@ -135,6 +123,7 @@ public class XrpGateway implements BlockchainGateway {
   }
 
   @Override
+  @Cacheable("fast")
   public BlockchainNetworkServerStatus[] getNetworkServerStatus(String network)
       throws UnknownNetworkException {
     final Set<NetworkClient<PublicRippledClient>> clients = networkClientService
@@ -148,22 +137,24 @@ public class XrpGateway implements BlockchainGateway {
     return clients.stream()
         .map(networkClient -> {
           final BlockchainNetworkConfiguration networkConfiguration = networkClient.getNetwork();
+          final String serverUrl = networkConfiguration.getAddress();
           try {
-            final ServerInfoResponse serverInfoResponse = serverInfoCache.get(
-                networkConfiguration.getGroup());
+            final ServerInfoResponse serverInfoResponse = networkClientService
+                .getClientForServer(serverUrl)
+                .getServerInfo();
             // todo refine the way the BlockchainNetworkStatus is constructed
             return new BlockchainNetworkServerStatus()
                 // todo be defensive, this is relying too much on rippled behaving correctly
                 .status(serverInfoResponse.getResult().getStatus().equalsIgnoreCase("success")
                     ? StatusEnum.HEALTHY : StatusEnum.UNHEALTHY)
-                .host(toURI(networkConfiguration.getAddress()))
+                .host(toURI(serverUrl))
                 // todo either remove lastCheck or find more reliable way to get this
                 .lastCheck(Instant.now().toString());
           } catch (Throwable e) {
             logger.warn("Unable to get serverInfo to obtain status for network=" + network, e);
             return new BlockchainNetworkServerStatus()
                 .status(StatusEnum.UNHEALTHY)
-                .host(toURI(networkConfiguration.getAddress()))
+                .host(toURI(serverUrl))
                 .lastCheck(Instant.now().toString());
           }
         })
