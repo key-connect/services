@@ -32,22 +32,16 @@ import app.keyconnect.server.gateways.exceptions.UnknownNetworkException;
 import app.keyconnect.server.services.networks.NetworkClient;
 import app.keyconnect.server.services.networks.NetworkClientService;
 import com.google.common.base.Strings;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
@@ -59,28 +53,9 @@ public class XrpGateway implements BlockchainGateway {
   public static final BigDecimal DROPS_PER_XRP = BigDecimal.valueOf(100000);
   private static final String DEFAULT_NETWORK = "mainnet";
   private final NetworkClientService<PublicRippledClient> networkClientService;
-  // key is in form of <network>|<address>
-  private final LoadingCache<String, AccountInfoResponse> walletAccountInfoCache;
-
-  //  private final Environment environment;
 
   public XrpGateway(NetworkClientService<PublicRippledClient> networkClientService) {
-    // assert configuration and networks are non null
-    // populate server clients
-    // for simplicity we get only configure the first xrp configuration
     this.networkClientService = networkClientService;
-
-    walletAccountInfoCache = CacheBuilder.newBuilder()
-        .expireAfterWrite(Duration.of(30, ChronoUnit.SECONDS))
-        .build(new CacheLoader<>() {
-          @Override
-          public AccountInfoResponse load(@NotNull String networkPipeAccountId) throws Exception {
-            final String[] tokens = networkPipeAccountId.split("\\|");
-            final String network = tokens[0];
-            final String address = tokens[1];
-            return networkClientService.getFirst(network).getClient().getAccountInfo(address);
-          }
-        });
   }
 
   @Override
@@ -178,6 +153,7 @@ public class XrpGateway implements BlockchainGateway {
   }
 
   @Override
+  @Cacheable(value = "slow")
   public BlockchainAccountInfo getAccount(String network, String accountId)
       throws UnknownNetworkException {
     final Set<NetworkClient<PublicRippledClient>> networkClients = networkClientService
@@ -191,14 +167,15 @@ public class XrpGateway implements BlockchainGateway {
     AccountInfoResponse accountInfoResponse = null;
     BlockchainNetworkConfiguration selectedNetwork = null;
     for (NetworkClient<PublicRippledClient> networkClient : networkClients) {
-      final String key = network + "|" + accountId;
+      final BlockchainNetworkConfiguration networkConfig = networkClient.getNetwork();
       try {
-        accountInfoResponse = walletAccountInfoCache.get(key);
-        selectedNetwork = networkClient.getNetwork();
+        accountInfoResponse = networkClientService
+            .getClientForServer(networkConfig.getAddress())
+            .getAccountInfo(accountId);
+        selectedNetwork = networkConfig;
         break;
       } catch (Throwable e) {
         // swallow all exceptions
-
       }
     }
     final BlockchainAccountInfo accountInfo = new BlockchainAccountInfo()
