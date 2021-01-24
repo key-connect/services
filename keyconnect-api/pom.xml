@@ -113,12 +113,16 @@
               <configOptions>
                 <java8>true</java8>
                 <dateLibrary>java8</dateLibrary>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>${project.artifactId}</artifactId>
+                <artifactVersion>${project.version}</artifactVersion>
                 <apiPackage>app.keyconnect.api.client</apiPackage>
                 <modelPackage>app.keyconnect.api.client.model</modelPackage>
                 <hideGenerationTimestamp>true</hideGenerationTimestamp>
                 <bigDecimalAsString>true</bigDecimalAsString>
                 <serializableModel>true</serializableModel>
                 <sourceFolder>src/gen/java/main</sourceFolder>
+                <useGzipFeature>true</useGzipFeature>
               </configOptions>
               <generateApiTests>false</generateApiTests>
               <generateApis>true</generateApis>

@@ -15,7 +15,7 @@ public class BlockchainStatusCommand extends BaseClientConfig implements Callabl
   @Override
   public Integer call() throws Exception {
     ConsoleUtil.print(
-        buildApiClient()
+        getBlockchainApi()
           .getBlockchainsStatus()
     );
     return null;

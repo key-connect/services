@@ -28,7 +28,7 @@ public class AccountTransactionsCommand extends BaseAccountBlockchainConfig impl
   @Override
   public Integer call() throws Exception {
     ConsoleUtil.print(
-        buildApiClient()
+        getBlockchainApi()
           .getAccountTransactions(chainId, accountAddress, network, page)
     );
     return 0;

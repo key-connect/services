@@ -9,6 +9,7 @@ Method | HTTP request | Description
 [**getAccountPayments**](DefaultApi.md#getAccountPayments) | **GET** /v1/blockchains/{chainId}/accounts/{accountId}/payments | Returns paginated list of payments.
 [**getAccountTransactions**](DefaultApi.md#getAccountTransactions) | **GET** /v1/blockchains/{chainId}/accounts/{accountId}/transactions | Returns paginated list of transactions.
 [**getBlockchainStatus**](DefaultApi.md#getBlockchainStatus) | **GET** /v1/blockchains/{chainId}/status | Returns the status of the provided blockchain.
+[**getBlockchainsAccounts**](DefaultApi.md#getBlockchainsAccounts) | **POST** /v1/batch/blockchains/accounts/info | Gets account details of all specified accounts
 [**getBlockchainsStatus**](DefaultApi.md#getBlockchainsStatus) | **GET** /v1/blockchains/status | Gets a list of all supported blockchains and their statuses.
 [**getFee**](DefaultApi.md#getFee) | **GET** /v1/blockchains/{chainId}/fee | Returns the blockchain transaction fee.
 [**getServerStatus**](DefaultApi.md#getServerStatus) | **GET** /v1/server/status | Gets the Key Connect server status.
@@ -163,6 +164,34 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: Not defined
+- **Accept**: application/json
+
+<a name="getBlockchainsAccounts"></a>
+# **getBlockchainsAccounts**
+> AccountsInfoResponse getBlockchainsAccounts(network, AccountsInfoRequest)
+
+Gets account details of all specified accounts
+
+    Batch call that returns details of all accounts in the request across all specified blockchains.
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **network** | **String**| Blockchain network to get the status from. | [optional] [default to null]
+ **AccountsInfoRequest** | [**AccountsInfoRequest**](../Models/AccountsInfoRequest.md)| List of accounts with their chainIds to get info for | [optional]
+
+### Return type
+
+[**AccountsInfoResponse**](../Models/AccountsInfoResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: application/json
 - **Accept**: application/json
 
 <a name="getBlockchainsStatus"></a>

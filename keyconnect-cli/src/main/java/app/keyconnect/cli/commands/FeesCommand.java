@@ -14,7 +14,7 @@ public class FeesCommand extends BaseBlockchainConfig implements Callable<Intege
   @Override
   public Integer call() throws Exception {
     ConsoleUtil.print(
-        buildApiClient()
+        getBlockchainApi()
           .getFee(chainId, network)
     );
     return 0;

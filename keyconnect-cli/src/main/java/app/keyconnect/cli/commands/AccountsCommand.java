@@ -22,7 +22,7 @@ public class AccountsCommand extends BaseBlockchainConfig implements Callable<In
 
   @Override
   public Integer call() throws Exception {
-    ConsoleUtil.print(buildApiClient()
+    ConsoleUtil.print(getBlockchainApi()
         .getAccountInfo(chainId, accountAddress, network));
     return 0;
   }
