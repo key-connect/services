@@ -42,6 +42,6 @@ public class XrpBlockchainWallet implements BlockchainWallet {
 
   @Override
   public String getAddress() {
-    return wallet.xAddress().value();
+    return wallet.classicAddress().value();
   }
 }
