@@ -18,8 +18,13 @@ public class XrpBlockchainWallet implements BlockchainWallet {
 
   public XrpBlockchainWallet() {
     final SeedWalletGenerationResult generationResult = walletFactory.randomWallet(false);
-    seed = generationResult.seed();
-    wallet = generationResult.wallet();
+    this.seed = generationResult.seed();
+    this.wallet = generationResult.wallet();
+  }
+
+  public XrpBlockchainWallet(String seed) {
+    this.wallet = walletFactory.fromSeed(seed, false);
+    this.seed = seed;
   }
 
   /**
