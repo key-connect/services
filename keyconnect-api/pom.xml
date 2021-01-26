@@ -56,6 +56,17 @@
       <artifactId>gson-fire</artifactId>
       <version>1.8.4</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.xrpl</groupId>
+      <artifactId>xrpl4j-client</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>1.18.12</version>
+    </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
