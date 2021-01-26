@@ -397,7 +397,7 @@ public class XrpGateway implements BlockchainGateway {
                   )
                   .type(tx.getTransactionType())
                   .hash(tx.getHash())
-                  .status(toSimpleStatus(tx.getMeta().getTransactionResult()))
+                  .status(toSimpleStatus(submitTransaction.getResult().getEngineResult()))
           );
     }
     return null;

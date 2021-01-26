@@ -586,7 +586,7 @@ components:
         method:
           type: string
           readOnly: true
-          default: "tx"
+          default: "submit"
         params:
           type: array
           items:
