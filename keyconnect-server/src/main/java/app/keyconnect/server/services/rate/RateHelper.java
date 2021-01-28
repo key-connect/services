@@ -20,10 +20,11 @@ public class RateHelper {
     this.rateService = rateService;
   }
 
-  public void applyFiatValueToTransactionItem(String fiat, BlockchainAccountTransactionItem transaction) {
+  public void applyFiatValueToTransactionItem(String fiat,
+      BlockchainAccountTransactionItem transaction) {
     if (transaction != null
-      && transaction.getAmount() != null
-      && !StringUtils.isBlank(transaction.getAmount().getAmount())) {
+        && transaction.getAmount() != null
+        && !StringUtils.isBlank(transaction.getAmount().getAmount())) {
       final CurrencyValue transactionAmount = transaction.getAmount();
       final Rate rate = rateService.getRate(transactionAmount.getCurrency().getValue(), fiat);
       if (rate != null) {

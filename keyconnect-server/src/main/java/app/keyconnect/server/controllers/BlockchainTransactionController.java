@@ -1,10 +1,10 @@
 package app.keyconnect.server.controllers;
 
-import app.keyconnect.server.gateways.exceptions.UnknownNetworkException;
 import app.keyconnect.api.client.model.BlockchainAccountTransaction;
 import app.keyconnect.api.client.model.SubmitTransactionRequest;
 import app.keyconnect.api.client.model.SubmitTransactionResult;
 import app.keyconnect.server.factories.BlockchainGatewayFactory;
+import app.keyconnect.server.gateways.exceptions.UnknownNetworkException;
 import app.keyconnect.server.services.rate.RateHelper;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -64,7 +64,8 @@ public class BlockchainTransactionController {
       @RequestBody SubmitTransactionRequest submitTransactionRequest
   ) throws UnknownNetworkException {
     return ResponseEntity.accepted().body(
-        blockchainGatewayFactory.getGateway(chainId).submitTransaction(network, submitTransactionRequest)
+        blockchainGatewayFactory.getGateway(chainId)
+            .submitTransaction(network, submitTransactionRequest)
     );
   }
 

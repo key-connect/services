@@ -30,5 +30,4 @@ public class RateConfig {
   public RateHelper rateHelper(RateService rateService) {
     return new RateHelper(rateService);
   }
-
 }
