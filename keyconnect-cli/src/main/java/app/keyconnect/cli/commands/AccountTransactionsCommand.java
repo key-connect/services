@@ -25,11 +25,18 @@ public class AccountTransactionsCommand extends BaseAccountBlockchainConfig impl
 //  )
 //  private String limit;
 
+  @Option(
+      names = {"-f", "--fiat"},
+      description = "Fiat currency to convert value in",
+      required = false
+  )
+  private String fiat;
+
   @Override
   public Integer call() throws Exception {
     ConsoleUtil.print(
         getBlockchainApi()
-          .getAccountTransactions(chainId, accountAddress, network, page)
+          .getAccountTransactions(chainId, accountAddress, network, page, fiat)
     );
     return 0;
   }
