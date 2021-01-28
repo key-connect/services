@@ -20,10 +20,17 @@ public class TransactionCommand extends BaseBlockchainConfig implements Callable
   )
   private String transactionId;
 
+  @Option(
+      names = {"-f", "--fiat"},
+      description = "Fiat currency to convert value in",
+      required = false
+  )
+  private String fiat;
+
   @Override
   public Integer call() throws Exception {
     ConsoleUtil.print(getBlockchainApi()
-        .getTransaction(chainId, transactionId, network));
+        .getTransaction(chainId, transactionId, network, fiat));
     return 0;
   }
 }
