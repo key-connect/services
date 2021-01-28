@@ -53,9 +53,10 @@ public class BlockchainAccountController {
   ) throws UnknownNetworkException {
     final BlockchainAccountInfo account = blockchainGatewayFactory.getGateway(chainId)
         .getAccount(network, accountId);
-    if (account != null
+    if (!StringUtils.isBlank(fiat)
+        && account != null
         && account.getBalance() != null
-        && !StringUtils.isBlank(fiat)) {
+        && !StringUtils.isBlank(account.getBalance().getAmount())) {
       final CurrencyValue balance = account.getBalance();
       final Rate rate = rateService.getRate(balance.getCurrency().getValue(), fiat);
       if (rate != null) {
