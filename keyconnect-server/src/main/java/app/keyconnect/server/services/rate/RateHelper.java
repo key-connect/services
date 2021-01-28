@@ -1,6 +1,8 @@
 package app.keyconnect.server.services.rate;
 
 import app.keyconnect.api.client.model.BlockchainAccountInfo;
+import app.keyconnect.api.client.model.BlockchainAccountPaymentItem;
+import app.keyconnect.api.client.model.BlockchainAccountPayments;
 import app.keyconnect.api.client.model.BlockchainAccountTransaction;
 import app.keyconnect.api.client.model.BlockchainAccountTransactionItem;
 import app.keyconnect.api.client.model.BlockchainAccountTransactions;
@@ -52,6 +54,35 @@ public class RateHelper {
         && transactions.getTransactions() != null) {
       transactions.getTransactions()
           .forEach(t -> applyFiatValueToTransactionItem(fiat, t));
+    }
+  }
+
+  public void applyFiatValueToPaymentItem(String fiat, BlockchainAccountPaymentItem transaction) {
+    if (transaction != null
+        && transaction.getAmount() != null
+        && !StringUtils.isBlank(transaction.getAmount().getAmount())) {
+      final CurrencyValue transactionAmount = transaction.getAmount();
+      final Rate rate = rateService.getRate(transactionAmount.getCurrency().getValue(), fiat);
+      if (rate != null) {
+        transaction
+            .value(
+                new GenericCurrencyValue()
+                    .amount(
+                        rate.calculate(new BigDecimal(transactionAmount.getAmount()))
+                            .toString()
+                    )
+                    .currency(fiat)
+            );
+      }
+    }
+  }
+
+  public void applyFiatValueToPayments(String fiat,
+      BlockchainAccountPayments transactions) {
+    if (null != transactions
+        && transactions.getPayments() != null) {
+      transactions.getPayments()
+          .forEach(t -> applyFiatValueToPaymentItem(fiat, t));
     }
   }
 

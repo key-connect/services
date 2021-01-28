@@ -86,14 +86,17 @@ public class BlockchainAccountController {
       @PathVariable("accountId") String accountId,
       @RequestParam(value = "network", required = false, defaultValue = "mainnet") String network,
       @RequestParam(value = "limit", required = false, defaultValue = "10") int limit,
-      @RequestParam(value = "cursor", required = false) String cursor
+      @RequestParam(value = "cursor", required = false) String cursor,
+      @RequestParam(
+          value = "fiat",
+          required = false
+      ) String fiat
   ) throws UnknownNetworkException {
     final BlockchainAccountPayments payments = blockchainGatewayFactory.getGateway(chainId)
         .getPayments(accountId, network, limit, cursor);
-
+    rateHelper.applyFiatValueToPayments(fiat, payments);
     return ResponseEntity.ok(
         payments
     );
   }
-
 }
