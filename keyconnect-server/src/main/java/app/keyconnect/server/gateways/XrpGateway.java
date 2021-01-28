@@ -51,8 +51,9 @@ public class XrpGateway implements BlockchainGateway {
 
   private static final Logger logger = LoggerFactory.getLogger(XrpGateway.class);
   public static final String CHAIN_ID = "xrp";
-  public static final BigDecimal DROPS_PER_XRP = BigDecimal.valueOf(100000);
+  public static final BigDecimal DROPS_PER_XRP = BigDecimal.valueOf(1000000);
   private static final String DEFAULT_NETWORK = "mainnet";
+  private static final int XRP_SCALE = 18;
   private final NetworkClientService<PublicRippledClient> networkClientService;
 
   public XrpGateway(NetworkClientService<PublicRippledClient> networkClientService) {
@@ -194,7 +195,7 @@ public class XrpGateway implements BlockchainGateway {
       if (accountInfoResponse.getResult().getAccountData().getBalance() != null) {
         final BigDecimal balanceInXrp = new BigDecimal(
             accountInfoResponse.getResult().getAccountData().getBalance())
-            .divide(DROPS_PER_XRP, RoundingMode.DOWN);
+            .divide(DROPS_PER_XRP, XRP_SCALE, RoundingMode.DOWN);
 
         accountInfo.setBalance(
             new CurrencyValue()
@@ -259,17 +260,13 @@ public class XrpGateway implements BlockchainGateway {
                     final AccountTransaction tx = t.getTx();
                     return new BlockchainAccountTransactionItem()
                         .amount(
-                            new CurrencyValue()
-                                .amount(tx.getAmount())  // todo handle issued currencies
-                                .currency(CurrencyEnum.DROPS)
+                            fromDropsString(tx.getAmount())
                         )
                         .sourceAccount(tx.getAccount())
                         .destinationAccount(tx.getDestination())
                         .destinationTag(String.valueOf(tx.getDestinationTag()))
                         .fee(
-                            new CurrencyValue()
-                                .amount(tx.getFee())
-                                .currency(CurrencyEnum.DROPS)
+                            fromDropsString(tx.getFee())
                         )
                         .type(tx.getTransactionType())
                         .hash(tx.getHash())
@@ -279,6 +276,16 @@ public class XrpGateway implements BlockchainGateway {
           );
     }
     return null;
+  }
+
+  private CurrencyValue fromDropsString(String dropsAmount) {
+    return new CurrencyValue()
+        .amount(
+            new BigDecimal(dropsAmount)
+                .divide(DROPS_PER_XRP, XRP_SCALE, RoundingMode.DOWN)
+                .toString()
+        )  // todo handle issued currencies
+        .currency(CurrencyEnum.XRP);
   }
 
   @Override
@@ -343,8 +350,12 @@ public class XrpGateway implements BlockchainGateway {
               new BlockchainAccountTransactionItem()
                   .amount(
                       new CurrencyValue()
-                          .amount(tx.getAmount())  // todo handle issued currencies
-                          .currency(CurrencyEnum.DROPS)
+                          .amount(
+                              new BigDecimal(tx.getAmount())
+                                  .divide(DROPS_PER_XRP, RoundingMode.DOWN)
+                                  .toString()
+                          )  // todo handle issued currencies
+                          .currency(CurrencyEnum.XRP)
                   )
                   .sourceAccount(tx.getAccount())
                   .destinationAccount(tx.getDestination())
