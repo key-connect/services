@@ -3,14 +3,9 @@ package app.keyconnect.server.controllers;
 import app.keyconnect.api.client.model.BlockchainAccountInfo;
 import app.keyconnect.api.client.model.BlockchainAccountPayments;
 import app.keyconnect.api.client.model.BlockchainAccountTransactions;
-import app.keyconnect.api.client.model.CurrencyValue;
-import app.keyconnect.api.client.model.GenericCurrencyValue;
 import app.keyconnect.server.factories.BlockchainGatewayFactory;
 import app.keyconnect.server.gateways.exceptions.UnknownNetworkException;
-import app.keyconnect.server.services.rate.RateService;
-import app.keyconnect.server.services.rate.models.Rate;
-import java.math.BigDecimal;
-import org.apache.commons.lang3.StringUtils;
+import app.keyconnect.server.services.rate.RateHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,14 +19,14 @@ public class BlockchainAccountController {
 
   private static final String DEFAULT_NETWORK_PARAM = "mainnet";
   private final BlockchainGatewayFactory blockchainGatewayFactory;
-  private final RateService rateService;
+  private final RateHelper rateHelper;
 
   @Autowired
   public BlockchainAccountController(
       BlockchainGatewayFactory blockchainGatewayFactory,
-      RateService rateService) {
+      RateHelper rateHelper) {
     this.blockchainGatewayFactory = blockchainGatewayFactory;
-    this.rateService = rateService;
+    this.rateHelper = rateHelper;
   }
 
   @GetMapping(
@@ -53,24 +48,7 @@ public class BlockchainAccountController {
   ) throws UnknownNetworkException {
     final BlockchainAccountInfo account = blockchainGatewayFactory.getGateway(chainId)
         .getAccount(network, accountId);
-    if (!StringUtils.isBlank(fiat)
-        && account != null
-        && account.getBalance() != null
-        && !StringUtils.isBlank(account.getBalance().getAmount())) {
-      final CurrencyValue balance = account.getBalance();
-      final Rate rate = rateService.getRate(balance.getCurrency().getValue(), fiat);
-      if (rate != null) {
-        account.value(
-            new GenericCurrencyValue()
-                .amount(
-                    rate.calculate(
-                        new BigDecimal(balance.getAmount()))
-                        .toString()
-                )
-                .currency(fiat)
-        );
-      }
-    }
+    rateHelper.applyFiatToAccount(fiat, account);
     return ResponseEntity.ok(
         account
     );
@@ -85,11 +63,17 @@ public class BlockchainAccountController {
       @PathVariable("accountId") String accountId,
       @RequestParam(value = "network", required = false, defaultValue = "mainnet") String network,
       @RequestParam(value = "limit", required = false, defaultValue = "10") int limit,
-      @RequestParam(value = "cursor", required = false) String cursor
+      @RequestParam(value = "cursor", required = false) String cursor,
+      @RequestParam(
+          value = "fiat",
+          required = false
+      ) String fiat
   ) throws UnknownNetworkException {
+    final BlockchainAccountTransactions transactions = blockchainGatewayFactory.getGateway(chainId)
+        .getTransactions(accountId, network, limit, cursor);
+    rateHelper.applyFiatValueToTransactions(fiat, transactions);
     return ResponseEntity.ok(
-        blockchainGatewayFactory.getGateway(chainId)
-            .getTransactions(accountId, network, limit, cursor)
+        transactions
     );
   }
 
@@ -104,9 +88,11 @@ public class BlockchainAccountController {
       @RequestParam(value = "limit", required = false, defaultValue = "10") int limit,
       @RequestParam(value = "cursor", required = false) String cursor
   ) throws UnknownNetworkException {
+    final BlockchainAccountPayments payments = blockchainGatewayFactory.getGateway(chainId)
+        .getPayments(accountId, network, limit, cursor);
+
     return ResponseEntity.ok(
-        blockchainGatewayFactory.getGateway(chainId)
-            .getPayments(accountId, network, limit, cursor)
+        payments
     );
   }
 

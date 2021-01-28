@@ -26,4 +26,9 @@ public class RateConfig {
     return new CryptonatorRateService(rateServiceRestTemplate);
   }
 
+  @Bean
+  public RateHelper rateHelper(RateService rateService) {
+    return new RateHelper(rateService);
+  }
+
 }

@@ -247,6 +247,17 @@ paths:
             type: string
             description: Format varies by the blockchain. For XRP, the value of `cursor` will be the `ledger:seq` from the marker object.
             example: "57112007:13"
+        - name: fiat
+          in: query
+          description: Used to provide equivalent value in specified fiat
+          required: false
+          schema:
+            type: string
+            example: USD
+            enum:
+              - USD
+              - GBP
+              - EUR
       responses:
         '200':
           description: OK
@@ -302,6 +313,17 @@ paths:
             type: string
             description: Format varies by the blockchain. For XRP, the value of `cursor` will be the `ledger:seq` from the marker object.
             example: "57112007:13"
+        - name: fiat
+          in: query
+          description: Used to provide equivalent value in specified fiat
+          required: false
+          schema:
+            type: string
+            example: USD
+            enum:
+              - USD
+              - GBP
+              - EUR
       responses:
         '200':
           description: OK
@@ -346,6 +368,17 @@ paths:
             type: string
             example: testnet
             default: "mainnet"
+        - name: fiat
+          in: query
+          description: Used to provide equivalent value in specified fiat
+          required: false
+          schema:
+            type: string
+            example: USD
+            enum:
+              - USD
+              - GBP
+              - EUR
       responses:
         200:
           description: OK
@@ -677,6 +710,8 @@ components:
           $ref: '#/components/schemas/CurrencyValue'
         amount:
           $ref: '#/components/schemas/CurrencyValue'
+        value:
+          $ref: '#/components/schemas/GenericCurrencyValue'
         hash:
           type: string
           example: "558FB77C856092E191D3117C13A1BDB299050B5140CDF6916F50F026620463FE"
@@ -764,6 +799,8 @@ components:
           $ref: '#/components/schemas/CurrencyValue'
         amount:
           $ref: '#/components/schemas/CurrencyValue'
+        value:
+          $ref: '#/components/schemas/GenericCurrencyValue'
         hash:
           type: string
           example: "558FB77C856092E191D3117C13A1BDB299050B5140CDF6916F50F026620463FE"
