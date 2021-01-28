@@ -183,7 +183,7 @@ paths:
             example: "rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv"
         - name: fiat
           in: query
-          description: Fiat currency to use for displaying balance value.
+          description: Used to provide equivalent value in specified fiat
           required: false
           schema:
             type: string
