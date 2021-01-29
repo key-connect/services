@@ -64,6 +64,53 @@
 			"response": []
 		},
 		{
+			"name": "POST /v1/blockchains/xrp/transactions",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"transaction\": \"12000022800000002400DB318F201B00DB3D7A6140000000017D784068400000000000000C732103E871B88FBE96249039328DAC8BE8604F43232A718DCEB1E3A6B5063CE26A1BAA7446304402205479A592BEF16835BD07B24603B0762E1B21CF07FC9C593B02796AC8E63924600220669FEB0FB5E489E0CF6118F12C1ED438170B696BB89AF36ADFBEAB1BA95A8BA2811434F6635231645670AF0EFACD5CAEA5928DCFED6283140E116328ED7CC3D3AD3475D7EC1E27E2F18CF488\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{ServerUrl}}/v1/blockchains/xrp/transactions?network=testnet",
+					"host": [
+						"{{ServerUrl}}"
+					],
+					"path": [
+						"v1",
+						"blockchains",
+						"xrp",
+						"transactions"
+					],
+					"query": [
+						{
+							"key": "network",
+							"value": "testnet",
+							"description": "Optional network parameter"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "GET /v1/blockchains/xrp/fee",
 			"request": {
 				"method": "GET",
@@ -168,7 +215,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{ServerUrl}}/v1/blockchains/xrp/accounts/rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv?network=testnet",
+					"raw": "{{ServerUrl}}/v1/blockchains/xrp/accounts/rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv?network=mainnet&fiat=gbp",
 					"host": [
 						"{{ServerUrl}}"
 					],
@@ -182,7 +229,11 @@
 					"query": [
 						{
 							"key": "network",
-							"value": "testnet"
+							"value": "mainnet"
+						},
+						{
+							"key": "fiat",
+							"value": "gbp"
 						}
 					]
 				}
@@ -231,7 +282,38 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{ServerUrl}}/v1/blockchains/eth/accounts/0x4E83362442B8d1beC281594cEa3050c8EB01311C?network=mainnet",
+					"raw": "{{ServerUrl}}/v1/blockchains/eth/accounts/0x9a44f5A549327463e0f8Dd9fd2588188A8475EC6?network=mainnet&fiat=eur",
+					"host": [
+						"{{ServerUrl}}"
+					],
+					"path": [
+						"v1",
+						"blockchains",
+						"eth",
+						"accounts",
+						"0x9a44f5A549327463e0f8Dd9fd2588188A8475EC6"
+					],
+					"query": [
+						{
+							"key": "network",
+							"value": "mainnet"
+						},
+						{
+							"key": "fiat",
+							"value": "eur"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET account info (eth) (many erc20 tokens)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{ServerUrl}}/v1/blockchains/eth/accounts/0x4E83362442B8d1beC281594cEa3050c8EB01311C?network=mainnet&fiat=eur",
 					"host": [
 						"{{ServerUrl}}"
 					],
@@ -246,6 +328,10 @@
 						{
 							"key": "network",
 							"value": "mainnet"
+						},
+						{
+							"key": "fiat",
+							"value": "eur"
 						}
 					]
 				}
@@ -269,7 +355,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{ServerUrl}}/v1/blockchains/xrp/accounts/rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv/transactions?network=mainnet&cursor={{cursor}}&limit=2",
+					"raw": "{{ServerUrl}}/v1/blockchains/xrp/accounts/rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv/transactions?network=mainnet&cursor={{cursor}}&limit=2&fiat=usd",
 					"host": [
 						"{{ServerUrl}}"
 					],
@@ -293,6 +379,10 @@
 						{
 							"key": "limit",
 							"value": "2"
+						},
+						{
+							"key": "fiat",
+							"value": "usd"
 						}
 					]
 				}
@@ -316,7 +406,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{ServerUrl}}/v1/blockchains/eth/accounts/0x6c8C5d80B9C9C644E342d60Cc904A9D5E3C7a8e3/transactions?network=mainnet&cursor={{cursor}}&limit=2",
+					"raw": "{{ServerUrl}}/v1/blockchains/eth/accounts/0x6c8C5d80B9C9C644E342d60Cc904A9D5E3C7a8e3/transactions?network=mainnet&cursor={{cursor}}&limit=2&fiat=usd",
 					"host": [
 						"{{ServerUrl}}"
 					],
@@ -340,6 +430,10 @@
 						{
 							"key": "limit",
 							"value": "2"
+						},
+						{
+							"key": "fiat",
+							"value": "usd"
 						}
 					]
 				}
@@ -410,16 +504,16 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{ServerUrl}}/v1/blockchains/xrp/accounts/rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv/payments?network=mainnet&cursor={{cursor}}&limit=2",
+					"raw": "{{ServerUrl}}/v1/blockchains/eth/accounts/0x6c8C5d80B9C9C644E342d60Cc904A9D5E3C7a8e3/payments?network=mainnet&cursor={{cursor}}&limit=2&fiat=usd",
 					"host": [
 						"{{ServerUrl}}"
 					],
 					"path": [
 						"v1",
 						"blockchains",
-						"xrp",
+						"eth",
 						"accounts",
-						"rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv",
+						"0x6c8C5d80B9C9C644E342d60Cc904A9D5E3C7a8e3",
 						"payments"
 					],
 					"query": [
@@ -434,6 +528,10 @@
 						{
 							"key": "limit",
 							"value": "2"
+						},
+						{
+							"key": "fiat",
+							"value": "usd"
 						}
 					]
 				}
@@ -511,6 +609,37 @@
 							"key": "network",
 							"value": "mainnet"
 						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET rate",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"cursor\", pm.response.json().cursor);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{ServerUrl}}/v1/rates/eth/usd",
+					"host": [
+						"{{ServerUrl}}"
+					],
+					"path": [
+						"v1",
+						"rates",
+						"eth",
+						"usd"
 					]
 				}
 			},
