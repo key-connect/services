@@ -938,7 +938,7 @@ components:
           description: Counter currency
           example: USD
         price:
-          type: number
+          type: string
           description: Rate to convert the base currency into the counter currency
           example: 1500
     RateResponse:
