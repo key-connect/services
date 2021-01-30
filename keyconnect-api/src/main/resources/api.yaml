@@ -495,6 +495,35 @@ paths:
             application/json:
               schema:
                 type: object
+  /v1/rates/{base}/{counter}:
+    get:
+      summary: Gets the currency conversion rate for the provided base and counter currency.
+      description: Returns the applicable rate to convert between the provided base and counter currency.
+      operationId: getRate
+      tags:
+        - rates
+      parameters:
+        - in: path
+          name: base
+          description: "Base currency"
+          example: ETH
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: counter
+          description: "Counter currency"
+          example: USD
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateResponse'
 
 components:
   schemas:
@@ -898,3 +927,21 @@ components:
       required:
         - chainId
         - accountId
+    Rate:
+      properties:
+        base:
+          type: string
+          description: Base currency
+          example: ETH
+        counter:
+          type: string
+          description: Counter currency
+          example: USD
+        price:
+          type: string
+          description: Rate to convert the base currency into the counter currency
+          example: 1500
+    RateResponse:
+      properties:
+        avg:
+          $ref: '#/components/schemas/Rate'
