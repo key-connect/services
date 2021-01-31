@@ -99,64 +99,77 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
-        <groupId>com.akathist.maven.plugins.launch4j</groupId>
-        <artifactId>launch4j-maven-plugin</artifactId>
-        <version>1.7.25</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>launch4j</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <headerType>console</headerType>
-          <outfile>${project.build.directory}/kc.exe</outfile>
-          <jar>${project.build.directory}/kc.jar</jar>
-          <jre>
-            <path>./jre</path>
-            <minVersion>15.0.2</minVersion>
-          </jre>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>download-files</id>
-            <phase>package</phase>
-            <goals>
-              <goal>run</goal>
-            </goals>
-            <configuration>
-              <tasks>
-                <!-- download file -->
-                <get src="https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk-15.0.2%2B7/OpenJDK15U-jre_x64_windows_hotspot_15.0.2_7.zip"
-                  dest="${project.build.directory}/jre.zip"
-                  verbose="false"
-
-                  usetimestamp="true"/>
-                <unzip src="${project.build.directory}/jre.zip"
-                  dest="${project.build.directory}/jre"/>
-                <move todir="${project.build.directory}/jre" overwrite="true">
-                  <fileset dir="${project.build.directory}/jre/jdk-15.0.2+7-jre">
-                    <include name="**/*"/>
-                  </fileset>
-                </move>
-                <delete dir="${project.build.directory}/jre/jdk-15.0.2+7-jre"/>
-                <delete dir="${project.build.directory}/jre.zip"/>
-                <zip destfile="${project.build.directory}/kc-win.zip"
-                  basedir="${project.build.directory}"
-                  includes="jre/**,kc.exe"/>
-              </tasks>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>release</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.akathist.maven.plugins.launch4j</groupId>
+            <artifactId>launch4j-maven-plugin</artifactId>
+            <version>1.7.25</version>
+            <executions>
+              <execution>
+                <phase>package</phase>
+                <goals>
+                  <goal>launch4j</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <headerType>console</headerType>
+              <outfile>${project.build.directory}/kc.exe</outfile>
+              <jar>${project.build.directory}/kc.jar</jar>
+              <jre>
+                <path>./jre</path>
+                <minVersion>15.0.2</minVersion>
+              </jre>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>download-files</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <tasks>
+                    <!-- download file -->
+                    <get src="https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk-15.0.2%2B7/OpenJDK15U-jre_x64_windows_hotspot_15.0.2_7.zip"
+                      dest="${project.build.directory}/jre.zip"
+                      verbose="false"
+
+                      usetimestamp="true"/>
+                    <unzip src="${project.build.directory}/jre.zip"
+                      dest="${project.build.directory}/jre"/>
+                    <move todir="${project.build.directory}/jre" overwrite="true">
+                      <fileset dir="${project.build.directory}/jre/jdk-15.0.2+7-jre">
+                        <include name="**/*"/>
+                      </fileset>
+                    </move>
+                    <delete dir="${project.build.directory}/jre/jdk-15.0.2+7-jre"/>
+                    <delete dir="${project.build.directory}/jre.zip"/>
+                    <zip destfile="${project.build.directory}/kc-win.zip"
+                      basedir="${project.build.directory}"
+                      includes="jre/**,kc.exe"/>
+                  </tasks>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
 </project>
