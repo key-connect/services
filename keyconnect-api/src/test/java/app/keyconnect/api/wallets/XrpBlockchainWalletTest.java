@@ -10,20 +10,6 @@ import org.junit.Test;
 public class XrpBlockchainWalletTest {
 
   @Test
-  public void walletGenerateAndFundInTestNet() throws Exception {
-    final BlockchainWallet wallet = new XrpBlockchainWallet();
-    final String address = wallet.getAddress();
-    assertThat(address).isNotNull();
-
-    wallet.fundWallet();
-
-    final BlockchainAccountInfo accountInfo = new AccountsApi()
-        .getAccountInfo("xrp", address, "testnet", null);
-    final BigDecimal balance = new BigDecimal(accountInfo.getBalance().getAmount());
-    assertThat(balance).isEqualTo(new BigDecimal("1000.000000000000000000"));
-  }
-
-  @Test
   public void walletGenerateFromSeed() {
     BlockchainWallet wallet = new XrpBlockchainWallet();
     final String address = wallet.getAddress();
