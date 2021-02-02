@@ -223,8 +223,7 @@ public class EthereumGateway implements
   }
 
   @Override
-  public BlockchainAccountInfo fundAccount(String network, String accountId)
-      throws UnknownNetworkException {
+  public void fundAccount(String network, String accountId) {
     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "API not yet available on ethereum gateway");
   }
 

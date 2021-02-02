@@ -49,11 +49,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.server.ResponseStatusException;
 import org.xrpl.xrpl4j.client.faucet.FaucetClient;
 import org.xrpl.xrpl4j.client.faucet.FundAccountRequest;
-import org.xrpl.xrpl4j.codec.addresses.ClassicAddress;
 import org.xrpl.xrpl4j.model.transactions.Address;
 
 public class XrpGateway implements BlockchainGateway {
@@ -238,15 +236,12 @@ public class XrpGateway implements BlockchainGateway {
   }
 
   @Override
-  public BlockchainAccountInfo fundAccount(String network, String accountId)
-      throws UnknownNetworkException {
+  public void fundAccount(String network, String accountId) {
     if (!network.equals("testnet")) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Automatic funding is not available in " + network + " network.");
 
     faucetClient.fundAccount(FundAccountRequest.of(
         Address.of(accountId)
     ));
-
-    return getAccount(network, accountId);
   }
 
   @Override

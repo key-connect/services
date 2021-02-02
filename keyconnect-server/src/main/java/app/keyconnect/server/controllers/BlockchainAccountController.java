@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -52,6 +53,28 @@ public class BlockchainAccountController {
     return ResponseEntity.ok(
         account
     );
+  }
+
+  @PostMapping(
+      path = "/v1/blockchains/{chainId}/accounts/{accountId}/fund",
+      produces = MediaType.APPLICATION_JSON_VALUE
+  )
+  public ResponseEntity<Void> fundAccount(
+      @PathVariable("chainId") String chainId,
+      @PathVariable("accountId") String accountId,
+      @RequestParam(
+          value = "network",
+          required = false,
+          defaultValue = DEFAULT_NETWORK_PARAM
+      ) String network,
+      @RequestParam(
+          value = "fiat",
+          required = false
+      ) String fiat
+  ) throws UnknownNetworkException {
+    blockchainGatewayFactory.getGateway(chainId)
+        .fundAccount(network, accountId);
+    return ResponseEntity.accepted().build();
   }
 
   @GetMapping(
