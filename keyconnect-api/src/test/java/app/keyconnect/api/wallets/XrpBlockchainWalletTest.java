@@ -18,9 +18,9 @@ public class XrpBlockchainWalletTest {
     wallet.fundWallet();
 
     final BlockchainAccountInfo accountInfo = new AccountsApi()
-        .getAccountInfo("xrp", address, "testnet");
+        .getAccountInfo("xrp", address, "testnet", null);
     final BigDecimal balance = new BigDecimal(accountInfo.getBalance().getAmount());
-    assertThat(balance).isEqualTo(new BigDecimal("1000"));
+    assertThat(balance).isEqualTo(new BigDecimal("1000.000000000000000000"));
   }
 
   @Test
