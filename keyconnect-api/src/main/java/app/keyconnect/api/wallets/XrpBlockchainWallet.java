@@ -27,14 +27,6 @@ public class XrpBlockchainWallet implements BlockchainWallet {
     this.seed = seed;
   }
 
-  /**
-   * Funds a wallet in testnet environment
-   */
-  @Override
-  public void fundWallet() {
-    faucetClient.fundAccount(FundAccountRequest.of(wallet.classicAddress()));
-  }
-
   @Override
   public String getSeed() {
     return seed;
