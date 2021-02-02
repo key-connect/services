@@ -42,17 +42,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import okhttp3.HttpUrl;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.server.ResponseStatusException;
+import org.xrpl.xrpl4j.client.faucet.FaucetClient;
+import org.xrpl.xrpl4j.client.faucet.FundAccountRequest;
+import org.xrpl.xrpl4j.codec.addresses.ClassicAddress;
+import org.xrpl.xrpl4j.model.transactions.Address;
 
 public class XrpGateway implements BlockchainGateway {
 
   private static final Logger logger = LoggerFactory.getLogger(XrpGateway.class);
+  private final FaucetClient faucetClient =
+      FaucetClient.construct(HttpUrl.parse("https://faucet.altnet.rippletest.net"));
   public static final String CHAIN_ID = "xrp";
   public static final BigDecimal DROPS_PER_XRP = BigDecimal.valueOf(1000000);
   private static final String DEFAULT_NETWORK = "mainnet";
@@ -227,6 +235,18 @@ public class XrpGateway implements BlockchainGateway {
     }
 
     return accountInfo;
+  }
+
+  @Override
+  public BlockchainAccountInfo fundAccount(String network, String accountId)
+      throws UnknownNetworkException {
+    if (!network.equals("testnet")) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Automatic funding is not available in " + network + " network.");
+
+    faucetClient.fundAccount(FundAccountRequest.of(
+        Address.of(accountId)
+    ));
+
+    return getAccount(network, accountId);
   }
 
   @Override

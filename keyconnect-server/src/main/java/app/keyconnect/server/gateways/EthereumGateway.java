@@ -47,6 +47,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameter;
 import org.web3j.protocol.core.methods.response.EthBlock;
@@ -218,6 +220,12 @@ public class EthereumGateway implements
     }
     // todo pending lastTransactionId
     return accountInfo;
+  }
+
+  @Override
+  public BlockchainAccountInfo fundAccount(String network, String accountId)
+      throws UnknownNetworkException {
+    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "API not yet available on ethereum gateway");
   }
 
   // https://stackoverflow.com/a/5439547
