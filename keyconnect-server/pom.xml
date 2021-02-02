@@ -81,6 +81,36 @@
       <version>1.0.0</version>
     </dependency>
     <dependency>
+      <groupId>org.knowm.xchange</groupId>
+      <artifactId>xchange-core</artifactId>
+      <version>5.0.4</version>
+    </dependency>
+    <dependency>
+      <groupId>org.knowm.xchange</groupId>
+      <artifactId>xchange-stream-bitstamp</artifactId>
+      <version>5.0.4</version>
+    </dependency>
+    <dependency>
+      <groupId>org.knowm.xchange</groupId>
+      <artifactId>xchange-stream-binance</artifactId>
+      <version>5.0.4</version>
+    </dependency>
+    <dependency>
+      <groupId>org.knowm.xchange</groupId>
+      <artifactId>xchange-stream-kraken</artifactId>
+      <version>5.0.4</version>
+    </dependency>
+    <dependency>
+      <groupId>org.knowm.xchange</groupId>
+      <artifactId>xchange-stream-coinbasepro</artifactId>
+      <version>5.0.4</version>
+    </dependency>
+    <dependency>
+      <groupId>org.knowm.xchange</groupId>
+      <artifactId>xchange-stream-bitfinex</artifactId>
+      <version>5.0.4</version>
+    </dependency>
+    <dependency>
       <groupId>app.keyconnect</groupId>
       <artifactId>keyconnect-rippled-api</artifactId>
       <version>${project.version}</version>
