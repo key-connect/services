@@ -24,16 +24,23 @@ public class DeterministicWallet {
   private final Map<String, BlockchainWalletFactory> factoryMap = new ConcurrentHashMap<>(2);
 
   public DeterministicWallet(@Nullable String passphrase) {
-    seed = new DeterministicSeed(new SecureRandom(), 128,
-        Optional.ofNullable(passphrase).orElse(""));
+    seed = new DeterministicSeed(
+        new SecureRandom(),
+        128,
+        Optional.ofNullable(passphrase).orElse("")
+    );
     chain = DeterministicKeyChain.builder().seed(seed).build();
   }
 
   public DeterministicWallet(@Nullable String passphrase, String mnemonicString,
       long creationTimeInSeconds) {
     try {
-      seed = new DeterministicSeed(mnemonicString, null, Optional.ofNullable(passphrase).orElse(""),
-          creationTimeInSeconds);
+      seed = new DeterministicSeed(
+          mnemonicString,
+          null,
+          Optional.ofNullable(passphrase).orElse(""),
+          creationTimeInSeconds
+      );
     } catch (UnreadableWalletException e) {
       throw new RuntimeException("Wallet unreadable!", e);
     }
