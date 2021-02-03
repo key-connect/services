@@ -11,9 +11,11 @@ import org.slf4j.LoggerFactory;
 public class DeterministicWalletIT {
 
   private static final Logger logger = LoggerFactory.getLogger(DeterministicWalletIT.class);
+
   @Test
   public void createDeterministicWalletWithEthAndXrpWallets() {
-    final DeterministicWallet wallet = new DeterministicWallet();
+    final String passphrase = "my passphrase";
+    final DeterministicWallet wallet = new DeterministicWallet(passphrase);
     final String mnemonicCode = wallet.getMnemonicCode();
     final long creationTimeSeconds = wallet.getDeterministicSeed().getCreationTimeSeconds();
     logger.info("Wallet mnemonic: {} words, {}", mnemonicCode.split(" ").length,
@@ -52,9 +54,12 @@ public class DeterministicWalletIT {
     xrpWallets = xrpWalletFactory.getGeneratedWallets();
     assertThat(xrpWallets).hasSize(1);
 
-    final DeterministicWallet recoveredWallet = new DeterministicWallet(mnemonicCode, creationTimeSeconds);
-    final BlockchainWalletFactory rEthWalletFactory = recoveredWallet.getWalletFactory(ChainIdEnum.ETH);
-    final BlockchainWalletFactory rXrpWalletFactory = recoveredWallet.getWalletFactory(ChainIdEnum.XRP);
+    final DeterministicWallet recoveredWallet = new DeterministicWallet(passphrase, mnemonicCode,
+        creationTimeSeconds);
+    final BlockchainWalletFactory rEthWalletFactory = recoveredWallet
+        .getWalletFactory(ChainIdEnum.ETH);
+    final BlockchainWalletFactory rXrpWalletFactory = recoveredWallet
+        .getWalletFactory(ChainIdEnum.XRP);
 
     final BlockchainWallet eth1b = rEthWalletFactory.generateNext();
     final BlockchainWallet eth2b = rEthWalletFactory.generateNext();
