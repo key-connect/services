@@ -9,7 +9,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.NotImplementedException;
 import org.bitcoinj.crypto.ChildNumber;
@@ -25,8 +27,7 @@ public class DeterministicWallet {
 
   private final DeterministicSeed seed;
   private final DeterministicKeyChain chain;
-  private BlockchainWalletFactory ethWalletFactory;
-  private BlockchainWalletFactory xrpWalletFactory;
+  private final Map<String, BlockchainWalletFactory> factoryMap = new ConcurrentHashMap<>(2);
 
   public DeterministicWallet() {
     seed = new DeterministicSeed(new SecureRandom().generateSeed(256), "",
@@ -64,11 +65,9 @@ public class DeterministicWallet {
   public BlockchainWalletFactory getWalletFactory(ChainIdEnum chainId) {
     switch(chainId) {
       case ETH:
-        if (ethWalletFactory == null) ethWalletFactory = new EthHdWalletFactory(this);
-        return ethWalletFactory;
+        return factoryMap.computeIfAbsent(chainId.getValue(), c -> new EthHdWalletFactory(this));
       case XRP:
-        if (xrpWalletFactory == null) xrpWalletFactory = new XrpHdWalletFactory(this);
-        return xrpWalletFactory;
+        return factoryMap.computeIfAbsent(chainId.getValue(), c -> new XrpHdWalletFactory(this));
       default:
         throw new NotImplementedException("Wallet factory for blockchain " + chainId.getValue() + " is not yet implemented");
     }

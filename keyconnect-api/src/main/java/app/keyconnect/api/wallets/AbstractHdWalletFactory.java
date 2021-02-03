@@ -40,6 +40,11 @@ public abstract class AbstractHdWalletFactory implements
     }
   }
 
+  @Override
+  public boolean hasWallets() {
+    return generatedWallets.size() > 0;
+  }
+
   abstract BlockchainWallet buildWalletFromPrivateKey(BigInteger privateKey);
 
   abstract String getChainIndex();

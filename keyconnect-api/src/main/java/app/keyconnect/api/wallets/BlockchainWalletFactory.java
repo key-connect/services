@@ -14,4 +14,6 @@ public interface BlockchainWalletFactory {
   List<BlockchainWallet> getGeneratedWallets();
 
   void deleteLast();
+
+  boolean hasWallets();
 }
