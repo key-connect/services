@@ -30,8 +30,7 @@ public class DeterministicWallet {
   private final Map<String, BlockchainWalletFactory> factoryMap = new ConcurrentHashMap<>(2);
 
   public DeterministicWallet() {
-    seed = new DeterministicSeed(new SecureRandom().generateSeed(256), "",
-        (int) (System.currentTimeMillis() / 1000));
+    seed = new DeterministicSeed(new SecureRandom(), 128, "");
     chain = DeterministicKeyChain.builder().seed(seed).build();
   }
 
@@ -77,15 +76,16 @@ public class DeterministicWallet {
     return HDUtils.parsePath(String.format("M/44H/%sH/%sH/0/0", coinType, account));
   }
 
-  public void toFile() {
+  public void toFile(File file) {
     try {
-      final Path kcHomePath = Files
-          .createDirectories(Paths.get(FileUtils.getUserDirectoryPath(), ".kc"));
-      final File seedFile = Files.createFile(Paths.get(kcHomePath.toString(), ".seed")).toFile();
-      seedFile.createNewFile(); // create if not already there
-      final PrintWriter seedWriter = new PrintWriter(seedFile);
+//      final Path kcHomePath = Files
+//          .createDirectories(Paths.get(FileUtils.getUserDirectoryPath(), ".kc"));
+//      final File seedFile = Files.createFile(Paths.get(kcHomePath.toString(), ".seed")).toFile();
+//      seedFile.createNewFile(); // create if not already there
+      final PrintWriter seedWriter = new PrintWriter(file);
       seedWriter.println(Strings.join(seed.getMnemonicCode(), " "));
       seedWriter.println(seed.getCreationTimeSeconds());
+
     } catch (IOException e) {
       throw new RuntimeException("Unable to sync seed to file", e);
     }
@@ -101,5 +101,9 @@ public class DeterministicWallet {
 
   public byte[] getSeed() {
     return seed.getSeedBytes();
+  }
+
+  public DeterministicSeed getDeterministicSeed() {
+    return this.seed;
   }
 }
