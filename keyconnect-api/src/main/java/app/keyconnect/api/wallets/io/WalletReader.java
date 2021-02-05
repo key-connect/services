@@ -40,7 +40,7 @@ public class WalletReader {
           .forEach(k -> {
             final int branchLength = Integer.parseInt(walletFile.getAccountIndices().get(k));
             final BlockchainWalletFactory walletFactory = wallet
-                .getWalletFactory(ChainIdEnum.valueOf(k));
+                .getWalletFactory(k);
             for (int i = 0; i < branchLength; i++) {
               walletFactory.generateNext();
             }

@@ -12,6 +12,7 @@ import java.io.Console;
 import java.io.File;
 import java.util.List;
 import java.util.concurrent.Callable;
+import org.apache.commons.lang3.StringUtils;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -20,6 +21,13 @@ import picocli.CommandLine.Option;
     description = "View information about local wallets"
 )
 public class WalletsCommand extends BaseClientConfig implements Callable<Integer> {
+
+  @Option(
+      names = {"-c", "--chainid"},
+      description = "ID of the blockchain",
+      required = false
+  )
+  protected String chainId;
 
   @Option(
       names = {"-f", "--fiat"},
@@ -42,12 +50,14 @@ public class WalletsCommand extends BaseClientConfig implements Callable<Integer
     final Console console = System.console();
     System.out.print("Wallet password: ");
     final String walletPassword = new String(console.readPassword());
+//    final String walletPassword = "";
     System.out.println();
     System.out.println("Loading wallet...");
     final DeterministicWallet wallet = WalletReader.fromFile(walletFile, walletPassword);
     wallet.getAllFactories()
         .stream()
         .filter(f -> f.getGeneratedWallets().size() > 0)
+        .filter(f -> StringUtils.isNotBlank(chainId) && f.getChainId().name().equalsIgnoreCase(chainId))
         .forEach(f -> {
           System.out.println(f.getChainId() + " ===");
           final List<BlockchainWallet> wallets = f.getGeneratedWallets();
@@ -66,7 +76,7 @@ public class WalletsCommand extends BaseClientConfig implements Callable<Integer
                 fiatInfo = info.getValue().getCurrency() + " " + info.getValue().getAmount();
               }
             } catch (ApiException e) {
-              e.printStackTrace();
+              // skip
             }
 
             System.out.println(i + " " + w.getAddress() + " "  + balanceAmount + " " + fiatInfo);

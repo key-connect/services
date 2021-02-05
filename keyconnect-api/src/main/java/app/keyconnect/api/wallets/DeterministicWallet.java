@@ -1,6 +1,7 @@
 package app.keyconnect.api.wallets;
 
 import app.keyconnect.api.client.model.BlockchainAccountInfo.ChainIdEnum;
+import com.github.jknack.handlebars.helper.BlockHelper;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.List;
@@ -52,6 +53,14 @@ public class DeterministicWallet {
       throw new RuntimeException("Wallet unreadable!", e);
     }
     chain = DeterministicKeyChain.builder().seed(seed).build();
+  }
+
+  public BlockchainWalletFactory getWalletFactory(String chainIndex) {
+    return getAllFactories()
+        .stream()
+        .filter(f -> f.getChainIndex().equals(chainIndex))
+        .findFirst()
+        .get();
   }
 
   public BlockchainWalletFactory getWalletFactory(ChainIdEnum chainId) {
