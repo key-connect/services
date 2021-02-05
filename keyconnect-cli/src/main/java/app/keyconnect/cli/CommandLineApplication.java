@@ -6,6 +6,7 @@ import app.keyconnect.cli.commands.AccountTransactionsCommand;
 import app.keyconnect.cli.commands.AccountsCommand;
 import app.keyconnect.cli.commands.BlockchainStatusCommand;
 import app.keyconnect.cli.commands.FeesCommand;
+import app.keyconnect.cli.commands.FundCommand;
 import app.keyconnect.cli.commands.InitCommand;
 import app.keyconnect.cli.commands.NewWalletCommand;
 import app.keyconnect.cli.commands.RateCommand;
@@ -36,6 +37,7 @@ public class CommandLineApplication {
           .addSubcommand(new TransactionCommand())
           .addSubcommand(new FeesCommand())
           .addSubcommand(new RateCommand())
+          .addSubcommand(new FundCommand())
           .addSubcommand(new InitCommand())
           .addSubcommand(new NewWalletCommand())
           .addSubcommand(new WalletsCommand())
