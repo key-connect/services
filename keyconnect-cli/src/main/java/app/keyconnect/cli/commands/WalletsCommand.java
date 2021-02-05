@@ -70,7 +70,9 @@ public class WalletsCommand extends BaseClientConfig implements Callable<Integer
                   .getAccountInfo(f.getChainId().getValue().toLowerCase(Locale.ROOT),
                       w.getAddress(), network, fiat);
 
-              balanceAmount = f.getChainId().name() + " " + info.getBalance().getAmount();
+              if (info.getBalance() != null) {
+                balanceAmount = f.getChainId().name() + " " + info.getBalance().getAmount();
+              }
 
               if (info.getValue() != null) {
                 fiatInfo = info.getValue().getCurrency() + " " + info.getValue().getAmount();
