@@ -35,6 +35,6 @@ public class WalletWriterReaderIT {
     assertThat(testFile).exists();
     logger.info("Wrote to wallet file {}", testFile.getAbsolutePath());
     logger.info("Testing read...");
-    final DeterministicWallet rWallet = WalletReader.fromFile(testFile);
+    final DeterministicWallet rWallet = WalletReader.fromFile(testFile, "encryptionPassphrase");
   }
 }

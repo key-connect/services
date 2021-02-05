@@ -6,6 +6,7 @@ import app.keyconnect.cli.commands.AccountTransactionsCommand;
 import app.keyconnect.cli.commands.AccountsCommand;
 import app.keyconnect.cli.commands.BlockchainStatusCommand;
 import app.keyconnect.cli.commands.FeesCommand;
+import app.keyconnect.cli.commands.InitCommand;
 import app.keyconnect.cli.commands.RateCommand;
 import app.keyconnect.cli.commands.ServerStatusCommand;
 import app.keyconnect.cli.commands.TransactionCommand;
@@ -33,6 +34,7 @@ public class CommandLineApplication {
           .addSubcommand(new TransactionCommand())
           .addSubcommand(new FeesCommand())
           .addSubcommand(new RateCommand())
+          .addSubcommand(new InitCommand())
           .setExecutionExceptionHandler((ex, commandLine, parseResult) -> {
             if (!(ex instanceof ApiException)) {
               ConsoleUtil.print(ex);

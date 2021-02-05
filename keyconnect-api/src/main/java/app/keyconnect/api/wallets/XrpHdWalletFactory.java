@@ -1,5 +1,6 @@
 package app.keyconnect.api.wallets;
 
+import app.keyconnect.api.client.model.BlockchainAccountInfo.ChainIdEnum;
 import java.math.BigInteger;
 
 public class XrpHdWalletFactory extends AbstractHdWalletFactory {
@@ -16,5 +17,10 @@ public class XrpHdWalletFactory extends AbstractHdWalletFactory {
   @Override
   public String getChainIndex() {
     return "144";
+  }
+
+  @Override
+  public ChainIdEnum getChainId() {
+    return ChainIdEnum.XRP;
   }
 }

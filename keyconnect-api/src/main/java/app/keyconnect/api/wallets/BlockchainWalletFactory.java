@@ -1,5 +1,6 @@
 package app.keyconnect.api.wallets;
 
+import app.keyconnect.api.client.model.BlockchainAccountInfo.ChainIdEnum;
 import java.util.List;
 
 public interface BlockchainWalletFactory {
@@ -18,4 +19,6 @@ public interface BlockchainWalletFactory {
   boolean hasWallets();
 
   String getChainIndex();
+
+  ChainIdEnum getChainId();
 }
