@@ -7,9 +7,11 @@ import app.keyconnect.cli.commands.AccountsCommand;
 import app.keyconnect.cli.commands.BlockchainStatusCommand;
 import app.keyconnect.cli.commands.FeesCommand;
 import app.keyconnect.cli.commands.InitCommand;
+import app.keyconnect.cli.commands.NewWalletCommand;
 import app.keyconnect.cli.commands.RateCommand;
 import app.keyconnect.cli.commands.ServerStatusCommand;
 import app.keyconnect.cli.commands.TransactionCommand;
+import app.keyconnect.cli.commands.WalletsCommand;
 import app.keyconnect.cli.utils.ConsoleUtil;
 import com.google.gson.Gson;
 import java.net.ConnectException;
@@ -35,6 +37,8 @@ public class CommandLineApplication {
           .addSubcommand(new FeesCommand())
           .addSubcommand(new RateCommand())
           .addSubcommand(new InitCommand())
+          .addSubcommand(new NewWalletCommand())
+          .addSubcommand(new WalletsCommand())
           .setExecutionExceptionHandler((ex, commandLine, parseResult) -> {
             if (!(ex instanceof ApiException)) {
               ConsoleUtil.print(ex);

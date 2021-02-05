@@ -28,7 +28,7 @@ public class WalletReader {
         walletString = reader.lines()
             .collect(Collectors.joining(System.lineSeparator()));
       }
-      System.out.println(walletString);
+
       final WalletFile walletFile = new ObjectMapper(new YAMLFactory())
           .readValue(walletString, WalletFile.class);
       final DeterministicWallet wallet = new DeterministicWallet(walletFile.getPassphrase(), walletFile.getMnemonic(),

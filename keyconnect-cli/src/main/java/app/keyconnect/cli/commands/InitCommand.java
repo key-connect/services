@@ -2,14 +2,10 @@ package app.keyconnect.cli.commands;
 
 import app.keyconnect.api.wallets.DeterministicWallet;
 import app.keyconnect.api.wallets.io.WalletWriter;
-import app.keyconnect.cli.utils.ConsoleUtil;
 import java.io.Console;
 import java.io.File;
-import java.io.IOException;
-import java.util.Scanner;
 import java.util.concurrent.Callable;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
 
 @Command(
     name = "init",

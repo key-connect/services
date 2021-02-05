@@ -36,7 +36,6 @@ public class WalletWriter {
             )
         );
     String walletFileString = serializeWalletFileToString(walletFile);
-    System.out.println(walletFileString);
     try {
       final BufferedOutputStream outputStream = new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(file)));
       outputStream.write(walletFileString.getBytes(StandardCharsets.UTF_8));
