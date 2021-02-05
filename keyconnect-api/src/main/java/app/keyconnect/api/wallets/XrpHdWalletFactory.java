@@ -14,7 +14,7 @@ public class XrpHdWalletFactory extends AbstractHdWalletFactory {
   }
 
   @Override
-  String getChainIndex() {
+  public String getChainIndex() {
     return "144";
   }
 }

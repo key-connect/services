@@ -94,7 +94,6 @@ paths:
             enum:
               - xrp
               - eth
-              - btc
         - name: network
           in: query
           description: Blockchain network to get the status from.
@@ -126,7 +125,6 @@ paths:
             enum:
               - xrp
               - eth
-              - btc
         - name: network
           in: query
           description: Blockchain network to get the status from.
@@ -159,7 +157,6 @@ paths:
             enum:
               - xrp
               - eth
-              - btc
             example: xrp
         - name: network
           in: query
@@ -218,7 +215,6 @@ paths:
             enum:
               - xrp
               - eth
-              - btc
             example: xrp
         - name: network
           in: query
@@ -262,7 +258,6 @@ paths:
             enum:
               - xrp
               - eth
-              - btc
           example: xrp
         - name: network
           in: query
@@ -328,7 +323,6 @@ paths:
             enum:
               - xrp
               - eth
-              - btc
           example: xrp
         - name: network
           in: query
@@ -393,7 +387,6 @@ paths:
             enum:
               - xrp
               - eth
-              - btc
         - name: hash
           in: path
           description: Hash of the transaction to lookup
@@ -448,7 +441,6 @@ paths:
             enum:
               - xrp
               - eth
-              - btc
         - name: network
           in: query
           description: "
@@ -691,7 +683,6 @@ components:
           enum:
             - xrp
             - eth
-            - btc
         network:
           type: string
           example: testnet
@@ -743,7 +734,6 @@ components:
           enum:
             - xrp
             - eth
-            - btc
         network:
           type: string
           example: testnet
@@ -797,7 +787,6 @@ components:
           enum:
             - xrp
             - eth
-            - btc
         network:
           type: string
           example: testnet
@@ -820,7 +809,6 @@ components:
           enum:
             - xrp
             - eth
-            - btc
         network:
           type: string
           example: testnet
@@ -836,7 +824,6 @@ components:
           enum:
             - xrp
             - eth
-            - btc
         network:
           type: string
           example: testnet
@@ -886,7 +873,6 @@ components:
           enum:
             - xrp
             - eth
-            - btc
         network:
           type: string
           example: testnet

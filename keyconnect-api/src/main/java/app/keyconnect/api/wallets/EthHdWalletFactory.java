@@ -14,7 +14,7 @@ public class EthHdWalletFactory extends AbstractHdWalletFactory {
   }
 
   @Override
-  String getChainIndex() {
+  public String getChainIndex() {
     return "60";
   }
 }

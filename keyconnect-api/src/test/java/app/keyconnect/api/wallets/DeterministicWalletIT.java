@@ -17,7 +17,6 @@ public class DeterministicWalletIT {
     final String passphrase = "my passphrase";
     final DeterministicWallet wallet = new DeterministicWallet(passphrase);
     final String mnemonicCode = wallet.getMnemonicCode();
-    final long creationTimeSeconds = wallet.getDeterministicSeed().getCreationTimeSeconds();
     logger.info("Wallet mnemonic: {} words, {}", mnemonicCode.split(" ").length,
         mnemonicCode);
 
@@ -55,7 +54,7 @@ public class DeterministicWalletIT {
     assertThat(xrpWallets).hasSize(1);
 
     final DeterministicWallet recoveredWallet = new DeterministicWallet(passphrase, mnemonicCode,
-        creationTimeSeconds);
+        System.currentTimeMillis());
     final BlockchainWalletFactory rEthWalletFactory = recoveredWallet
         .getWalletFactory(ChainIdEnum.ETH);
     final BlockchainWalletFactory rXrpWalletFactory = recoveredWallet
@@ -72,5 +71,23 @@ public class DeterministicWalletIT {
 
     assertThat(xrp1b.getAddress()).isEqualTo(xrp1a.getAddress());
     assertThat(xrp2b.getAddress()).isEqualTo(xrp2a.getAddress());
+  }
+
+  @Test
+  public void recoverWithJustMnemonic() throws Exception {
+    final DeterministicWallet wallet = new DeterministicWallet("");
+    final String mnemonic = wallet.getMnemonicCode();
+    final BlockchainWallet ethWallet = wallet.getWalletFactory(ChainIdEnum.ETH).generateNext();
+    final BlockchainWallet xrpWallet = wallet.getWalletFactory(ChainIdEnum.XRP).generateNext();
+
+    // sleep 5 seconds to get different creation time seconds
+    Thread.sleep(5000);
+    final DeterministicWallet rWallet = new DeterministicWallet("", mnemonic, System.currentTimeMillis());
+    final BlockchainWallet rEthWallet = rWallet.getWalletFactory(ChainIdEnum.ETH).generateNext();
+    final BlockchainWallet rXrpWallet = rWallet.getWalletFactory(ChainIdEnum.XRP).generateNext();
+
+    assertThat(rEthWallet.getAddress()).isEqualTo(ethWallet.getAddress());
+    assertThat(rXrpWallet.getAddress()).isEqualTo(xrpWallet.getAddress());
+
   }
 }

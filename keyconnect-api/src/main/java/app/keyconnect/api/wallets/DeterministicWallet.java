@@ -2,10 +2,13 @@ package app.keyconnect.api.wallets;
 
 import app.keyconnect.api.client.model.BlockchainAccountInfo.ChainIdEnum;
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.NotImplementedException;
 import org.bitcoinj.crypto.ChildNumber;
@@ -22,8 +25,11 @@ public class DeterministicWallet {
   private final DeterministicSeed seed;
   private final DeterministicKeyChain chain;
   private final Map<String, BlockchainWalletFactory> factoryMap = new ConcurrentHashMap<>(2);
+  @Nullable
+  private final String passphrase;
 
   public DeterministicWallet(@Nullable String passphrase) {
+    this.passphrase = passphrase;
     seed = new DeterministicSeed(
         new SecureRandom(),
         128,
@@ -34,6 +40,7 @@ public class DeterministicWallet {
 
   public DeterministicWallet(@Nullable String passphrase, String mnemonicString,
       long creationTimeInSeconds) {
+    this.passphrase = passphrase;
     try {
       seed = new DeterministicSeed(
           mnemonicString,
@@ -57,6 +64,17 @@ public class DeterministicWallet {
         throw new NotImplementedException(
             "Wallet factory for blockchain " + chainId.getValue() + " is not yet implemented");
     }
+  }
+
+  public Set<BlockchainWalletFactory> getAllFactories() {
+    return Arrays.stream(ChainIdEnum.values())
+        .map(this::getWalletFactory)
+        .collect(Collectors.toSet());
+  }
+
+  @Nullable
+  public String getPassphrase() {
+    return passphrase;
   }
 
   public List<ChildNumber> buildPath(String coinType, String account) {

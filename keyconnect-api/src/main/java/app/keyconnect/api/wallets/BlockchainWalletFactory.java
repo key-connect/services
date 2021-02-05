@@ -16,4 +16,6 @@ public interface BlockchainWalletFactory {
   void deleteLast();
 
   boolean hasWallets();
+
+  String getChainIndex();
 }

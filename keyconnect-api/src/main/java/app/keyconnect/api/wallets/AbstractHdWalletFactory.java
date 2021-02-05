@@ -47,5 +47,5 @@ public abstract class AbstractHdWalletFactory implements
 
   abstract BlockchainWallet buildWalletFromPrivateKey(BigInteger privateKey);
 
-  abstract String getChainIndex();
+  abstract public String getChainIndex();
 }
