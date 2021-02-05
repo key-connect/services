@@ -23,9 +23,8 @@ public class WalletReader {
       final String walletString;
       try (BufferedReader reader = new BufferedReader(new InputStreamReader(
           new GZIPInputStream(new FileInputStream(file))))) {
-        final String content = reader.lines()
+        walletString = reader.lines()
             .collect(Collectors.joining(System.lineSeparator()));
-        walletString = new String(content);
       }
       System.out.println(walletString);
       final WalletFile walletFile = new ObjectMapper(new YAMLFactory())

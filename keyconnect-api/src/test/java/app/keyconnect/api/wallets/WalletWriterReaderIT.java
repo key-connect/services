@@ -12,9 +12,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class WalletWriterTest {
+public class WalletWriterReaderIT {
 
-  private static final Logger logger = LoggerFactory.getLogger(WalletWriterTest.class);
+  private static final Logger logger = LoggerFactory.getLogger(WalletWriterReaderIT.class);
 
   @Test
   public void writeAndReadWalletFile() throws Exception {
