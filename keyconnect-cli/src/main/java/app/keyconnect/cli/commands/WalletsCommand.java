@@ -39,8 +39,16 @@ public class WalletsCommand extends BaseClientConfig implements Callable<Integer
   )
   private String fiat;
 
+  @Option(
+      names = {"--balances"},
+      description = "Show remote balances",
+      required = false
+  )
+  private boolean showBalances;
+
   @Override
   public Integer call() throws Exception {
+
     WalletHelper.assertHomeDirectory();
     final File walletFile = WalletHelper.assertWalletFile();
 
@@ -64,21 +72,26 @@ public class WalletsCommand extends BaseClientConfig implements Callable<Integer
             BlockchainWallet w = wallets.get(i);
             String fiatInfo = "";
             String balanceAmount = "unavailable";
-            final BlockchainAccountInfo info;
-            try {
-              info = getBlockchainApi()
-                  .getAccountInfo(f.getChainId().getValue().toLowerCase(Locale.ROOT),
-                      w.getAddress(), network, fiat);
+            if (!showBalances) {
+              balanceAmount = "";
+              fiatInfo = "";
+            } else {
+              final BlockchainAccountInfo info;
+              try {
+                info = getBlockchainApi()
+                    .getAccountInfo(f.getChainId().getValue().toLowerCase(Locale.ROOT),
+                        w.getAddress(), network, fiat);
 
-              if (info.getBalance() != null) {
-                balanceAmount = f.getChainId().name() + " " + info.getBalance().getAmount();
-              }
+                if (info.getBalance() != null) {
+                  balanceAmount = f.getChainId().name() + " " + info.getBalance().getAmount();
+                }
 
-              if (info.getValue() != null) {
-                fiatInfo = info.getValue().getCurrency() + " " + info.getValue().getAmount();
+                if (info.getValue() != null) {
+                  fiatInfo = info.getValue().getCurrency() + " " + info.getValue().getAmount();
+                }
+              } catch (ApiException e) {
+                // skip
               }
-            } catch (ApiException e) {
-              // skip
             }
 
             System.out.println(i + " " + w.getAddress() + " " + balanceAmount + " " + fiatInfo);
