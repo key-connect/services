@@ -22,6 +22,7 @@ import app.keyconnect.rippled.api.client.model.AccountTransactionMarker;
 import app.keyconnect.rippled.api.client.model.AccountTransactionMeta;
 import app.keyconnect.rippled.api.client.model.AccountTransactionResponse;
 import app.keyconnect.rippled.api.client.model.FeeResponse;
+import app.keyconnect.rippled.api.client.model.FeeResult;
 import app.keyconnect.rippled.api.client.model.ServerInfoResponse;
 import app.keyconnect.rippled.api.client.model.SubmitTransactionResponse;
 import app.keyconnect.rippled.api.client.model.TransactionResponse;
@@ -147,8 +148,15 @@ public class XrpGateway implements BlockchainGateway {
       final FeeResponse feeResponse = networkClientService
           .getClientForServer(networkConfig.getAddress())
           .getFee();
+      final FeeResult feeResult = feeResponse.getResult();
+
+      if (feeResult == null
+        || (StringUtils.isNotBlank(feeResult.getStatus()) && feeResult.getStatus().equalsIgnoreCase(STATUS_ERROR))) {
+        continue;
+      }
+
       final CurrencyValue fee = new CurrencyValue()
-          .amount(feeResponse.getResult().getDrops().getMinimumFee())
+          .amount(feeResult.getDrops().getMinimumFee())
           .currency(CurrencyEnum.DROPS);
       return new BlockchainFee()
           .chainId(BlockchainFee.ChainIdEnum.XRP)
@@ -157,8 +165,7 @@ public class XrpGateway implements BlockchainGateway {
           .server(toURI(networkConfig.getAddress()));
     }
 
-    // todo do something if its null
-    return null;
+    throw new ResponseStatusException(HttpStatus.NO_CONTENT, CHAIN_ID + " " + network + " did not return any valid fee at this time. Please try again.");
   }
 
   @Override
