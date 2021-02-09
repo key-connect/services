@@ -252,6 +252,12 @@ public class XrpGateway implements BlockchainGateway {
       final List<AccountTransactionItem> transactions = accountTransactionsResponse.getResult()
           .getTransactions();
 
+      if (transactions == null ||
+          (StringUtils.isNotBlank(accountTransactionsResponse.getResult().getStatus()) && accountTransactionsResponse.getResult().getStatus().equalsIgnoreCase(STATUS_ERROR))
+      ) {
+        continue;
+      }
+
       final AccountTransactionMarker responseMarker = accountTransactionsResponse.getResult()
           .getMarker();
       if (responseMarker != null) {
@@ -287,7 +293,9 @@ public class XrpGateway implements BlockchainGateway {
                   .collect(Collectors.toList())
           );
     }
-    return null;
+
+    // if we got here then we didn't find any transctions
+    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Requested transactions could not be found for account " + accountId + " on chain " + CHAIN_ID + " " + network);
   }
 
   private CurrencyValue fromDropsString(String dropsAmount) {
