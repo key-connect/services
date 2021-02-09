@@ -198,6 +198,8 @@ public class XrpGateway implements BlockchainGateway {
 
     if (accountInfoResponse != null
         && accountInfoResponse.getResult() != null
+        && StringUtils.isNotBlank(accountInfoResponse.getResult().getStatus())
+        && !accountInfoResponse.getResult().getStatus().equalsIgnoreCase(STATUS_ERROR)
         && accountInfoResponse.getResult().getAccountData() != null) {
       if (accountInfoResponse.getResult().getAccountData().getBalance() != null) {
         final BigDecimal balanceInXrp = new BigDecimal(
@@ -213,6 +215,8 @@ public class XrpGateway implements BlockchainGateway {
 
       accountInfo.setLastTransactionId(
           accountInfoResponse.getResult().getAccountData().getPreviousTxnID());
+    } else {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Requested account " + accountId + " was not found on " + CHAIN_ID + " " + network);
     }
 
     return accountInfo;
