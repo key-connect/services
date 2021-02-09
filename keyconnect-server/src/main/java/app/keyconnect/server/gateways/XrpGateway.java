@@ -46,6 +46,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 public class XrpGateway implements BlockchainGateway {
 
@@ -54,6 +56,7 @@ public class XrpGateway implements BlockchainGateway {
   public static final BigDecimal DROPS_PER_XRP = BigDecimal.valueOf(1000000);
   private static final String DEFAULT_NETWORK = "mainnet";
   private static final int XRP_SCALE = 18;
+  private static final String STATUS_ERROR = "error";
   private final NetworkClientService<PublicRippledClient> networkClientService;
 
   public XrpGateway(NetworkClientService<PublicRippledClient> networkClientService) {
@@ -347,9 +350,12 @@ public class XrpGateway implements BlockchainGateway {
       final PublicRippledClient client = networkClient.getClient();
       final TransactionResponse transaction = client.getTransaction(hash);
       final TransactionResult tx = transaction.getResult();
-      if (tx == null) {
+      if (tx == null ||
+          (StringUtils.isNotBlank(tx.getStatus()) && tx.getStatus().equalsIgnoreCase(STATUS_ERROR))
+      ) {
         continue;
       }
+
       final AccountTransactionMeta meta = tx.getMeta();
 
       String amountString = tx.getAmount();
@@ -387,7 +393,11 @@ public class XrpGateway implements BlockchainGateway {
           );
     }
 
-    return null;
+    // if we're here then we didn't find the transaction
+    throw new ResponseStatusException(
+        HttpStatus.NOT_FOUND,
+        "Requested transaction " + hash + " was not found on " + CHAIN_ID + " " + network
+    );
   }
 
   @Override
