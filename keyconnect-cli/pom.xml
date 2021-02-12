@@ -26,7 +26,7 @@
     <dependency>
       <groupId>info.picocli</groupId>
       <artifactId>picocli</artifactId>
-      <version>4.5.2</version>
+      <version>4.6.1</version>
     </dependency>
     <dependency>
       <groupId>app.keyconnect.api</groupId>
@@ -69,10 +69,40 @@
       <version>1.7.25</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.graalvm.nativeimage</groupId>
+      <artifactId>native-image-maven-plugin</artifactId>
+      <version>21.0.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>info.picocli</groupId>
+      <artifactId>picocli-codegen</artifactId>
+      <version>4.6.1</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 
   <build>
     <plugins>
+      <!--<plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        &lt;!&ndash; annotationProcessorPaths requires maven-compiler-plugin version 3.5 or higher &ndash;&gt;
+        <version>3.8.1</version>
+        <configuration>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>info.picocli</groupId>
+              <artifactId>picocli-codegen</artifactId>
+              <version>4.6.1</version>
+            </path>
+          </annotationProcessorPaths>
+          <compilerArgs>
+            <arg>-Aproject=${project.groupId}/${project.artifactId}</arg>
+          </compilerArgs>
+        </configuration>
+      </plugin>-->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
@@ -111,6 +141,23 @@
       <build>
         <plugins>
           <plugin>
+            <groupId>org.graalvm.nativeimage</groupId>
+            <artifactId>native-image-maven-plugin</artifactId>
+            <version>21.0.0</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>native-image</goal>
+                </goals>
+                <phase>package</phase>
+              </execution>
+            </executions>
+            <configuration>
+              <buildArgs>-H:+ReportExceptionStackTraces --no-fallback --enable-all-security-services</buildArgs>
+              <imageName>kc</imageName>
+            </configuration>
+          </plugin>
+          <!--<plugin>
             <groupId>com.akathist.maven.plugins.launch4j</groupId>
             <artifactId>launch4j-maven-plugin</artifactId>
             <version>1.7.25</version>
@@ -144,7 +191,7 @@
                 </goals>
                 <configuration>
                   <tasks>
-                    <!-- download file -->
+                    &lt;!&ndash; download file &ndash;&gt;
                     <get src="https://github.com/AdoptOpenJDK/openjdk15-binaries/releases/download/jdk-15.0.2%2B7/OpenJDK15U-jre_x64_windows_hotspot_15.0.2_7.zip"
                       dest="${project.build.directory}/jre.zip"
                       verbose="false"
@@ -166,7 +213,7 @@
                 </configuration>
               </execution>
             </executions>
-          </plugin>
+          </plugin>-->
         </plugins>
       </build>
     </profile>
