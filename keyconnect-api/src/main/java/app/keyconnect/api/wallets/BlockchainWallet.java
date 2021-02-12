@@ -14,4 +14,6 @@ public interface BlockchainWallet {
    * @return Wallet name
    */
   String getName();
+
+  void setName(String name);
 }

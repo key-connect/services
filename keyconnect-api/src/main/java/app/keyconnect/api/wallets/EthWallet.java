@@ -22,4 +22,9 @@ public class EthWallet implements BlockchainWallet {
   public String getName() {
     return name;
   }
+
+  @Override
+  public void setName(String name) {
+    this.name = name;
+  }
 }

@@ -12,7 +12,7 @@ import org.xrpl.xrpl4j.wallet.WalletFactory;
 public class XrpWallet implements BlockchainWallet {
 
   private final WalletFactory walletFactory = DefaultWalletFactory.getInstance();
-  private final String name;
+  private String name;
   private Wallet wallet;
   private String seed;
 
@@ -33,5 +33,10 @@ public class XrpWallet implements BlockchainWallet {
   @Override
   public String getName() {
     return name;
+  }
+
+  @Override
+  public void setName(String name) {
+    this.name = name;
   }
 }
