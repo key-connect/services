@@ -12,6 +12,7 @@ import app.keyconnect.cli.utils.LocalWalletData;
 import java.io.Console;
 import java.io.File;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -40,6 +41,16 @@ public class NewWalletCommand implements Callable<Integer> {
 
     final LocalWalletData localWalletData = readLocalWallet();
     final BlockchainWalletFactory walletFactory = localWalletData.getWallet().getWalletFactory(chainId);
+    final Optional<BlockchainWallet> maybeExistingWallet = walletFactory.getGeneratedWallets()
+        .stream()
+        .filter(w -> w.getName().equalsIgnoreCase(name))
+        .findFirst();
+
+    if (maybeExistingWallet.isPresent()) {
+      System.out.println("Wallet already exists with name " + name + ". Please choose a different name for your new wallet.");
+      System.exit(1);
+    }
+
     final BlockchainWallet newWallet = walletFactory.generateNext(name);
     System.out.println("Generated wallet: " + newWallet.getAddress());
     new WalletWriter(localWalletData.getWallet()).writeToFile(localWalletData.getWalletFile(),
