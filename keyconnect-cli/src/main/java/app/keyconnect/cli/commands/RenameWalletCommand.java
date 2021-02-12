@@ -66,10 +66,11 @@ public class RenameWalletCommand implements Callable<Integer> {
     }
 
     final BlockchainWallet wallet = maybeExistingWallet.get();
-    wallet.setName(name);
+    wallet.setName(newName);
     new WalletWriter(localWalletData.getWallet()).writeToFile(localWalletData.getWalletFile(),
         localWalletData.getWalletPassword());
 
+    System.out.println("Renamed wallet from " + name + " to " + newName);
     return 0;
   }
 }
