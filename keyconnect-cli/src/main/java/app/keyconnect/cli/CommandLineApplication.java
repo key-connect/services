@@ -5,6 +5,7 @@ import app.keyconnect.api.client.model.ExceptionalResponse;
 import app.keyconnect.cli.commands.AccountTransactionsCommand;
 import app.keyconnect.cli.commands.AccountsCommand;
 import app.keyconnect.cli.commands.BlockchainStatusCommand;
+import app.keyconnect.cli.commands.ExportWalletCommand;
 import app.keyconnect.cli.commands.FeesCommand;
 import app.keyconnect.cli.commands.FundCommand;
 import app.keyconnect.cli.commands.InitCommand;
@@ -41,6 +42,7 @@ public class CommandLineApplication {
           .addSubcommand(new InitCommand())
           .addSubcommand(new NewWalletCommand())
           .addSubcommand(new WalletsCommand())
+          .addSubcommand(new ExportWalletCommand())
           .setExecutionExceptionHandler((ex, commandLine, parseResult) -> {
             if (!(ex instanceof ApiException)) {
               ConsoleUtil.print(ex);
