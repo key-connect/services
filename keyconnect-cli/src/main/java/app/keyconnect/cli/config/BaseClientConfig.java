@@ -4,6 +4,7 @@ import app.keyconnect.api.ApiClient;
 import app.keyconnect.api.client.BlockchainsApi;
 import app.keyconnect.api.client.RatesApi;
 import app.keyconnect.api.client.ServerApi;
+import okhttp3.logging.HttpLoggingInterceptor;
 import org.jetbrains.annotations.NotNull;
 import picocli.CommandLine.Option;
 
