@@ -46,6 +46,13 @@ public class WalletsCommand extends BaseClientConfig implements Callable<Integer
   )
   private boolean showBalances;
 
+  @Option(
+      names = {"--name"},
+      description = "Filter wallet by name",
+      required = false
+  )
+  private String name;
+
   @Override
   public Integer call() throws Exception {
 
@@ -70,6 +77,10 @@ public class WalletsCommand extends BaseClientConfig implements Callable<Integer
           final List<BlockchainWallet> wallets = f.getGeneratedWallets();
           for (int i = 0; i < wallets.size(); i++) {
             BlockchainWallet w = wallets.get(i);
+            if (StringUtils.isNotBlank(name) && !w.getName().equalsIgnoreCase(name)) {
+              continue;
+            }
+
             String fiatInfo = "";
             String balanceAmount = "unavailable";
             if (!showBalances) {
@@ -94,7 +105,7 @@ public class WalletsCommand extends BaseClientConfig implements Callable<Integer
               }
             }
 
-            System.out.println(i + " " + w.getAddress() + " " + balanceAmount + " " + fiatInfo);
+            System.out.println(i + " " + w.getName() + " " + w.getAddress() + " " + balanceAmount + " " + fiatInfo);
           }
         });
     return 0;

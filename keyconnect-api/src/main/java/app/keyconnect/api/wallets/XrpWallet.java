@@ -12,10 +12,12 @@ import org.xrpl.xrpl4j.wallet.WalletFactory;
 public class XrpWallet implements BlockchainWallet {
 
   private final WalletFactory walletFactory = DefaultWalletFactory.getInstance();
+  private final String name;
   private Wallet wallet;
   private String seed;
 
-  public XrpWallet(BigInteger privateKey) {
+  public XrpWallet(String name, BigInteger privateKey) {
+    this.name = name;
     // is there a better way than cutting the entropy down?
     final byte[] privateKeyBytes = ArrayUtils.subarray(privateKey.toByteArray(), 0, 16);
     this.seed = AddressCodec.getInstance()
@@ -26,5 +28,10 @@ public class XrpWallet implements BlockchainWallet {
   @Override
   public String getAddress() {
     return wallet.classicAddress().value();
+  }
+
+  @Override
+  public String getName() {
+    return name;
   }
 }

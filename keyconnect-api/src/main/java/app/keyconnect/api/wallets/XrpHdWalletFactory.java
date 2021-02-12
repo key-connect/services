@@ -10,8 +10,8 @@ public class XrpHdWalletFactory extends AbstractHdWalletFactory {
   }
 
   @Override
-  BlockchainWallet buildWalletFromPrivateKey(BigInteger privateKey) {
-    return new XrpWallet(privateKey);
+  BlockchainWallet buildWalletFromPrivateKey(String name, BigInteger privateKey) {
+    return new XrpWallet(name, privateKey);
   }
 
   @Override

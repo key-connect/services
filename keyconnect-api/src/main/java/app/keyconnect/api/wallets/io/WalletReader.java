@@ -27,6 +27,7 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.StringUtils;
 
 public class WalletReader {
 
@@ -54,11 +55,14 @@ public class WalletReader {
           .keySet()
           .stream()
           .forEach(k -> {
-            final int branchLength = Integer.parseInt(walletFile.getAccountIndices().get(k));
+            final String walletNamesValue = walletFile.getAccountIndices().get(k);
+            final String[] walletNames = StringUtils.split(walletNamesValue, ",");
+
             final BlockchainWalletFactory walletFactory = wallet
                 .getWalletFactory(k);
-            for (int i = 0; i < branchLength; i++) {
-              walletFactory.generateNext();
+
+            for (String walletName : walletNames) {
+              walletFactory.generateNext(walletName);
             }
           });
       return wallet;

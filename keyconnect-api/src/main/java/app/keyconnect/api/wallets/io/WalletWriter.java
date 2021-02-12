@@ -1,5 +1,6 @@
 package app.keyconnect.api.wallets.io;
 
+import app.keyconnect.api.wallets.BlockchainWallet;
 import app.keyconnect.api.wallets.BlockchainWalletFactory;
 import app.keyconnect.api.wallets.DeterministicWallet;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -18,6 +19,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.InvalidParameterSpecException;
 import java.security.spec.KeySpec;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
 import javax.annotation.Nullable;
 import javax.crypto.BadPaddingException;
@@ -50,7 +52,9 @@ public class WalletWriter {
         .forEachOrdered(f -> walletFile.getAccountIndices()
             .put(
                 f.getChainIndex(),
-                String.valueOf(f.getGeneratedWallets().size())
+                f.getGeneratedWallets().stream()
+                  .map(BlockchainWallet::getName)
+                  .collect(Collectors.joining(","))
             )
         );
 

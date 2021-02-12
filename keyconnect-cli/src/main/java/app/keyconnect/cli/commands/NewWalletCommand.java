@@ -25,6 +25,11 @@ public class NewWalletCommand implements Callable<Integer> {
   )
   String chainId;
 
+  @Option(
+      names = {"-n", "--name"},
+      description = "Memorable name of the wallet"
+  )
+  private String name;
 
   @Override
   public Integer call() throws Exception {
@@ -39,7 +44,7 @@ public class NewWalletCommand implements Callable<Integer> {
     System.out.println("Loading wallet...");
     final DeterministicWallet wallet = WalletReader.fromFile(walletFile, walletPassword);
     final BlockchainWalletFactory walletFactory = wallet.getWalletFactory(chainId);
-    final BlockchainWallet newWallet = walletFactory.generateNext();
+    final BlockchainWallet newWallet = walletFactory.generateNext(name);
     System.out.println("Generated wallet: " + newWallet.getAddress());
     new WalletWriter(wallet).writeToFile(walletFile, walletPassword);
     return 0;
