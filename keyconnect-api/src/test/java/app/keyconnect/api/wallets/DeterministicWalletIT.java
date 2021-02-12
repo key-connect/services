@@ -1,6 +1,8 @@
 package app.keyconnect.api.wallets;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 
 import app.keyconnect.api.client.model.BlockchainAccountInfo.ChainIdEnum;
 import java.util.List;
@@ -19,6 +21,7 @@ public class DeterministicWalletIT {
     final String mnemonicCode = wallet.getMnemonicCode();
     logger.info("Wallet mnemonic: {} words, {}", mnemonicCode.split(" ").length,
         mnemonicCode);
+    assertThat(mnemonicCode.split(" ").length).isEqualTo(24);
 
     final BlockchainWalletFactory ethWalletFactory = wallet.getWalletFactory(ChainIdEnum.ETH);
     final BlockchainWalletFactory xrpWalletFactory = wallet.getWalletFactory(ChainIdEnum.XRP);

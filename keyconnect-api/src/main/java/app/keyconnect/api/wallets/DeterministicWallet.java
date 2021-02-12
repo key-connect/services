@@ -33,7 +33,7 @@ public class DeterministicWallet {
     this.passphrase = passphrase;
     seed = new DeterministicSeed(
         new SecureRandom(),
-        128,
+        256,
         Optional.ofNullable(passphrase).orElse("")
     );
     chain = DeterministicKeyChain.builder().seed(seed).build();
