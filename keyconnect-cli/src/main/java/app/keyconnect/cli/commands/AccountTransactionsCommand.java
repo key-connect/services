@@ -36,7 +36,7 @@ public class AccountTransactionsCommand extends BaseAccountBlockchainConfig impl
   public Integer call() throws Exception {
     ConsoleUtil.print(
         getBlockchainApi()
-          .getAccountTransactions(chainId, accountAddress, network, page, fiat)
+          .getAccountTransactions(chainId, getAccountAddress(), network, page, fiat)
     );
     return 0;
   }
