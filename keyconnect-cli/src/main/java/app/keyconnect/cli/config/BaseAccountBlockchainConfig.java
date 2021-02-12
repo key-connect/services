@@ -13,14 +13,14 @@ public class BaseAccountBlockchainConfig extends BaseBlockchainConfig {
 
   @Option(
       names = {"-a", "--account"},
-      description = "Account address (to be used in place of --name)",
+      description = "Account address (not required if --name is specified)",
       required = false
   )
   private String accountAddress;
 
   @Option(
       names = {"--name"},
-      description = "Local wallet name (to be used in place of --account)",
+      description = "Local wallet name (not required if --account is specified)",
       required = false
   )
   private String walletName;
@@ -38,7 +38,7 @@ public class BaseAccountBlockchainConfig extends BaseBlockchainConfig {
       try {
         foundWallet = LocalWalletHelper.readLocalWallet()
             .getWallet()
-            .getWalletFactory(ChainIdEnum.valueOf(chainId.toLowerCase(Locale.ROOT)))
+            .getWalletFactory(ChainIdEnum.valueOf(chainId.toUpperCase(Locale.ROOT)))
             .getGeneratedWallets()
             .stream()
             .filter(w -> w.getName().equalsIgnoreCase(walletName))
