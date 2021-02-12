@@ -1,11 +1,14 @@
 package app.keyconnect.cli.commands;
 
+import static app.keyconnect.cli.utils.LocalWalletHelper.readLocalWallet;
+
 import app.keyconnect.api.client.model.BlockchainAccountInfo.ChainIdEnum;
 import app.keyconnect.api.wallets.BlockchainWallet;
 import app.keyconnect.api.wallets.BlockchainWalletFactory;
 import app.keyconnect.api.wallets.DeterministicWallet;
 import app.keyconnect.api.wallets.io.WalletReader;
 import app.keyconnect.api.wallets.io.WalletWriter;
+import app.keyconnect.cli.utils.LocalWalletData;
 import java.io.Console;
 import java.io.File;
 import java.util.Locale;
@@ -35,18 +38,12 @@ public class NewWalletCommand implements Callable<Integer> {
   public Integer call() throws Exception {
     final ChainIdEnum chainId = ChainIdEnum.valueOf(this.chainId.toUpperCase(Locale.ROOT));
 
-    WalletHelper.assertHomeDirectory();
-    final File walletFile = WalletHelper.assertWalletFile();
-    final Console console = System.console();
-    System.out.print("Wallet password: ");
-    final String walletPassword = new String(console.readPassword());
-    System.out.println();
-    System.out.println("Loading wallet...");
-    final DeterministicWallet wallet = WalletReader.fromFile(walletFile, walletPassword);
-    final BlockchainWalletFactory walletFactory = wallet.getWalletFactory(chainId);
+    final LocalWalletData localWalletData = readLocalWallet();
+    final BlockchainWalletFactory walletFactory = localWalletData.getWallet().getWalletFactory(chainId);
     final BlockchainWallet newWallet = walletFactory.generateNext(name);
     System.out.println("Generated wallet: " + newWallet.getAddress());
-    new WalletWriter(wallet).writeToFile(walletFile, walletPassword);
+    new WalletWriter(localWalletData.getWallet()).writeToFile(localWalletData.getWalletFile(),
+        localWalletData.getWalletPassword());
     return 0;
   }
 }
