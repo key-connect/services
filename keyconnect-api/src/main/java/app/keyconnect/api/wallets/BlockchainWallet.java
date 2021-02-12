@@ -8,4 +8,12 @@ public interface BlockchainWallet {
    * @return Wallet public address.
    */
   String getAddress();
+
+  /**
+   * User-friendly name of the wallet
+   * @return Wallet name
+   */
+  String getName();
+
+  void setName(String name);
 }

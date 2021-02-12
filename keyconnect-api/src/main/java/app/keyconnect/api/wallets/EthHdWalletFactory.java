@@ -10,8 +10,8 @@ public class EthHdWalletFactory extends AbstractHdWalletFactory {
   }
 
   @Override
-  BlockchainWallet buildWalletFromPrivateKey(BigInteger privateKey) {
-    return new EthWallet(privateKey);
+  BlockchainWallet buildWalletFromPrivateKey(String name, BigInteger privateKey) {
+    return new EthWallet(name, privateKey);
   }
 
   @Override

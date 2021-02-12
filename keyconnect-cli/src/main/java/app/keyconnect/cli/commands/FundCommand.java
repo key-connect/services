@@ -1,5 +1,6 @@
 package app.keyconnect.cli.commands;
 
+import app.keyconnect.cli.config.BaseAccountBlockchainConfig;
 import app.keyconnect.cli.config.BaseBlockchainConfig;
 import java.util.Locale;
 import java.util.concurrent.Callable;
@@ -11,14 +12,7 @@ import picocli.CommandLine.Option;
     aliases = {"f"},
     description = "Funds a given account in test"
 )
-public class FundCommand extends BaseBlockchainConfig implements Callable<Integer> {
-
-  @Option(
-      names = {"-a", "--account"},
-      description = "Account address",
-      required = true
-  )
-  private String accountAddress;
+public class FundCommand extends BaseAccountBlockchainConfig implements Callable<Integer> {
 
   @Option(
       names = {"-f", "--fiat"},
@@ -35,7 +29,7 @@ public class FundCommand extends BaseBlockchainConfig implements Callable<Intege
     }
 
     getBlockchainApi()
-        .fundAccount(chainId, accountAddress, network);
+        .fundAccount(chainId, getAccountAddress(), network);
     System.out.println("Funding request sent. This may take a few minutes depending on traffic.");
     return 0;
   }

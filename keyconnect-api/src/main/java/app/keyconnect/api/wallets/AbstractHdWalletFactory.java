@@ -17,13 +17,13 @@ public abstract class AbstractHdWalletFactory implements
   }
 
   @Override
-  public BlockchainWallet generateNext() {
+  public BlockchainWallet generateNext(String name) {
     final int thisAccountNumber = generatedWallets.size(); // zero based
     final List<ChildNumber> keyPath = deterministicWallet
         .buildPath(getChainIndex(), String.valueOf(thisAccountNumber));
     final DeterministicKey key = deterministicWallet.getChain()
         .getKeyByPath(keyPath, true);
-    final BlockchainWallet ethWallet = buildWalletFromPrivateKey(key.getPrivKey());
+    final BlockchainWallet ethWallet = buildWalletFromPrivateKey(name, key.getPrivKey());
     generatedWallets.add(ethWallet);
     return ethWallet;
   }
@@ -45,7 +45,7 @@ public abstract class AbstractHdWalletFactory implements
     return generatedWallets.size() > 0;
   }
 
-  abstract BlockchainWallet buildWalletFromPrivateKey(BigInteger privateKey);
+  abstract BlockchainWallet buildWalletFromPrivateKey(String name, BigInteger privateKey);
 
   abstract public String getChainIndex();
 }

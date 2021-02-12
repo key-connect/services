@@ -2,6 +2,8 @@ package app.keyconnect.cli.commands;
 
 import app.keyconnect.api.wallets.DeterministicWallet;
 import app.keyconnect.api.wallets.io.WalletReader;
+import app.keyconnect.cli.utils.LocalWalletData;
+import app.keyconnect.cli.utils.LocalWalletHelper;
 import java.io.BufferedOutputStream;
 import java.io.Console;
 import java.io.File;
@@ -41,18 +43,9 @@ public class ExportWalletCommand implements Callable<Integer> {
       exportFile = Optional.empty();
     }
 
-    WalletHelper.assertHomeDirectory();
-    final File walletFile = WalletHelper.assertWalletFile();
-
-    final Console console = System.console();
-    System.out.print("Wallet password: ");
-    final String walletPassword = new String(console.readPassword());
-//    final String walletPassword = "";
-    System.out.println();
-    System.out.println("Loading wallet...");
-    final DeterministicWallet wallet = WalletReader.fromFile(walletFile, walletPassword);
-    final String mnemonicCode = wallet.getMnemonicCode();
-    final String passphrase = wallet.getPassphrase();
+    final LocalWalletData localWalletData = LocalWalletHelper.readLocalWallet();
+    final String mnemonicCode = localWalletData.getWallet().getMnemonicCode();
+    final String passphrase = localWalletData.getWallet().getPassphrase();
     System.out.println();
     if (exportFile.isPresent()) {
       final File file = exportFile.get();

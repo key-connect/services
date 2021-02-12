@@ -10,7 +10,7 @@ public interface BlockchainWalletFactory {
    *
    * @return New blockchain wallet
    */
-  BlockchainWallet generateNext();
+  BlockchainWallet generateNext(String name);
 
   List<BlockchainWallet> getGeneratedWallets();
 
