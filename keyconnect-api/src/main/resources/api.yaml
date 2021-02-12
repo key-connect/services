@@ -94,7 +94,6 @@ paths:
             enum:
               - xrp
               - eth
-              - btc
         - name: network
           in: query
           description: Blockchain network to get the status from.
@@ -126,7 +125,6 @@ paths:
             enum:
               - xrp
               - eth
-              - btc
         - name: network
           in: query
           description: Blockchain network to get the status from.
@@ -159,7 +157,6 @@ paths:
             enum:
               - xrp
               - eth
-              - btc
             example: xrp
         - name: network
           in: query
@@ -199,6 +196,50 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BlockchainAccountInfo'
+  /v1/blockchains/{chainId}/accounts/{accountId}/fund:
+    post:
+      summary: Funds the given account if funding is available for the specified network.
+      description: Uses the blockchain funding APIs to fund a given account.
+      operationId: fundAccount
+      tags:
+        - blockchains
+        - accounts
+        - funding
+      parameters:
+        - name: chainId
+          in: path
+          description: ID of the block chain
+          required: true
+          schema:
+            type: string
+            enum:
+              - xrp
+              - eth
+            example: xrp
+        - name: network
+          in: query
+          description: "
+              Blockchain network to get the account info from. For example, for XRP this
+              would be one of (testnet/devnet/mainnet). More information regarding what
+              environments are available can be obtained from /v1/blockchains/{chainId}/status
+              endpoint.
+            "
+          required: false
+          schema:
+            type: string
+            example: testnet
+            default: "mainnet"
+        - name: accountId
+          in: path
+          description: Identifier representing the account. This is most likely the wallet address.
+          required: true
+          schema:
+            type: string
+            example: "rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv"
+      responses:
+        '202':
+          description: Funding request was accepted, it will be fulfilled momentarily.
+
   /v1/blockchains/{chainId}/accounts/{accountId}/transactions:
     get:
       summary: Returns paginated list of transactions.
@@ -217,7 +258,6 @@ paths:
             enum:
               - xrp
               - eth
-              - btc
           example: xrp
         - name: network
           in: query
@@ -283,7 +323,6 @@ paths:
             enum:
               - xrp
               - eth
-              - btc
           example: xrp
         - name: network
           in: query
@@ -348,7 +387,6 @@ paths:
             enum:
               - xrp
               - eth
-              - btc
         - name: hash
           in: path
           description: Hash of the transaction to lookup
@@ -403,7 +441,6 @@ paths:
             enum:
               - xrp
               - eth
-              - btc
         - name: network
           in: query
           description: "
@@ -646,7 +683,6 @@ components:
           enum:
             - xrp
             - eth
-            - btc
         network:
           type: string
           example: testnet
@@ -698,7 +734,6 @@ components:
           enum:
             - xrp
             - eth
-            - btc
         network:
           type: string
           example: testnet
@@ -752,7 +787,6 @@ components:
           enum:
             - xrp
             - eth
-            - btc
         network:
           type: string
           example: testnet
@@ -775,7 +809,6 @@ components:
           enum:
             - xrp
             - eth
-            - btc
         network:
           type: string
           example: testnet
@@ -791,7 +824,6 @@ components:
           enum:
             - xrp
             - eth
-            - btc
         network:
           type: string
           example: testnet
@@ -841,7 +873,6 @@ components:
           enum:
             - xrp
             - eth
-            - btc
         network:
           type: string
           example: testnet

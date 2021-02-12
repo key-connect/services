@@ -76,6 +76,11 @@
       <version>2.11.2</version>
     </dependency>
     <dependency>
+      <groupId>org.xrpl</groupId>
+      <artifactId>xrpl4j-client</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+    <dependency>
       <groupId>app.keyconnect</groupId>
       <artifactId>keyconnect-rippled-api</artifactId>
       <version>${project.version}</version>

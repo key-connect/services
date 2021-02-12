@@ -25,6 +25,8 @@ public interface BlockchainGateway {
 
   BlockchainAccountInfo getAccount(String network, String accountId) throws UnknownNetworkException;
 
+  void fundAccount(String network, String accountId);
+
   BlockchainAccountTransactions getTransactions(String accountId, String network, int limit,
       String cursor)
       throws UnknownNetworkException;
