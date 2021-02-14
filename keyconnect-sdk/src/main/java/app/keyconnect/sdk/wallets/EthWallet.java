@@ -6,8 +6,6 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.Nullable;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.RawTransaction;
-import org.web3j.crypto.Sign;
-import org.web3j.crypto.TransactionDecoder;
 import org.web3j.crypto.TransactionEncoder;
 import org.web3j.utils.Numeric;
 
@@ -30,7 +28,7 @@ public class EthWallet implements BlockchainWallet {
 
   @Override
   public String buildPaymentTransaction(String to, BigDecimal valueInEth,
-      @Nullable BigInteger gasFee) {
+      @Nullable BigInteger gasFee, long sequence) {
     throw new NotImplementedException();
   }
 

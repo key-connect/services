@@ -16,8 +16,6 @@ import org.xrpl.xrpl4j.codec.binary.XrplBinaryCodec;
 import org.xrpl.xrpl4j.keypairs.DefaultKeyPairService;
 import org.xrpl.xrpl4j.model.jackson.ObjectMapperFactory;
 import org.xrpl.xrpl4j.model.transactions.Address;
-import org.xrpl.xrpl4j.model.transactions.CurrencyAmount;
-import org.xrpl.xrpl4j.model.transactions.ImmutablePayment;
 import org.xrpl.xrpl4j.model.transactions.ImmutablePayment.Builder;
 import org.xrpl.xrpl4j.model.transactions.Payment;
 import org.xrpl.xrpl4j.model.transactions.Transaction;
@@ -43,7 +41,8 @@ public class XrpWallet implements BlockchainWallet {
   }
 
   @Override
-  public String buildPaymentTransaction(String to, BigDecimal valueInXrp, @Nullable BigInteger fee) {
+  public String buildPaymentTransaction(String to, BigDecimal valueInXrp, @Nullable BigInteger fee,
+      long sequence) {
     final Optional<BigInteger> feeValue = Optional.ofNullable(fee);
     final String destination;
     final Optional<String> tag;
@@ -61,6 +60,7 @@ public class XrpWallet implements BlockchainWallet {
         .account(wallet.classicAddress())
         .amount(XrpCurrencyAmount.ofXrp(valueInXrp))
         .destination(Address.builder().value(destination).build())
+        .sequence(UnsignedInteger.valueOf(sequence))
         .signingPublicKey(wallet.publicKey());
 
     tag.ifPresent(t -> paymentBuilder.destinationTag(UnsignedInteger.valueOf(t)));

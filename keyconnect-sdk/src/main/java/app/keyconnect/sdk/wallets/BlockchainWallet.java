@@ -6,7 +6,8 @@ import javax.annotation.Nullable;
 
 public interface BlockchainWallet {
 
-  String buildPaymentTransaction(String to, BigDecimal valueInXrp, @Nullable BigInteger fee);
+  String buildPaymentTransaction(String to, BigDecimal valueInXrp, @Nullable BigInteger fee,
+      long sequence);
 
   /**
    * Gets the wallet public address.
