@@ -10,6 +10,7 @@ import app.keyconnect.cli.commands.FeesCommand;
 import app.keyconnect.cli.commands.FundCommand;
 import app.keyconnect.cli.commands.InitCommand;
 import app.keyconnect.cli.commands.NewWalletCommand;
+import app.keyconnect.cli.commands.PayCommand;
 import app.keyconnect.cli.commands.RateCommand;
 import app.keyconnect.cli.commands.RenameWalletCommand;
 import app.keyconnect.cli.commands.ServerStatusCommand;
@@ -45,6 +46,7 @@ public class CommandLineApplication {
           .addSubcommand(new WalletsCommand())
           .addSubcommand(new ExportWalletCommand())
           .addSubcommand(new RenameWalletCommand())
+          .addSubcommand(new PayCommand())
           .setExecutionExceptionHandler((ex, commandLine, parseResult) -> {
             if (!(ex instanceof ApiException)) {
               ConsoleUtil.print(ex);
