@@ -19,6 +19,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -86,16 +87,23 @@ public class Erc20TokenService {
       BigInteger latestBlock) {
     int pageNumber = 1;
     final String pageSize = "1000";
-    final List<EtherscanAccountTransaction> transactions = Arrays.stream(etherscanUtil
+
+    EtherscanResponse response = etherscanUtil
         .getTokenTransactionsForAccount(network, address, latestBlock.toString(),
             String.valueOf(pageNumber),
-            pageSize).getResult()).collect(Collectors.toList());
+            pageSize);
+    if (null == response || null == response.getResult() || 0 == response.getResult().length) {
+      return Collections.emptyList();
+    }
+
+    final List<EtherscanAccountTransaction> transactions = Arrays.stream(
+        response.getResult()).collect(Collectors.toList());
     if (transactions.size() == 0) {
       return new ArrayList<>(0);
     }
     List<EtherscanAccountTransaction> pageTx = transactions;
     while (pageTx.size() > 0) {
-      final EtherscanResponse response = etherscanUtil
+      response = etherscanUtil
           .getTokenTransactionsForAccount(network, address, latestBlock.toString(),
               String.valueOf(++pageNumber),
               pageSize);
