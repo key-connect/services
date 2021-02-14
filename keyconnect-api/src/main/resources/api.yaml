@@ -704,6 +704,10 @@ components:
         lastTransactionId:
           type: string
           example: "4294BEBE5B569A18C0A2702387C9B1E7146DC3A5850C1E87204951C6FDAA4C42"
+        nonce:
+          type: string
+          description: Current ledger nonce or index
+          example: 1493135
         errors:
           type: array
           items:
