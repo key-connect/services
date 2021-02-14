@@ -226,6 +226,10 @@ public class XrpGateway implements BlockchainGateway {
         );
       }
 
+      if (accountInfoResponse.getResult().getAccountData().getSequence() != null) {
+        accountInfo.setNonce(accountInfoResponse.getResult().getAccountData().getSequence().toString());
+      }
+
       accountInfo.setLastTransactionId(
           accountInfoResponse.getResult().getAccountData().getPreviousTxnID());
     } else {

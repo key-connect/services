@@ -52,6 +52,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameter;
 import org.web3j.protocol.core.methods.response.EthBlock;
+import org.web3j.protocol.core.methods.response.EthBlock.Block;
 import org.web3j.protocol.core.methods.response.EthGasPrice;
 import org.web3j.protocol.core.methods.response.EthGetBalance;
 import org.web3j.protocol.core.methods.response.EthSendTransaction;
@@ -199,7 +200,8 @@ public class EthereumGateway implements
             .ethGetBalance(accountId, DefaultBlockParameter.valueOf("latest")).sendAsync()
             .get(30, TimeUnit.SECONDS);
 
-        final BigInteger latestBlock = latestEthBlockCache.get(serverUrl).getBlock().getNumber();
+        final Block block = latestEthBlockCache.get(serverUrl).getBlock();
+        final BigInteger latestBlock = block.getNumber();
         final BigDecimal ethBalance = new BigDecimal(balance.getBalance())
             .divide(ETH_SCALE, SCALE, ROUNDING_MODE);
         return accountInfo
@@ -212,6 +214,7 @@ public class EthereumGateway implements
                     )
                     .currency(CurrencyEnum.ETH)
             )
+            .nonce(block.getNonce().toString())
             .subAccounts(tokenService.getAllSubAccountInfo(network, accountId,
                 latestBlock));
       } catch (InterruptedException | ExecutionException | TimeoutException e) {
