@@ -1,6 +1,6 @@
 package app.keyconnect.cli.utils;
 
-import app.keyconnect.api.wallets.DeterministicWallet;
+import app.keyconnect.sdk.wallets.DeterministicWallet;
 import java.io.File;
 import lombok.Builder;
 import lombok.Data;

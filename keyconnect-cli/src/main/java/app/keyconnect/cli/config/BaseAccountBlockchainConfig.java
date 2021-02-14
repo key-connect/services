@@ -1,7 +1,7 @@
 package app.keyconnect.cli.config;
 
 import app.keyconnect.api.client.model.BlockchainAccountInfo.ChainIdEnum;
-import app.keyconnect.api.wallets.BlockchainWallet;
+import app.keyconnect.sdk.wallets.BlockchainWallet;
 import app.keyconnect.cli.utils.LocalWalletHelper;
 import java.io.IOException;
 import java.util.Locale;

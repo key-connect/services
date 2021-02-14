@@ -1,8 +1,8 @@
-package app.keyconnect.api.wallets.io;
+package app.keyconnect.sdk.wallets.io;
 
-import app.keyconnect.api.wallets.BlockchainWallet;
-import app.keyconnect.api.wallets.BlockchainWalletFactory;
-import app.keyconnect.api.wallets.DeterministicWallet;
+import app.keyconnect.sdk.wallets.BlockchainWallet;
+import app.keyconnect.sdk.wallets.BlockchainWalletFactory;
+import app.keyconnect.sdk.wallets.DeterministicWallet;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;

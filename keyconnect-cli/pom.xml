@@ -29,8 +29,8 @@
       <version>4.5.2</version>
     </dependency>
     <dependency>
-      <groupId>app.keyconnect.api</groupId>
-      <artifactId>keyconnect-api</artifactId>
+      <groupId>app.keyconnect</groupId>
+      <artifactId>keyconnect-sdk</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

@@ -1,4 +1,4 @@
-package app.keyconnect.api.wallets.io;
+package app.keyconnect.sdk.wallets.io;
 
 public class WalletWriterException extends RuntimeException {
 

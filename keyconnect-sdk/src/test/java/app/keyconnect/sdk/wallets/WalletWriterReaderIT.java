@@ -1,10 +1,10 @@
-package app.keyconnect.api.wallets;
+package app.keyconnect.sdk.wallets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import app.keyconnect.api.client.model.BlockchainAccountInfo.ChainIdEnum;
-import app.keyconnect.api.wallets.io.WalletReader;
-import app.keyconnect.api.wallets.io.WalletWriter;
+import app.keyconnect.sdk.wallets.io.WalletReader;
+import app.keyconnect.sdk.wallets.io.WalletWriter;
 import java.io.File;
 import java.util.Arrays;
 import java.util.LinkedList;

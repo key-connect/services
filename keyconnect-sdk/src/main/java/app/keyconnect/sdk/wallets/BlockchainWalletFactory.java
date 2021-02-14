@@ -1,4 +1,4 @@
-package app.keyconnect.api.wallets;
+package app.keyconnect.sdk.wallets;
 
 import app.keyconnect.api.client.model.BlockchainAccountInfo.ChainIdEnum;
 import java.util.List;

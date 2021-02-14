@@ -4,19 +4,15 @@ import static app.keyconnect.cli.utils.LocalWalletHelper.readLocalWallet;
 
 import app.keyconnect.api.ApiException;
 import app.keyconnect.api.client.model.BlockchainAccountInfo;
-import app.keyconnect.api.wallets.BlockchainWallet;
-import app.keyconnect.api.wallets.DeterministicWallet;
-import app.keyconnect.api.wallets.io.WalletReader;
+import app.keyconnect.sdk.wallets.BlockchainWallet;
+import app.keyconnect.sdk.wallets.DeterministicWallet;
+import app.keyconnect.sdk.wallets.io.WalletReader;
 import app.keyconnect.cli.config.BaseClientConfig;
 import app.keyconnect.cli.utils.LocalWalletData;
-import java.io.Console;
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Callable;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
