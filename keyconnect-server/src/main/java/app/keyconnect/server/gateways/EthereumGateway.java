@@ -51,10 +51,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameter;
+import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.core.methods.response.EthBlock.Block;
 import org.web3j.protocol.core.methods.response.EthGasPrice;
 import org.web3j.protocol.core.methods.response.EthGetBalance;
+import org.web3j.protocol.core.methods.response.EthGetTransactionCount;
 import org.web3j.protocol.core.methods.response.EthSendTransaction;
 import org.web3j.protocol.core.methods.response.EthTransaction;
 import org.web3j.protocol.core.methods.response.Transaction;
@@ -204,6 +206,11 @@ public class EthereumGateway implements
         final BigInteger latestBlock = block.getNumber();
         final BigDecimal ethBalance = new BigDecimal(balance.getBalance())
             .divide(ETH_SCALE, SCALE, ROUNDING_MODE);
+        final EthGetTransactionCount ethGetTransactionCount = client
+            .ethGetTransactionCount(accountId, DefaultBlockParameterName.PENDING).sendAsync().get();
+        final String nonceVal = ethGetTransactionCount == null
+            || ethGetTransactionCount.getTransactionCount() == null
+            ? "" : ethGetTransactionCount.getTransactionCount().toString();
         return accountInfo
             .server(toHost(serverUrl))
             .balance(
@@ -214,7 +221,7 @@ public class EthereumGateway implements
                     )
                     .currency(CurrencyEnum.ETH)
             )
-            .nonce(block.getNonce().toString())
+            .nonce(nonceVal)
             .subAccounts(tokenService.getAllSubAccountInfo(network, accountId,
                 latestBlock));
       } catch (InterruptedException | ExecutionException | TimeoutException e) {
