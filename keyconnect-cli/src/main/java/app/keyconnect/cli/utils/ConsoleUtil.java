@@ -17,6 +17,11 @@ public class ConsoleUtil {
   }
 
   public static void print(Object message) {
+    if (null == message) {
+      System.out.println("null");
+      return;
+    }
+
     final String output;
     switch (getMode()) {
       case Json:

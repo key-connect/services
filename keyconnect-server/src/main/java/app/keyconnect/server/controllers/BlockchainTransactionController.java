@@ -54,9 +54,7 @@ public class BlockchainTransactionController {
   }
 
   @PostMapping(
-      path = "/v1/blockchains/{chainId}/transactions",
-      consumes = MediaType.APPLICATION_JSON_VALUE,
-      produces = MediaType.APPLICATION_JSON_VALUE
+      path = "/v1/blockchains/{chainId}/transactions"
   )
   public ResponseEntity<SubmitTransactionResult> submitTransaction(
       @PathVariable("chainId") String chainId,

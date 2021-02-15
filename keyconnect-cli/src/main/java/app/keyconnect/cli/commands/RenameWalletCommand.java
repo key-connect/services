@@ -1,8 +1,8 @@
 package app.keyconnect.cli.commands;
 
 import app.keyconnect.api.client.model.BlockchainAccountInfo.ChainIdEnum;
-import app.keyconnect.api.wallets.BlockchainWallet;
-import app.keyconnect.api.wallets.io.WalletWriter;
+import app.keyconnect.sdk.wallets.BlockchainWallet;
+import app.keyconnect.sdk.wallets.io.WalletWriter;
 import app.keyconnect.cli.utils.LocalWalletData;
 import app.keyconnect.cli.utils.LocalWalletHelper;
 import java.util.List;

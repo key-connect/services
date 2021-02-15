@@ -1,26 +1,26 @@
-package app.keyconnect.api.wallets;
+package app.keyconnect.sdk.wallets;
 
 import app.keyconnect.api.client.model.BlockchainAccountInfo.ChainIdEnum;
 import java.math.BigInteger;
 
-public class EthHdWalletFactory extends AbstractHdWalletFactory {
+public class XrpHdWalletFactory extends AbstractHdWalletFactory {
 
-  public EthHdWalletFactory(DeterministicWallet deterministicWallet) {
+  public XrpHdWalletFactory(DeterministicWallet deterministicWallet) {
     super(deterministicWallet);
   }
 
   @Override
   BlockchainWallet buildWalletFromPrivateKey(String name, BigInteger privateKey) {
-    return new EthWallet(name, privateKey);
+    return new XrpWallet(name, privateKey);
   }
 
   @Override
   public String getChainIndex() {
-    return "60";
+    return "144";
   }
 
   @Override
   public ChainIdEnum getChainId() {
-    return ChainIdEnum.ETH;
+    return ChainIdEnum.XRP;
   }
 }

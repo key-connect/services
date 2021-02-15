@@ -1,4 +1,4 @@
-package app.keyconnect.api.wallets;
+package app.keyconnect.sdk.wallets;
 
 import java.math.BigInteger;
 import java.util.LinkedList;

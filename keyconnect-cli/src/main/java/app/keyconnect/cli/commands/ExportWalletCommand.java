@@ -1,11 +1,10 @@
 package app.keyconnect.cli.commands;
 
-import app.keyconnect.api.wallets.DeterministicWallet;
-import app.keyconnect.api.wallets.io.WalletReader;
+import app.keyconnect.sdk.wallets.DeterministicWallet;
+import app.keyconnect.sdk.wallets.io.WalletReader;
 import app.keyconnect.cli.utils.LocalWalletData;
 import app.keyconnect.cli.utils.LocalWalletHelper;
 import java.io.BufferedOutputStream;
-import java.io.Console;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.charset.StandardCharsets;

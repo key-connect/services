@@ -1,7 +1,7 @@
 package app.keyconnect.cli.utils;
 
-import app.keyconnect.api.wallets.DeterministicWallet;
-import app.keyconnect.api.wallets.io.WalletReader;
+import app.keyconnect.sdk.wallets.DeterministicWallet;
+import app.keyconnect.sdk.wallets.io.WalletReader;
 import app.keyconnect.cli.commands.WalletHelper;
 import java.io.Console;
 import java.io.File;
