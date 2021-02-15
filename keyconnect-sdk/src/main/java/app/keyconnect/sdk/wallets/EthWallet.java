@@ -7,10 +7,13 @@ import org.jetbrains.annotations.Nullable;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.RawTransaction;
 import org.web3j.crypto.TransactionEncoder;
+import org.web3j.tx.ChainId;
+import org.web3j.tx.RawTransactionManager;
 import org.web3j.utils.Numeric;
 
 public class EthWallet implements BlockchainWallet {
 
+  public static final BigDecimal ETH_SCALE = BigDecimal.valueOf(1000000000000000000L);
   private final Credentials credentials;
   private String name;
 
@@ -26,23 +29,20 @@ public class EthWallet implements BlockchainWallet {
     return Numeric.toHexString(signedTransaction);
   }
 
+  private String sign(RawTransaction tx) {
+    byte[] signedMessage;
+    signedMessage = TransactionEncoder.signMessage(tx, credentials);
+    return Numeric.toHexString(signedMessage);
+  }
+
   @Override
   public String buildPaymentTransaction(String to, BigDecimal valueInEth,
       @Nullable BigInteger gasFee, long sequence) {
-    throw new NotImplementedException();
-  }
+    final RawTransaction rawTransaction =
+        RawTransaction.createTransaction(BigInteger.valueOf(sequence), gasFee, BigInteger.valueOf(100000L), to, valueInEth.multiply(ETH_SCALE).toBigInteger(), "");
 
-  /**
-   * Signs given encoded {@link RawTransaction} into encoded signed transaction
-   * @param data Encoded {@link RawTransaction} bytes
-   * @return Encoded signed transction data
-   */
-  /*public byte[] sign(byte[] data) {
-    TransactionDecoder.decode(data)
-    return TransactionEncoder.encode(
-        Sign.signMessage(data, credentials.getEcKeyPair())
-    );
-  }*/
+    return sign(rawTransaction);
+  }
 
   @Override
   public String getAddress() {

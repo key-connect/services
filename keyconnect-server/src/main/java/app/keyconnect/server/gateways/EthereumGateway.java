@@ -447,6 +447,13 @@ public class EthereumGateway implements
         continue;
       }
 
+      if (response.hasError()) {
+        // handle other errors...
+        if (response.getError().getMessage().contains("exceeds block gas limit")) {
+          throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Specified gas limit is too high");
+        }
+      }
+
       return new SubmitTransactionResult()
           .server(serverUrl)
           .transaction(
