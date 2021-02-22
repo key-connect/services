@@ -1,5 +1,6 @@
-package app.keyconnect.sdk.wallets;
+package app.keyconnect.sdk.payments;
 
+import app.keyconnect.sdk.wallets.BlockchainWallet;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import javax.annotation.Nullable;

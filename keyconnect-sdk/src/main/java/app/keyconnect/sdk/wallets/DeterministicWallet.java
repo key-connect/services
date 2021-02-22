@@ -1,6 +1,9 @@
 package app.keyconnect.sdk.wallets;
 
 import app.keyconnect.api.client.model.BlockchainAccountInfo.ChainIdEnum;
+import app.keyconnect.sdk.wallets.factories.BlockchainWalletFactory;
+import app.keyconnect.sdk.wallets.factories.EthHdWalletFactory;
+import app.keyconnect.sdk.wallets.factories.XrpHdWalletFactory;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.List;

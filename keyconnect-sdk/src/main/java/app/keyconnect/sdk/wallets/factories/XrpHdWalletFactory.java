@@ -1,6 +1,9 @@
-package app.keyconnect.sdk.wallets;
+package app.keyconnect.sdk.wallets.factories;
 
 import app.keyconnect.api.client.model.BlockchainAccountInfo.ChainIdEnum;
+import app.keyconnect.sdk.wallets.BlockchainWallet;
+import app.keyconnect.sdk.wallets.DeterministicWallet;
+import app.keyconnect.sdk.wallets.XrpWallet;
 import java.math.BigInteger;
 
 public class XrpHdWalletFactory extends AbstractHdWalletFactory {

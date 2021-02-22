@@ -3,14 +3,10 @@ package app.keyconnect.sdk.wallets;
 import app.keyconnect.api.client.model.BlockchainAccountInfo.ChainIdEnum;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.Nullable;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.RawTransaction;
-import org.web3j.crypto.Sign;
 import org.web3j.crypto.TransactionEncoder;
-import org.web3j.tx.ChainId;
-import org.web3j.tx.RawTransactionManager;
 import org.web3j.utils.Numeric;
 
 public class EthWallet implements BlockchainWallet {
@@ -34,7 +30,9 @@ public class EthWallet implements BlockchainWallet {
   public String buildPaymentTransaction(String to, BigDecimal valueInEth,
       @Nullable BigInteger gasFee, long sequence) {
     final RawTransaction rawTransaction =
-        RawTransaction.createTransaction(BigInteger.valueOf(sequence), gasFee, BigInteger.valueOf(100000L), to, valueInEth.multiply(ETH_SCALE).toBigInteger(), "");
+        RawTransaction
+            .createTransaction(BigInteger.valueOf(sequence), gasFee, BigInteger.valueOf(100000L),
+                to, valueInEth.multiply(ETH_SCALE).toBigInteger(), "");
 
     return sign(rawTransaction);
   }

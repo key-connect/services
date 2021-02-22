@@ -1,4 +1,4 @@
-package app.keyconnect.sdk.wallets;
+package app.keyconnect.sdk.payments;
 
 import app.keyconnect.api.client.model.BlockchainAccountTransactionItem;
 import lombok.Builder;

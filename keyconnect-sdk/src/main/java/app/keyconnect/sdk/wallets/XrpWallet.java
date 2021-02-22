@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.primitives.UnsignedInteger;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.ArrayUtils;
@@ -78,7 +77,8 @@ public class XrpWallet implements BlockchainWallet {
       final String encodedHex = binaryCodec.encodeForSigning(serialisedPayment);
       final String signature = DefaultKeyPairService.getInstance()
           .sign(encodedHex, wallet.privateKey().get());
-      final Transaction signedTransaction = Payment.builder().from(unsignedPayment).transactionSignature(signature).build();
+      final Transaction signedTransaction = Payment.builder().from(unsignedPayment)
+          .transactionSignature(signature).build();
       final String signedJson = objectMapper.writeValueAsString(signedTransaction);
       return binaryCodec.encode(signedJson);
     } catch (JsonProcessingException e) {

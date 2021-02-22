@@ -1,10 +1,10 @@
 package app.keyconnect.sdk.wallets;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 
 import app.keyconnect.api.client.model.BlockchainAccountInfo.ChainIdEnum;
+import app.keyconnect.sdk.wallets.factories.BlockchainWalletFactory;
 import java.util.List;
 import org.junit.Test;
 import org.slf4j.Logger;

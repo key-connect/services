@@ -1,4 +1,4 @@
-package app.keyconnect.sdk.wallets;
+package app.keyconnect.sdk.payments;
 
 import app.keyconnect.api.ApiClient;
 import app.keyconnect.api.ApiException;
@@ -7,6 +7,7 @@ import app.keyconnect.api.client.model.BlockchainAccountInfo;
 import app.keyconnect.api.client.model.BlockchainFee;
 import app.keyconnect.api.client.model.SubmitTransactionRequest;
 import app.keyconnect.api.client.model.SubmitTransactionResult;
+import app.keyconnect.sdk.wallets.BlockchainWallet;
 import java.math.BigInteger;
 import java.util.Locale;
 import lombok.Builder;

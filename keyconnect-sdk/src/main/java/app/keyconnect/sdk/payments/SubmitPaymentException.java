@@ -1,4 +1,4 @@
-package app.keyconnect.sdk.wallets;
+package app.keyconnect.sdk.payments;
 
 public class SubmitPaymentException extends Exception {
 

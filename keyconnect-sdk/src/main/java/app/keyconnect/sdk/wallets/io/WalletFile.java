@@ -13,8 +13,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class WalletFile {
 
+  private final Map<String, String> accountIndices = new HashMap<>();
   private String mnemonic;
   private String passphrase;
-  private final Map<String, String> accountIndices = new HashMap<>();
 
 }

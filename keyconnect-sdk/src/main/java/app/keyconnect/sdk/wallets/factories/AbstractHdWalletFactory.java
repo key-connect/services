@@ -1,5 +1,7 @@
-package app.keyconnect.sdk.wallets;
+package app.keyconnect.sdk.wallets.factories;
 
+import app.keyconnect.sdk.wallets.BlockchainWallet;
+import app.keyconnect.sdk.wallets.DeterministicWallet;
 import java.math.BigInteger;
 import java.util.LinkedList;
 import java.util.List;
