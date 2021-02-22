@@ -1,5 +1,6 @@
 package app.keyconnect.sdk.wallets;
 
+import app.keyconnect.api.client.model.BlockchainAccountInfo.ChainIdEnum;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.primitives.UnsignedInteger;
@@ -85,15 +86,6 @@ public class XrpWallet implements BlockchainWallet {
     }
   }
 
-  private byte[] sign(byte[] data) {
-    final String message = new String(data, StandardCharsets.UTF_8);
-    return DefaultKeyPairService.getInstance()
-        .sign(
-            message,
-            this.wallet.privateKey().get()
-        ).getBytes(StandardCharsets.UTF_8);
-  }
-
   @Override
   public String getAddress() {
     return wallet.classicAddress().value();
@@ -107,5 +99,10 @@ public class XrpWallet implements BlockchainWallet {
   @Override
   public void setName(String name) {
     this.name = name;
+  }
+
+  @Override
+  public ChainIdEnum getChainId() {
+    return ChainIdEnum.XRP;
   }
 }

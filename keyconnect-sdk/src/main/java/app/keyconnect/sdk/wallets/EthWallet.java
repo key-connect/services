@@ -1,11 +1,13 @@
 package app.keyconnect.sdk.wallets;
 
+import app.keyconnect.api.client.model.BlockchainAccountInfo.ChainIdEnum;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.Nullable;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.RawTransaction;
+import org.web3j.crypto.Sign;
 import org.web3j.crypto.TransactionEncoder;
 import org.web3j.tx.ChainId;
 import org.web3j.tx.RawTransactionManager;
@@ -50,5 +52,10 @@ public class EthWallet implements BlockchainWallet {
   @Override
   public void setName(String name) {
     this.name = name;
+  }
+
+  @Override
+  public ChainIdEnum getChainId() {
+    return ChainIdEnum.ETH;
   }
 }

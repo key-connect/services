@@ -1,5 +1,6 @@
 package app.keyconnect.sdk.wallets;
 
+import app.keyconnect.api.client.model.BlockchainAccountInfo.ChainIdEnum;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import javax.annotation.Nullable;
@@ -23,4 +24,6 @@ public interface BlockchainWallet {
   String getName();
 
   void setName(String name);
+
+  ChainIdEnum getChainId();
 }
