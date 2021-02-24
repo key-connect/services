@@ -5,9 +5,9 @@ import app.keyconnect.cli.config.BaseBlockchainConfig;
 import app.keyconnect.cli.utils.ConsoleUtil;
 import app.keyconnect.cli.utils.LocalWalletData;
 import app.keyconnect.cli.utils.LocalWalletHelper;
-import app.keyconnect.sdk.wallets.BlockchainWallet;
-import app.keyconnect.sdk.payments.Payment;
+import app.keyconnect.sdk.payments.Payments;
 import app.keyconnect.sdk.payments.SubmittedPayment;
+import app.keyconnect.sdk.wallets.BlockchainWallet;
 import java.math.BigDecimal;
 import java.util.Locale;
 import java.util.Optional;
@@ -55,8 +55,8 @@ public class PayCommand extends BaseBlockchainConfig implements Callable<Integer
     final ChainIdEnum chain = ChainIdEnum.valueOf(this.chainId.toUpperCase(Locale.ROOT));
 
     if ((StringUtils.isNotBlank(to)
-      && StringUtils.isNotBlank(toAddress))
-      || (StringUtils.isBlank(to) && StringUtils.isBlank(toAddress))) {
+        && StringUtils.isNotBlank(toAddress))
+        || (StringUtils.isBlank(to) && StringUtils.isBlank(toAddress))) {
       System.out.println("Please specify either one of --to or --to-address");
     }
 
@@ -88,21 +88,23 @@ public class PayCommand extends BaseBlockchainConfig implements Callable<Integer
           .findFirst();
 
       if (foundDestinationWallet.isEmpty()) {
-        System.out.println("Specified destination wallet does not correspond to any known wallets.");
+        System.out
+            .println("Specified destination wallet does not correspond to any known wallets.");
         System.exit(1);
       }
 
       destinationAddress = foundDestinationWallet.get().getAddress();
     }
 
-    final SubmittedPayment payment = Payment.builder()
-        .to(destinationAddress)
-        .value(new BigDecimal(amount))
-        .build()
-        .sign(sourceWallet.get())
-        .submit(getBlockchainApi(), network);
+    final SubmittedPayment payment = Payments.send(
+        destinationAddress,
+        new BigDecimal(amount),
+        sourceWallet.get(),
+        network
+    );
 
-    if (null == payment.getTransaction() || StringUtils.isBlank(payment.getTransaction().getHash())) {
+    if (null == payment.getTransaction() || StringUtils
+        .isBlank(payment.getTransaction().getHash())) {
       System.out.println("Transaction could not be submitted.");
       System.exit(1);
     }
@@ -110,7 +112,8 @@ public class PayCommand extends BaseBlockchainConfig implements Callable<Integer
     ConsoleUtil.print(payment.getTransaction());
 
     System.out.println();
-    System.out.println("Transaction submitted. Use hash " + payment.getTransaction().getHash() + " to check for status.");
+    System.out.println("Transaction submitted. Use hash " + payment.getTransaction().getHash()
+        + " to check for status.");
     return 0;
   }
 }

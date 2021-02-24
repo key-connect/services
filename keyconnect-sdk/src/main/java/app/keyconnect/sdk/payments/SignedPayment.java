@@ -7,6 +7,7 @@ import app.keyconnect.api.client.model.BlockchainAccountInfo;
 import app.keyconnect.api.client.model.BlockchainFee;
 import app.keyconnect.api.client.model.SubmitTransactionRequest;
 import app.keyconnect.api.client.model.SubmitTransactionResult;
+import app.keyconnect.sdk.api.KeyConnectApiFactory;
 import app.keyconnect.sdk.wallets.BlockchainWallet;
 import java.math.BigInteger;
 import java.util.Locale;
@@ -22,7 +23,7 @@ public class SignedPayment {
   private Payment payment;
 
   public SubmittedPayment submit(String network) throws SubmitPaymentException {
-    return submit(new BlockchainsApi(new ApiClient()), network);
+    return submit(KeyConnectApiFactory.getInstance().getDefaultBlockchainsApi(), network);
   }
 
   public SubmittedPayment submit(BlockchainsApi api, String network)

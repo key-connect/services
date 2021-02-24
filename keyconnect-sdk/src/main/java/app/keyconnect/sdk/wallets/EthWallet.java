@@ -3,6 +3,7 @@ package app.keyconnect.sdk.wallets;
 import app.keyconnect.api.client.model.BlockchainAccountInfo.ChainIdEnum;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.security.SecureRandom;
 import org.jetbrains.annotations.Nullable;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.RawTransaction;
@@ -18,6 +19,11 @@ public class EthWallet implements BlockchainWallet {
   public EthWallet(String name, BigInteger privateKey) {
     this.name = name;
     this.credentials = Credentials.create(privateKey.toString(16));
+  }
+
+  public EthWallet(String name) {
+    this.name = name;
+    this.credentials =
   }
 
   private String sign(RawTransaction tx) {
