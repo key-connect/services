@@ -18,13 +18,30 @@ public interface BlockchainWallet {
   String getAddress();
 
   /**
-   * User-friendly name of the wallet
+   * Gets user-friendly name of the wallet
    *
    * @return Wallet name
    */
   String getName();
 
+  /**
+   * Sets user-friendly name of the wallet
+   *
+   * @param name Wallet name
+   */
   void setName(String name);
+
+  /**
+   * Returns passphrase (salt) if the wallet is a standalone wallet
+   * @return String Passphrase or null
+   */
+  String getPassphrase();
+
+  /**
+   * Returns mnemonic if the wallet is a standalone wallet
+   * @return String Mnemonic or null
+   */
+  String getMnemonic();
 
   ChainIdEnum getChainId();
 }

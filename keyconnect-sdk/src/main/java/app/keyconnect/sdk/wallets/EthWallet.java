@@ -5,14 +5,11 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
+import javax.annotation.Nullable;
 import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.crypto.HDUtils;
 import org.bitcoinj.wallet.DeterministicKeyChain;
 import org.bitcoinj.wallet.DeterministicSeed;
-import org.jetbrains.annotations.Nullable;
-import org.web3j.crypto.Bip39Wallet;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.RawTransaction;
 import org.web3j.crypto.TransactionEncoder;
@@ -21,20 +18,31 @@ import org.web3j.utils.Numeric;
 public class EthWallet implements BlockchainWallet {
 
   public static final BigDecimal ETH_SCALE = BigDecimal.valueOf(1000000000000000000L);
-  private final Credentials credentials;
+  public static final String CHAIN_INDEX = "60";
   private final DeterministicSeed seed;
   private final DeterministicKeyChain chain;
   private final String passphrase;
+  private Credentials credentials;
   private String name;
 
+  /**
+   * Creates an ETH wallet given a private key
+   * @param name Name of the wallet
+   * @param privateKey Private key
+   */
   public EthWallet(String name, BigInteger privateKey) {
     this.name = name;
     this.seed = null;
     this.chain = null;
     this.passphrase = null;
-    this.credentials = Credentials.create(privateKey.toString(16));
+    initCredentialsFromPrivateKey(privateKey);
   }
 
+  /**
+   * Creates a standalone ETH wallet
+   * @param name Name of the wallet
+   * @param passphrase Passphrase (salt) to use when generating wallet
+   */
   public EthWallet(String name, String passphrase) {
     this.name = name;
     this.seed = new DeterministicSeed(
@@ -45,8 +53,13 @@ public class EthWallet implements BlockchainWallet {
     this.passphrase = passphrase;
     this.chain = DeterministicKeyChain.builder().seed(seed).build();
     final DeterministicKey key = chain
-        .getKeyByPath(HDUtils.parsePath("M/44H/60H/0H/0/0"), true);
-    this.credentials = Credentials.create(key.getPrivKey().toString(16));
+        .getKeyByPath(HDUtils.parsePath("M/44H/" + CHAIN_INDEX + "H/0H/0/0"), true);
+    final BigInteger privateKey = key.getPrivKey();
+    initCredentialsFromPrivateKey(privateKey);
+  }
+
+  private void initCredentialsFromPrivateKey(BigInteger privateKey) {
+    this.credentials = Credentials.create(privateKey.toString(16));
   }
 
   private String sign(RawTransaction tx) {

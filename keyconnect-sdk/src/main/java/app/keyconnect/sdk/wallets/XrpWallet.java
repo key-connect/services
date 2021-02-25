@@ -6,9 +6,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.primitives.UnsignedInteger;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.ArrayUtils;
+import org.bitcoinj.crypto.DeterministicKey;
+import org.bitcoinj.crypto.HDUtils;
+import org.bitcoinj.wallet.DeterministicKeyChain;
+import org.bitcoinj.wallet.DeterministicSeed;
+import org.web3j.crypto.Credentials;
 import org.xrpl.xrpl4j.codec.addresses.AddressCodec;
 import org.xrpl.xrpl4j.codec.addresses.UnsignedByteArray;
 import org.xrpl.xrpl4j.codec.addresses.VersionType;
@@ -26,16 +32,51 @@ import org.xrpl.xrpl4j.wallet.WalletFactory;
 
 public class XrpWallet implements BlockchainWallet {
 
+  public static final String CHAIN_INDEX = "144";
   private final WalletFactory walletFactory = DefaultWalletFactory.getInstance();
+  private final DeterministicKeyChain chain;
+  private final String passphrase;
   private String name;
+  private final DeterministicSeed seed;
   private Wallet wallet;
-  private String seed;
 
+  /**
+   * Creates XRP Wallet given a private key
+   * @param name Name of the wallet
+   * @param privateKey Private key
+   */
   public XrpWallet(String name, BigInteger privateKey) {
     this.name = name;
-    // is there a better way than cutting the entropy down?
-    final byte[] privateKeyBytes = ArrayUtils.subarray(privateKey.toByteArray(), 0, 16);
-    this.seed = AddressCodec.getInstance()
+    this.passphrase = null;
+    this.chain = null;
+    this.seed = null;
+
+    initWalletFromPrivKey(privateKey);
+  }
+
+  /**
+   * Creates a standalone XRP Wallet
+   * @param name Name of the wallet
+   * @param passphrase Passphrase (salt) to use when generating wallet
+   */
+  public XrpWallet(String name, String passphrase) {
+    this.name = name;
+    this.seed = new DeterministicSeed(
+        new SecureRandom(),
+        256,
+        Optional.ofNullable(passphrase).orElse("")
+    );
+    this.passphrase = passphrase;
+    this.chain = DeterministicKeyChain.builder().seed(seed).build();
+    final DeterministicKey key = chain
+        .getKeyByPath(HDUtils.parsePath("M/44H/" + CHAIN_INDEX + "H/0H/0/0"), true);
+    final BigInteger privKey = key.getPrivKey();
+    initWalletFromPrivKey(privKey);
+  }
+
+  private void initWalletFromPrivKey(BigInteger privKey) {
+    final byte[] privateKeyBytes = ArrayUtils.subarray(privKey.toByteArray(), 0, 16);
+    final String seed = AddressCodec.getInstance()
         .encodeSeed(UnsignedByteArray.of(privateKeyBytes), VersionType.SECP256K1);
     this.wallet = walletFactory.fromSeed(seed, false);
   }
@@ -99,6 +140,20 @@ public class XrpWallet implements BlockchainWallet {
   @Override
   public void setName(String name) {
     this.name = name;
+  }
+
+  @Nullable
+  public String getPassphrase() {
+    return passphrase;
+  }
+
+  @Nullable
+  public String getMnemonic() {
+    if (null != seed && null != seed.getMnemonicCode()) {
+      return String.join(" ", seed.getMnemonicCode());
+    }
+
+    return null;
   }
 
   @Override
