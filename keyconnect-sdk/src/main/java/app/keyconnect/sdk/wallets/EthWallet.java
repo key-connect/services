@@ -4,12 +4,14 @@ import app.keyconnect.api.client.model.BlockchainAccountInfo.ChainIdEnum;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.time.Instant;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.crypto.HDUtils;
 import org.bitcoinj.wallet.DeterministicKeyChain;
 import org.bitcoinj.wallet.DeterministicSeed;
+import org.bitcoinj.wallet.UnreadableWalletException;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.RawTransaction;
 import org.web3j.crypto.TransactionEncoder;
@@ -56,6 +58,32 @@ public class EthWallet implements BlockchainWallet {
         .getKeyByPath(HDUtils.parsePath("M/44H/" + CHAIN_INDEX + "H/0H/0/0"), true);
     final BigInteger privateKey = key.getPrivKey();
     initCredentialsFromPrivateKey(privateKey);
+  }
+
+  /**
+   * Recovers a ETH wallet given a passphrase (optional) and mnemonic
+   * @param name Name of the wallet
+   * @param passphrase Wallet passphrase (salt) - optional
+   * @param mnemonic Mnemonic to recover from
+   */
+  public EthWallet(String name, @Nullable String passphrase, String mnemonic) {
+    this.name = name;
+    this.passphrase = passphrase;
+    try {
+      this.seed = new DeterministicSeed(
+          mnemonic,
+          null,
+          Optional.ofNullable(passphrase).orElse(""),
+          Instant.now().getEpochSecond()
+      );
+    } catch (UnreadableWalletException e) {
+      throw new RuntimeException("Unreadable wallet", e);
+    }
+    this.chain = DeterministicKeyChain.builder().seed(seed).build();
+    final DeterministicKey key = chain
+        .getKeyByPath(HDUtils.parsePath("M/44H/" + CHAIN_INDEX + "H/0H/0/0"), true);
+    final BigInteger privKey = key.getPrivKey();
+    initCredentialsFromPrivateKey(privKey);
   }
 
   private void initCredentialsFromPrivateKey(BigInteger privateKey) {
