@@ -7,6 +7,7 @@ import app.keyconnect.api.client.FundingApi;
 import app.keyconnect.api.client.RatesApi;
 import app.keyconnect.api.client.ServerApi;
 import app.keyconnect.api.client.StatusApi;
+import app.keyconnect.api.client.TransactionsApi;
 
 public class KeyConnectApiFactory {
 
@@ -19,6 +20,7 @@ public class KeyConnectApiFactory {
   private final RatesApi defaultRatesApi;
   private final ServerApi defaultServerApi;
   private final StatusApi defaultStatusApi;
+  private final TransactionsApi defaultTransactionsApi;
 
   private KeyConnectApiFactory() {
     defaultBlockchainsApi = new BlockchainsApi();
@@ -28,6 +30,7 @@ public class KeyConnectApiFactory {
     defaultRatesApi = new RatesApi();
     defaultServerApi = new ServerApi();
     defaultStatusApi = new StatusApi();
+    defaultTransactionsApi = new TransactionsApi();
   }
 
   public static KeyConnectApiFactory getInstance() {
@@ -64,5 +67,9 @@ public class KeyConnectApiFactory {
 
   public StatusApi getDefaultStatusApi() {
     return defaultStatusApi;
+  }
+
+  public TransactionsApi getTransactionsApi() {
+    return defaultTransactionsApi;
   }
 }
