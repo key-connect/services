@@ -17,6 +17,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import javax.annotation.PreDestroy;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -62,7 +63,7 @@ public class BatchBlockchainController implements DisposableBean {
     }
 
     if (accountsInfoRequest.getAccounts().stream()
-        .anyMatch(a -> a.getChainId() == null || a.getAccountId() == null)) {
+        .anyMatch(a -> a.getChainId() == null || StringUtils.isBlank(a.getAccountId()))) {
       throw new BadRequestException(
           "Both chainId and accountId must be specified for every account in the batch request");
     }
@@ -72,7 +73,9 @@ public class BatchBlockchainController implements DisposableBean {
         .map(request -> workPool.submit(() -> {
           final BlockchainGateway gateway = blockchainGatewayFactory
               .getGateway(request.getChainId().getValue());
-          return gateway.getAccount(network, request.getAccountId());
+          final String selectedNetwork =
+              StringUtils.isNotBlank(request.getNetwork()) ? request.getNetwork() : network;
+          return gateway.getAccount(selectedNetwork, request.getAccountId());
         }))
         .map(c -> {
           try {
@@ -80,18 +83,19 @@ public class BatchBlockchainController implements DisposableBean {
           } catch (InterruptedException | ExecutionException e) {
             // ignore
             logger.warn("Error getting account balance", e);
-            return new BlockchainAccountInfo().errors(
-                Collections.singletonList(
-                    new ServerErrorObject()
-                        .message(
-                            "Failed to get account info, please try again. If this message persists, please contact the server administrator"
-                        )
-                        .category(
-                            CategoryEnum.INTERNAL
-                        )
-                        .severity(SeverityEnum.MEDIUM)
-                )
-            );
+            return new BlockchainAccountInfo()
+                .errors(
+                    Collections.singletonList(
+                        new ServerErrorObject()
+                            .message(
+                                "Failed to get account info, please try again. If this message persists, please contact the server administrator"
+                            )
+                            .category(
+                                CategoryEnum.INTERNAL
+                            )
+                            .severity(SeverityEnum.MEDIUM)
+                    )
+                );
           }
         })
         .collect(Collectors.toList());
