@@ -63,7 +63,7 @@ public class BatchBlockchainController implements DisposableBean {
     }
 
     if (accountsInfoRequest.getAccounts().stream()
-        .anyMatch(a -> a.getChainId() == null || a.getAccountId() == null)) {
+        .anyMatch(a -> a.getChainId() == null || StringUtils.isBlank(a.getAccountId()))) {
       throw new BadRequestException(
           "Both chainId and accountId must be specified for every account in the batch request");
     }
