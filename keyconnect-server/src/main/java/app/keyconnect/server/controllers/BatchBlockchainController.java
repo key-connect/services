@@ -73,7 +73,8 @@ public class BatchBlockchainController implements DisposableBean {
         .map(request -> workPool.submit(() -> {
           final BlockchainGateway gateway = blockchainGatewayFactory
               .getGateway(request.getChainId().getValue());
-          final String selectedNetwork = StringUtils.isNotBlank(request.getNetwork()) ? request.getNetwork() : network;
+          final String selectedNetwork =
+              StringUtils.isNotBlank(request.getNetwork()) ? request.getNetwork() : network;
           return gateway.getAccount(selectedNetwork, request.getAccountId());
         }))
         .map(c -> {
