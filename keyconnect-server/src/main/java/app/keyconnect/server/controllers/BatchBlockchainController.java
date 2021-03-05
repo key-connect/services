@@ -83,18 +83,19 @@ public class BatchBlockchainController implements DisposableBean {
           } catch (InterruptedException | ExecutionException e) {
             // ignore
             logger.warn("Error getting account balance", e);
-            return new BlockchainAccountInfo().errors(
-                Collections.singletonList(
-                    new ServerErrorObject()
-                        .message(
-                            "Failed to get account info, please try again. If this message persists, please contact the server administrator"
-                        )
-                        .category(
-                            CategoryEnum.INTERNAL
-                        )
-                        .severity(SeverityEnum.MEDIUM)
-                )
-            );
+            return new BlockchainAccountInfo()
+                .errors(
+                    Collections.singletonList(
+                        new ServerErrorObject()
+                            .message(
+                                "Failed to get account info, please try again. If this message persists, please contact the server administrator"
+                            )
+                            .category(
+                                CategoryEnum.INTERNAL
+                            )
+                            .severity(SeverityEnum.MEDIUM)
+                    )
+                );
           }
         })
         .collect(Collectors.toList());
