@@ -17,6 +17,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import javax.annotation.PreDestroy;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -72,7 +73,8 @@ public class BatchBlockchainController implements DisposableBean {
         .map(request -> workPool.submit(() -> {
           final BlockchainGateway gateway = blockchainGatewayFactory
               .getGateway(request.getChainId().getValue());
-          return gateway.getAccount(network, request.getAccountId());
+          final String selectedNetwork = StringUtils.isNotBlank(request.getNetwork()) ? request.getNetwork() : network;
+          return gateway.getAccount(selectedNetwork, request.getAccountId());
         }))
         .map(c -> {
           try {
