@@ -16,6 +16,7 @@
     <module>keyconnect-chainbase</module>
     <module>keyconnect-sdk</module>
     <module>keyconnect-cli</module>
+    <module>keyconnect-bitcoin-api</module>
   </modules>
 
   <name>Key Connect</name>

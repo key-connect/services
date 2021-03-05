@@ -1,0 +1,129 @@
+openapi: 3.0.0
+info:
+  title: Key Connect Rippled API
+  description: XRP (rippled) [API](https://xrpl.org/rippled-api.html) specification
+  version: 1.0.0
+  contact:
+    name: Manthan Dave
+    url: https://www.manthanhd.com
+    email: manthan@keyconnect.app
+  license:
+    name: The Apache License, Version 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.txt
+servers:
+  - url: 'https://s.altnet.rippletest.net:51234'
+    description: TestNet Rippled server
+  - url: 'https://s.devnet.rippletest.net:51234'
+    description: DevNet Rippled server
+paths:
+  "/":
+    post:
+      summary: Endpoint for all operations
+      operationId: callRippled
+      requestBody:
+        content:
+          "application/json":
+            schema:
+              anyOf:
+                - $ref: "#/components/schemas/GetBlockchainInfoRequest"
+      responses:
+        200:
+          description: OK
+          content:
+            "application/json":
+              schema:
+                anyOf:
+                  - $ref: "#/components/schemas/GetBlockchainInfoResponse"
+components:
+  schemas:
+    JsonRpcResult:
+      properties:
+        error:
+          $ref: '#/components/schemas/JsonRpcError'
+        id:
+          type: string
+          description: Same id returned from the request
+    JsonRpcError:
+      properties:
+        code:
+          type: integer
+          description: Error code
+          example: -32700
+        message:
+          type: string
+          description: Error message
+          example: Parse error
+    GetBlockchainInfoRequest:
+      properties:
+        id:
+          type: string
+        jsonrpc:
+          type: string
+          default: "1.0"
+          readOnly: true
+        method:
+          type: string
+          default: "getblockchaininfo"
+          readOnly: true
+        params:
+          type: array
+          default: []
+          items:
+            type: string
+    GetBlockchainInfoResponse:
+      allOf:
+        - $ref: '#/components/schemas/JsonRpcResult'
+      properties:
+        result:
+          $ref: '#/components/schemas/GetBlockchainInfoResult'
+    GetBlockchainInfoResult:
+      properties:
+        chain:
+          type: string
+          example: main
+        blocks:
+          type: number
+        headers:
+          type: number
+        bestblockhash:
+          type: string
+        difficulty:
+          type: number
+        mediantime:
+          type: number
+        verificationprogress:
+          type: number
+        initialblockdownload:
+          type: boolean
+        chainwork:
+          type: string
+        size_on_disk:
+          type: number
+        pruned:
+          type: boolean
+        softforks:
+          $ref: '#/components/schemas/SoftForks'
+        warnings:
+          type: string
+    SoftForks:
+      properties:
+        bip34:
+          $ref: '#/components/schemas/SoftFork'
+        bip66:
+          $ref: '#/components/schemas/SoftFork'
+        bip65:
+          $ref: '#/components/schemas/SoftFork'
+        csv:
+          $ref: '#/components/schemas/SoftFork'
+        segwit:
+          $ref: '#/components/schemas/SoftFork'
+    SoftFork:
+      properties:
+        type:
+          type: string
+        active:
+          type: boolean
+        height:
+          type: integer
+
+
