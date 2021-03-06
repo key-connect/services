@@ -22,13 +22,6 @@ public class EthWallet implements BlockchainWallet {
     this.credentials = Credentials.create(privateKey.toString(16));
   }
 
-  public String signTransaction(EthTx ethTx) {
-    final byte[] signedTransaction = TransactionEncoder.signMessage(
-        RawTransaction.createTransaction(ethTx.getNonce(), ethTx.getGasPrice(), ethTx.getGasLimit(), ethTx.getTo(), ethTx.getValue(), ethTx.getData()),
-        credentials);
-    return Numeric.toHexString(signedTransaction);
-  }
-
   private String sign(RawTransaction tx) {
     byte[] signedMessage;
     signedMessage = TransactionEncoder.signMessage(tx, credentials);
