@@ -7,7 +7,16 @@ import javax.annotation.Nullable;
 
 public interface BlockchainWallet {
 
-  String buildPaymentTransaction(String to, BigDecimal valueInXrp, @Nullable BigInteger fee,
+  /**
+   * Build payment transaction given the parameters and return a signed transaction that is
+   *   ready to be sent
+   * @param to Recipient address
+   * @param value Payment value
+   * @param fee Fee value
+   * @param sequence Blockchain sequence to use (if relevant)
+   * @return A string representing a signed transaction that can be submitted to the blockchain
+   */
+  String buildPaymentTransaction(String to, BigDecimal value, @Nullable BigInteger fee,
       long sequence);
 
   /**
