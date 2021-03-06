@@ -1,10 +1,13 @@
 package app.keyconnect.server.gateways.exceptions;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.server.ResponseStatusException;
 
-@ResponseStatus(value = HttpStatus.BAD_REQUEST, reason = "Value of cursor must be a valid integer")
 public class EthTransactionsCursorMustBePageNumberException extends
-    RuntimeException {
+    ResponseStatusException {
+
+  public EthTransactionsCursorMustBePageNumberException() {
+    super(HttpStatus.BAD_REQUEST, "Value of cursor must be a valid integer");
+  }
 
 }
