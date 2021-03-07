@@ -81,6 +81,10 @@ public class DeterministicWallet {
     }
   }
 
+  public BlockchainWallet generate(ChainIdEnum chainId, String name) {
+    return getWalletFactory(chainId).generateNext(name);
+  }
+
   public Set<BlockchainWalletFactory> getAllFactories() {
     return Arrays.stream(ChainIdEnum.values())
         .map(this::getWalletFactory)
