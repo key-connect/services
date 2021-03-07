@@ -16,6 +16,7 @@ import app.keyconnect.api.client.model.SubmitTransactionRequest;
 import app.keyconnect.api.client.model.SubmitTransactionResult;
 import app.keyconnect.rippled.api.client.PublicRippledClient;
 import app.keyconnect.rippled.api.client.model.AccountInfoResponse;
+import app.keyconnect.rippled.api.client.model.AccountInfoResult;
 import app.keyconnect.rippled.api.client.model.AccountTransaction;
 import app.keyconnect.rippled.api.client.model.AccountTransactionItem;
 import app.keyconnect.rippled.api.client.model.AccountTransactionMarker;
@@ -198,8 +199,19 @@ public class XrpGateway implements BlockchainGateway {
         break;
       } catch (Throwable e) {
         // swallow all exceptions
+        logger.warn("Received exception when calling rippled node", e);
       }
     }
+
+    if (accountInfoResponse != null && accountInfoResponse.getResult() != null) {
+      final AccountInfoResult result = accountInfoResponse.getResult();
+      if (result.getStatus() != null && result.getStatus().contains("error")
+          && result.getLedgerCurrentIndex() == null) {
+        // account was invalid
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Requested account " + accountId + " is invalid on " + CHAIN_ID + " blockchain");
+      }
+    }
+
     final BlockchainAccountInfo accountInfo = new BlockchainAccountInfo()
         .chainId(ChainIdEnum.XRP)
         .accountId(accountId)
@@ -233,7 +245,12 @@ public class XrpGateway implements BlockchainGateway {
       accountInfo.setLastTransactionId(
           accountInfoResponse.getResult().getAccountData().getPreviousTxnID());
     } else {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Requested account " + accountId + " was not found on " + CHAIN_ID + " " + network);
+      accountInfo.setBalance(
+          new CurrencyValue()
+            .amount(new BigDecimal(0L).setScale(XRP_SCALE, RoundingMode.HALF_UP).toString())
+      );
+
+      accountInfo.setNonce("0");
     }
 
     return accountInfo;

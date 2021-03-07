@@ -12,6 +12,7 @@ import app.keyconnect.api.client.model.BlockchainNetworkServerStatus;
 import app.keyconnect.api.client.model.BlockchainNetworkServerStatus.StatusEnum;
 import app.keyconnect.api.client.model.CurrencyValue;
 import app.keyconnect.api.client.model.CurrencyValue.CurrencyEnum;
+import app.keyconnect.api.client.model.SubAccountInfo;
 import app.keyconnect.api.client.model.SubmitTransactionRequest;
 import app.keyconnect.api.client.model.SubmitTransactionResult;
 import app.keyconnect.server.factories.configuration.BlockchainNetworkConfiguration;
@@ -36,6 +37,7 @@ import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -49,6 +51,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
+import org.web3j.exceptions.MessageDecodingException;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameter;
 import org.web3j.protocol.core.DefaultBlockParameterName;
@@ -204,13 +207,22 @@ public class EthereumGateway implements
 
         final Block block = latestEthBlockCache.get(serverUrl).getBlock();
         final BigInteger latestBlock = block.getNumber();
-        final BigDecimal ethBalance = new BigDecimal(balance.getBalance())
-            .divide(ETH_SCALE, SCALE, ROUNDING_MODE);
+        final BigInteger balanceNum = balance.getBalance();
+        final BigDecimal ethBalance = toEthDecimal(balanceNum);
         final EthGetTransactionCount ethGetTransactionCount = client
             .ethGetTransactionCount(accountId, DefaultBlockParameterName.PENDING).sendAsync().get();
-        final String nonceVal = ethGetTransactionCount == null
-            || ethGetTransactionCount.getTransactionCount() == null
-            ? "" : ethGetTransactionCount.getTransactionCount().toString();
+        final BigInteger txCount;
+        if (ethGetTransactionCount == null || ethGetTransactionCount.getTransactionCount() == null) {
+          txCount = BigInteger.ZERO;
+        } else {
+          txCount = ethGetTransactionCount.getTransactionCount();
+        }
+
+        final String nonceVal = txCount.toString();
+
+        final List<SubAccountInfo> subAccountInfo = BigInteger.ZERO.equals(txCount)
+            ? Collections.emptyList()
+            : tokenService.getAllSubAccountInfo(network, accountId,latestBlock);
         return accountInfo
             .server(toHost(serverUrl))
             .balance(
@@ -222,14 +234,26 @@ public class EthereumGateway implements
                     .currency(CurrencyEnum.ETH)
             )
             .nonce(nonceVal)
-            .subAccounts(tokenService.getAllSubAccountInfo(network, accountId,
-                latestBlock));
+            .subAccounts(subAccountInfo);
       } catch (InterruptedException | ExecutionException | TimeoutException e) {
         logger.warn("Unable to get eth.accountInfo, network=" + network, e);
+      } catch (MessageDecodingException e ) {
+        if (e.getMessage().contains("Value must be in format")) {
+          logger.info("Specified address is not a valid ethereum address, specified={}", accountId);
+          throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Requested account " + accountId + " is invalid on " + CHAIN_ID + " blockchain");
+        }
+        logger.warn("Error decoding message from the ethereum blockchain", e);
       }
     }
-    // todo pending lastTransactionId
-    return accountInfo;
+
+    // usually never gets here for new accounts because eth does not have activation fee like xrp
+    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Requested account " + accountId + " was not found on " + CHAIN_ID + " " + network);
+  }
+
+  @NotNull
+  private BigDecimal toEthDecimal(BigInteger balanceNum) {
+    return new BigDecimal(balanceNum)
+        .divide(ETH_SCALE, SCALE, ROUNDING_MODE);
   }
 
   @Override
@@ -379,8 +403,7 @@ public class EthereumGateway implements
         final EthTransaction ethTransaction = client.ethGetTransactionByHash(hash).sendAsync()
             .get(30, TimeUnit.SECONDS);
         final Transaction transaction = ethTransaction.getTransaction().get();
-        final BigDecimal amountInEth = new BigDecimal(transaction.getValue())
-            .divide(ETH_SCALE, SCALE, ROUNDING_MODE);
+        final BigDecimal amountInEth = toEthDecimal(transaction.getValue());
         return new BlockchainAccountTransaction()
             .network(network)
             .server(toHost(serverUrl))
