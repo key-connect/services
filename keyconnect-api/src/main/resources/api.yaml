@@ -319,6 +319,12 @@ paths:
             'application/json':
               schema:
                 $ref: '#/components/schemas/BlockchainAccountTransactions'
+        '400':
+          description: Invalid cursor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidCursorError'
   /v1/blockchains/{chainId}/accounts/{accountId}/payments:
     get:
       summary: Returns paginated list of payments.
@@ -438,6 +444,12 @@ paths:
             'application/json':
               schema:
                 $ref: '#/components/schemas/BlockchainAccountTransaction'
+        404:
+          description: Transaction not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionNotFoundError'
   /v1/blockchains/{chainId}/transactions:
     post:
       summary: Submit a transaction to the blockchain.
@@ -1072,3 +1084,55 @@ components:
           type: string
           description: The endpoint that caused this error
           example: "/v1/blockchains/eth/accounts/0x89ba75a753a083731fc51195ce7e02fb6d4221e8/fund"
+    TransactionNotFoundError:
+      properties:
+        timestamp:
+          type: number
+          description: Indicates when the error occurred
+          example: 1615115778920
+        status:
+          type: integer
+          description: HTTP status code of the error
+          example: 404
+          default: 404
+          readOnly: true
+        error:
+          type: string
+          description: HTTP status description
+          example: Not Found
+          default: Not Found
+          readOnly: true
+        message:
+          type: string
+          description: Error message describing the error in detail
+          example: Requested transaction somehash was not found on xrp mainnet
+        path:
+          type: string
+          description: The endpoint that caused this error
+          example: "/v1/blockchains/xrp/transactions/somehash"
+    InvalidCursorError:
+      properties:
+        timestamp:
+          type: number
+          description: Indicates when the error occurred
+          example: 1615115778920
+        status:
+          type: integer
+          description: HTTP status code of the error
+          example: 400
+          default: 400
+          readOnly: true
+        error:
+          type: string
+          description: HTTP status description
+          example: Not Found
+          default: Not Found
+          readOnly: true
+        message:
+          type: string
+          description: Error message describing the error in detail
+          example: Value of cursor must be a valid integer
+        path:
+          type: string
+          description: The endpoint that caused this error
+          example: "/v1/blockchains/eth/accounts/0x322515357f38df502620190641f2aa633d969c9b/transactions"
