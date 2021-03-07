@@ -24,7 +24,8 @@ import app.keyconnect.server.services.Erc20TokenService;
 import app.keyconnect.server.services.networks.NetworkClient;
 import app.keyconnect.server.services.networks.NetworkClientService;
 import app.keyconnect.server.utils.EtherscanUtil;
-import app.keyconnect.server.utils.models.EtherscanResponse;
+import app.keyconnect.server.utils.models.BaseEtherscanResponse;
+import app.keyconnect.server.utils.models.SuccessEtherscanResponse;
 import com.google.common.base.Strings;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -314,9 +315,10 @@ public class EthereumGateway implements
         continue;
       }
 
-      final EtherscanResponse transactions = etherscanUtil
+      final SuccessEtherscanResponse transactions = etherscanUtil
           .getTransactionsForAccount(network, accountId,
               latestBlockNumber, pageNumber, String.valueOf(limit));
+
       transactionItems = Arrays.stream(transactions.getResult())
           .map(t -> {
             final BigDecimal amountInEth = new BigDecimal(t.getValue())

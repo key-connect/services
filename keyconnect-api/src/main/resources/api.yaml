@@ -246,7 +246,7 @@ paths:
         '202':
           description: Funding request was accepted, it will be fulfilled momentarily.
         '400':
-          description: Funding not available in mainnet
+          description: Invalid funding request
           content:
             application/json:
               schema:
@@ -320,11 +320,14 @@ paths:
               schema:
                 $ref: '#/components/schemas/BlockchainAccountTransactions'
         '400':
-          description: Invalid cursor
+          description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/InvalidCursorError'
+                oneOf:
+                  - $ref: '#/components/schemas/InvalidCursorError'
+                  - $ref: '#/components/schemas/InvalidAccountAddressError'
+
   /v1/blockchains/{chainId}/accounts/{accountId}/payments:
     get:
       summary: Returns paginated list of payments.

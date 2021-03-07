@@ -2,7 +2,7 @@ package app.keyconnect.server.utils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import app.keyconnect.server.utils.models.EtherscanResponse;
+import app.keyconnect.server.utils.models.SuccessEtherscanResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.env.Environment;
@@ -26,7 +26,7 @@ public class EtherscanUtilTest {
 
   @Test
   public void returnsAllTransactionsForGivenAccount() {
-    final EtherscanResponse transactions = subject
+    final SuccessEtherscanResponse transactions = subject
         .getTransactionsForAccount("mainnet", "0x6c8C5d80B9C9C644E342d60Cc904A9D5E3C7a8e3",
             "11511484", "1", "10");
     assertThat(transactions.getResult()).hasSize(10);
@@ -35,7 +35,14 @@ public class EtherscanUtilTest {
 
   @Test
   public void returnsAllTokenTransactionsForGivenAccount() {
-    final EtherscanResponse tokenTransactions = subject.getTokenTransactionsForAccount("mainnet", "0x4E83362442B8d1beC281594cEa3050c8EB01311C", "11514883", "1", "10");
+    final SuccessEtherscanResponse tokenTransactions = subject.getTokenTransactionsForAccount("mainnet", "0x4E83362442B8d1beC281594cEa3050c8EB01311C", "11514883", "1", "10");
     assertThat(tokenTransactions.getResult()).hasSize(10);
+  }
+
+  @Test
+  public void handlesErrors() {
+    final SuccessEtherscanResponse response = subject
+        .getTransactionsForAccount("mainnet", "invalidaddress", "11511484", "1", "10");
+    System.out.println(response);
   }
 }
