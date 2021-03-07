@@ -11,6 +11,7 @@ import app.keyconnect.sdk.api.KeyConnectApiFactory;
 import app.keyconnect.sdk.wallets.BlockchainWallet;
 import java.math.BigInteger;
 import java.util.Locale;
+import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
@@ -22,11 +23,19 @@ public class SignedPayment {
   private BlockchainWallet wallet;
   private Payment payment;
 
-  public SubmittedPayment submit(String network) throws SubmitPaymentException {
+  public SubmittedPayment submit(BlockchainsApi blockchainsApi) throws SubmitPaymentException {
+    return submit(blockchainsApi, null);
+  }
+
+  public SubmittedPayment submit() throws SubmitPaymentException {
+    return submit(KeyConnectApiFactory.getInstance().getDefaultBlockchainsApi(), null);
+  }
+
+  public SubmittedPayment submit(@Nullable String network) throws SubmitPaymentException {
     return submit(KeyConnectApiFactory.getInstance().getDefaultBlockchainsApi(), network);
   }
 
-  public SubmittedPayment submit(BlockchainsApi api, String network)
+  public SubmittedPayment submit(BlockchainsApi api, @Nullable String network)
       throws SubmitPaymentException {
     final String chainId = wallet.getChainId().name().toLowerCase(Locale.ROOT);
 
