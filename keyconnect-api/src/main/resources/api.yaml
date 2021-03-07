@@ -250,7 +250,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnsupportedFundingRequestError'
+                oneOf:
+                  - $ref: '#/components/schemas/UnsupportedFundingRequestError'
+                  - $ref: '#/components/schemas/UnsupportedFundingBlockchainError'
 
   /v1/blockchains/{chainId}/accounts/{accountId}/transactions:
     get:
@@ -1044,3 +1046,29 @@ components:
           type: string
           description: The endpoint that caused this error
           example: "/v1/blockchains/xrp/accounts/rNhZcESPsJbxPSsomCUvGs2dsRaFBH6g3f/fund"
+    UnsupportedFundingBlockchainError:
+      properties:
+        timestamp:
+          type: number
+          description: Indicates when the error occurred
+          example: 1615115778920
+        status:
+          type: integer
+          description: HTTP status code of the error
+          example: 400
+          default: 400
+          readOnly: true
+        error:
+          type: string
+          description: HTTP status description
+          example: Bad Request
+          default: Bad Request
+          readOnly: true
+        message:
+          type: string
+          description: Error message describing the error in detail
+          example: API not yet available on ethereum gateway
+        path:
+          type: string
+          description: The endpoint that caused this error
+          example: "/v1/blockchains/eth/accounts/0x89ba75a753a083731fc51195ce7e02fb6d4221e8/fund"
