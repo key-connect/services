@@ -97,7 +97,8 @@ public class PayCommand extends BaseBlockchainConfig implements Callable<Integer
     }
 
     final SubmittedPayment payment = Payments.send(
-        sourceWallet.get(), destinationAddress,
+        sourceWallet.get(),
+        destinationAddress,
         new BigDecimal(amount),
         network
     );
