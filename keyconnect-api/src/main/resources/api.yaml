@@ -245,6 +245,12 @@ paths:
       responses:
         '202':
           description: Funding request was accepted, it will be fulfilled momentarily.
+        '400':
+          description: Funding not available in mainnet
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnsupportedFundingRequestError'
 
   /v1/blockchains/{chainId}/accounts/{accountId}/transactions:
     get:
@@ -1012,3 +1018,29 @@ components:
           type: string
           description: The endpoint that caused this error
           example: "/v1/blockchains/xrp/accounts/some_account_address"
+    UnsupportedFundingRequestError:
+      properties:
+        timestamp:
+          type: number
+          description: Indicates when the error occurred
+          example: 1615115778920
+        status:
+          type: integer
+          description: HTTP status code of the error
+          example: 400
+          default: 400
+          readOnly: true
+        error:
+          type: string
+          description: HTTP status description
+          example: Bad Request
+          default: Bad Request
+          readOnly: true
+        message:
+          type: string
+          description: Error message describing the error in detail
+          example: Automatic funding is not available in mainnet network.
+        path:
+          type: string
+          description: The endpoint that caused this error
+          example: "/v1/blockchains/xrp/accounts/rNhZcESPsJbxPSsomCUvGs2dsRaFBH6g3f/fund"
