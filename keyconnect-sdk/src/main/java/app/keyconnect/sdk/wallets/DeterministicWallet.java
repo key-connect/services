@@ -41,6 +41,10 @@ public class DeterministicWallet {
     chain = DeterministicKeyChain.builder().seed(seed).build();
   }
 
+  public DeterministicWallet(@Nullable String passphrase, String mnemonic) {
+    this(passphrase, mnemonic, System.currentTimeMillis());
+  }
+
   public DeterministicWallet(@Nullable String passphrase, String mnemonicString,
       long creationTimeInSeconds) {
     this.passphrase = passphrase;
