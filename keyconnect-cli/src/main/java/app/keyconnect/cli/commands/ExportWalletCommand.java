@@ -1,7 +1,5 @@
 package app.keyconnect.cli.commands;
 
-import app.keyconnect.sdk.wallets.DeterministicWallet;
-import app.keyconnect.sdk.wallets.io.WalletReader;
 import app.keyconnect.cli.utils.LocalWalletData;
 import app.keyconnect.cli.utils.LocalWalletHelper;
 import java.io.BufferedOutputStream;
@@ -43,7 +41,7 @@ public class ExportWalletCommand implements Callable<Integer> {
     }
 
     final LocalWalletData localWalletData = LocalWalletHelper.readLocalWallet();
-    final String mnemonicCode = localWalletData.getWallet().getMnemonicCode();
+    final String mnemonicCode = localWalletData.getWallet().getMnemonic();
     final String passphrase = localWalletData.getWallet().getPassphrase();
     System.out.println();
     if (exportFile.isPresent()) {

@@ -96,7 +96,7 @@ public class DeterministicWallet {
     return chain;
   }
 
-  public String getMnemonicCode() {
+  public String getMnemonic() {
     return Strings.join(this.seed.getMnemonicCode(), " ");
   }
 

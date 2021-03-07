@@ -44,7 +44,7 @@ public class WalletWriter {
   public void writeToFile(File file, @Nullable String encryptionPassphrase) {
     final Optional<String> optionalEncryptionPassphrase = Optional.ofNullable(encryptionPassphrase);
     verifyFile(file);
-    final WalletFile walletFile = new WalletFile(wallet.getMnemonicCode(), wallet.getPassphrase());
+    final WalletFile walletFile = new WalletFile(wallet.getMnemonic(), wallet.getPassphrase());
 
     wallet.getAllFactories()
         .stream()
