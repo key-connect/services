@@ -891,7 +891,7 @@ components:
         accountId:
           type: string
           description: ID of the sub account. Contract hash in case of ethereum token.
-          example: 0xfF20817765cB7f73d4bde2e66e067E58D11095C2
+          example: "0xfF20817765cB7f73d4bde2e66e067E58D11095C2"
         balance:
           $ref: '#/components/schemas/GenericCurrencyValue'
         value:
