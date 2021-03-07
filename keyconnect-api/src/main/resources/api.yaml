@@ -196,6 +196,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BlockchainAccountInfo'
+        '400':
+          description: Invalid account address
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidAccountAddressError'
   /v1/blockchains/{chainId}/accounts/{accountId}/fund:
     post:
       summary: Funds the given account if funding is available for the specified network.
@@ -980,3 +986,29 @@ components:
       properties:
         avg:
           $ref: '#/components/schemas/Rate'
+    InvalidAccountAddressError:
+      properties:
+        timestamp:
+          type: number
+          description: Indicates when the error occurred
+          example: 1615115778920
+        status:
+          type: integer
+          description: HTTP status code of the error
+          example: 400
+          default: 400
+          readOnly: true
+        error:
+          type: string
+          description: HTTP status description
+          example: Bad Request
+          default: Bad Request
+          readOnly: true
+        message:
+          type: string
+          description: Error message describing the error in detail
+          example: Requested account some_account_address is invalid on xrp blockchain
+        path:
+          type: string
+          description: The endpoint that caused this error
+          example: "/v1/blockchains/xrp/accounts/some_account_address"
