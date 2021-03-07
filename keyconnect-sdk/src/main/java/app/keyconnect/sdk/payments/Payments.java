@@ -4,6 +4,7 @@ import app.keyconnect.api.client.BlockchainsApi;
 import app.keyconnect.sdk.wallets.AddressableWallet;
 import app.keyconnect.sdk.wallets.BlockchainWallet;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import javax.annotation.Nullable;
 
 public class Payments {
@@ -19,6 +20,14 @@ public class Payments {
     return Payment.builder()
         .to(destinationAddress)
         .value(amount)
+        .build();
+  }
+
+  public static Payment create(String destinationAddress, BigDecimal amount, BigInteger fee) {
+    return Payment.builder()
+        .to(destinationAddress)
+        .value(amount)
+        .fee(fee)
         .build();
   }
 
@@ -38,8 +47,16 @@ public class Payments {
   public static SubmittedPayment send(
       BlockchainWallet sourceWallet,
       String destinationAddress,
+      BigDecimal amount
+  ) throws SubmitPaymentException {
+    return send(sourceWallet, destinationAddress, amount, null);
+  }
+
+  public static SubmittedPayment send(
+      BlockchainWallet sourceWallet,
+      String destinationAddress,
       BigDecimal amount,
-      String network
+      @Nullable String network
   ) throws SubmitPaymentException {
     return send(sourceWallet, destinationAddress, amount, null, network);
   }
