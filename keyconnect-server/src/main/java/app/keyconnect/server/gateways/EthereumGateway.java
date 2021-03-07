@@ -402,6 +402,7 @@ public class EthereumGateway implements
       try {
         final EthTransaction ethTransaction = client.ethGetTransactionByHash(hash).sendAsync()
             .get(30, TimeUnit.SECONDS);
+        if (ethTransaction.getTransaction().isEmpty()) continue;
         final Transaction transaction = ethTransaction.getTransaction().get();
         final BigDecimal amountInEth = toEthDecimal(transaction.getValue());
         return new BlockchainAccountTransaction()
@@ -430,7 +431,12 @@ public class EthereumGateway implements
         logger.warn("Unable to get eth.getTransaction, network=" + network + ", hash=" + hash, e);
       }
     }
-    return null;
+
+    // if we're here then we didn't find the transaction
+    throw new ResponseStatusException(
+        HttpStatus.NOT_FOUND,
+        "Requested transaction " + hash + " was not found on " + CHAIN_ID + " " + network
+    );
   }
 
   private String toHost(String url) {
