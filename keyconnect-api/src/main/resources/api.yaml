@@ -991,7 +991,7 @@ components:
         accountId:
           type: string
           description: Identifier representing the account. This is most likely the wallet address.
-          example: "rDsbeomae4FXwgQTJp9Rs64Q  g9vDiTCdBv"
+          example: "rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv"
       required:
         - chainId
         - accountId
