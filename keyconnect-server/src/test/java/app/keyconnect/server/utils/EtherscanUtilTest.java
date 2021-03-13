@@ -3,11 +3,14 @@ package app.keyconnect.server.utils;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import app.keyconnect.server.utils.models.SuccessEtherscanResponse;
+import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.StandardEnvironment;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ResponseStatusException;
 
 public class EtherscanUtilTest {
 
@@ -41,8 +44,12 @@ public class EtherscanUtilTest {
 
   @Test
   public void handlesErrors() {
-    final SuccessEtherscanResponse response = subject
-        .getTransactionsForAccount("mainnet", "invalidaddress", "11511484", "1", "10");
-    System.out.println(response);
+    try {
+      subject
+          .getTransactionsForAccount("mainnet", "invalidaddress", "11511484", "1", "10");
+      TestCase.fail("should have thrown 400");
+    } catch (ResponseStatusException e) {
+      assertThat(e.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
   }
 }
