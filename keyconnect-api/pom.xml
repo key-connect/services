@@ -27,13 +27,13 @@
     <dependency>
       <groupId>org.openapitools</groupId>
       <artifactId>openapi-generator</artifactId>
-      <version>5.0.0</version>
+      <version>5.0.1</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.openapitools</groupId>
       <artifactId>openapi-generator-maven-plugin</artifactId>
-      <version>5.0.0</version>
+      <version>5.0.1</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -106,7 +106,7 @@
       <plugin>
         <groupId>org.openapitools</groupId>
         <artifactId>openapi-generator-maven-plugin</artifactId>
-        <version>5.0.0</version>
+        <version>5.0.1</version>
         <executions>
           <execution>
             <id>generate-java</id>

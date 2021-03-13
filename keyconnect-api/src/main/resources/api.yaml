@@ -250,9 +250,11 @@ paths:
           content:
             application/json:
               schema:
-                oneOf:
-                  - $ref: '#/components/schemas/UnsupportedFundingRequestError'
-                  - $ref: '#/components/schemas/UnsupportedFundingBlockchainError'
+                $ref: '#/components/schemas/ErrorResponse'
+#                Cannot implement below until https://github.com/OpenAPITools/openapi-generator/issues/2892 is fixed
+#                oneOf:
+#                  - $ref: '#/components/schemas/UnsupportedFundingRequestError'
+#                  - $ref: '#/components/schemas/UnsupportedFundingBlockchainError'
 
   /v1/blockchains/{chainId}/accounts/{accountId}/transactions:
     get:
@@ -324,9 +326,11 @@ paths:
           content:
             application/json:
               schema:
-                oneOf:
-                  - $ref: '#/components/schemas/InvalidCursorError'
-                  - $ref: '#/components/schemas/InvalidAccountAddressError'
+                $ref: '#/components/schemas/ErrorResponse'
+#                Cannot implement below until https://github.com/OpenAPITools/openapi-generator/issues/2892 is fixed
+#                oneOf:
+#                  - $ref: '#/components/schemas/InvalidCursorError'
+#                  - $ref: '#/components/schemas/InvalidAccountAddressError'
 
   /v1/blockchains/{chainId}/accounts/{accountId}/payments:
     get:
@@ -987,7 +991,7 @@ components:
         accountId:
           type: string
           description: Identifier representing the account. This is most likely the wallet address.
-          example: "rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv"
+          example: "rDsbeomae4FXwgQTJp9Rs64Q  g9vDiTCdBv"
       required:
         - chainId
         - accountId
@@ -1009,7 +1013,26 @@ components:
       properties:
         avg:
           $ref: '#/components/schemas/Rate'
+    ErrorResponse:
+      properties:
+        timestamp:
+          type: number
+          description: Unix timestamp indicating when the error occurred
+        status:
+          type: integer
+          description: HTTP status code of the error
+        error:
+          type: string
+          description: HTTP status description
+        message:
+          type: string
+          description: Error message describing the error in detail
+        path:
+          type: string
+          description: The endpoint that caused this error
     InvalidAccountAddressError:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
       properties:
         timestamp:
           type: number
@@ -1035,7 +1058,10 @@ components:
           type: string
           description: The endpoint that caused this error
           example: "/v1/blockchains/xrp/accounts/some_account_address"
+#          Unused until oneOf issues above are fixed
     UnsupportedFundingRequestError:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
       properties:
         timestamp:
           type: number
@@ -1061,7 +1087,10 @@ components:
           type: string
           description: The endpoint that caused this error
           example: "/v1/blockchains/xrp/accounts/rNhZcESPsJbxPSsomCUvGs2dsRaFBH6g3f/fund"
+#          Unused until oneOf issues above are fixed
     UnsupportedFundingBlockchainError:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
       properties:
         timestamp:
           type: number
@@ -1088,6 +1117,8 @@ components:
           description: The endpoint that caused this error
           example: "/v1/blockchains/eth/accounts/0x89ba75a753a083731fc51195ce7e02fb6d4221e8/fund"
     TransactionNotFoundError:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
       properties:
         timestamp:
           type: number
@@ -1113,7 +1144,10 @@ components:
           type: string
           description: The endpoint that caused this error
           example: "/v1/blockchains/xrp/transactions/somehash"
+#          Unused until oneOf issues above are fixed
     InvalidCursorError:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
       properties:
         timestamp:
           type: number
