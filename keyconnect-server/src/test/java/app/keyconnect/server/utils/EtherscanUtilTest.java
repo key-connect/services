@@ -46,10 +46,12 @@ public class EtherscanUtilTest {
   public void handlesErrors() {
     try {
       subject
-          .getTransactionsForAccount("mainnet", "invalidaddress", "11511484", "1", "10");
+          .getTransactionsForAccount("mainnet", "mytestinvalidaddress", "11511484", "1", "10");
       TestCase.fail("should have thrown 400");
     } catch (ResponseStatusException e) {
       assertThat(e.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST);
+      assertThat(e.getReason()).contains("is invalid on eth blockchain");
+      assertThat(e.getReason()).contains("mytestinvalidaddress");
     }
   }
 }
