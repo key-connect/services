@@ -27,8 +27,29 @@ public class InitCommand implements Callable<Integer> {
     final String passphrase = new String(console.readPassword());
 
     System.out.println();
-    System.out.print("Choose wallet password: ");
-    final String walletPassword = new String(console.readPassword());
+
+    String walletPassword;
+    String confirmedPassword;
+    int count = 0;
+    do {
+      System.out.print("Choose wallet password: ");
+      walletPassword = new String(console.readPassword());
+
+      System.out.print("Confirm wallet password: ");
+      confirmedPassword = new String(console.readPassword());
+
+      if (walletPassword.equals(confirmedPassword)) {
+        break;
+      } else {
+        System.err.println("Passwords don't match, try again.");
+      }
+    } while (++count < 5);
+
+    if (!walletPassword.equals(confirmedPassword)) {
+      // we got here through max attempt timeout
+      System.err.println("Confirmed wallet password not equal to the provided wallet password, try init again");
+      System.exit(1);
+    }
 
     System.out.println("Creating wallet...");
     final DeterministicWallet wallet = new DeterministicWallet(passphrase);
