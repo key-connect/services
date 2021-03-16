@@ -1,6 +1,5 @@
 package app.keyconnect.sdk.payments;
 
-import app.keyconnect.api.ApiClient;
 import app.keyconnect.api.ApiException;
 import app.keyconnect.api.client.BlockchainsApi;
 import app.keyconnect.api.client.model.BlockchainAccountInfo;
@@ -16,25 +15,63 @@ import lombok.Builder;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * Represents a signed {@link Payment} object. This object does not actually contain a signed
+ * payment but contains the necessary tools that can be used to sign a payment.
+ */
 @Builder
 @Getter
 public class SignedPayment {
 
-  private BlockchainWallet wallet;
-  private Payment payment;
+  private final BlockchainWallet wallet;
+  private final Payment payment;
 
+  /**
+   * Submits this {@link SignedPayment} object to the blockchain.
+   * Any fees, nonce etc are calculated for the default network (usually mainnet) (unless specified
+   * in the underlying {@link Payment} object).
+   * Uses the provided {@link BlockchainsApi} instance to submit the signed payment.
+   * @param blockchainsApi {@link BlockchainsApi} instance to reuse.
+   * @return {@link SubmittedPayment} object indicating a submitted payment
+   * @throws SubmitPaymentException when there is a problem with submitting the payment.
+   */
   public SubmittedPayment submit(BlockchainsApi blockchainsApi) throws SubmitPaymentException {
     return submit(blockchainsApi, null);
   }
 
+  /**
+   * Submits this {@link SignedPayment} object to the blockchain.
+   * Any fees, nonce etc are calculated for the default network (usually mainnet) (unless specified
+   * in the underlying {@link Payment} object).
+   * @return {@link SubmittedPayment} object indicating a submitted payment
+   * @throws SubmitPaymentException when there is a problem with submitting the payment.
+   */
   public SubmittedPayment submit() throws SubmitPaymentException {
     return submit(KeyConnectApiFactory.getInstance().getDefaultBlockchainsApi(), null);
   }
 
+  /**
+   * Submits this {@link SignedPayment} object to the specified blockchain network (nullable).
+   * Any fees, nonce etc are calculated for the specified network (unless specified in the
+   * underlying {@link Payment} object).
+   * @param network Blockchain network to submit the payment to. Can be null.
+   * @return {@link SubmittedPayment} object indicating a submitted payment
+   * @throws SubmitPaymentException when there is a problem with submitting the payment.
+   */
   public SubmittedPayment submit(@Nullable String network) throws SubmitPaymentException {
     return submit(KeyConnectApiFactory.getInstance().getDefaultBlockchainsApi(), network);
   }
 
+  /**
+   * Submits this {@link SignedPayment} object to the specified blockchain network (nullable).
+   * Any fees, nonce etc are calculated for the specified network (unless specified in the
+   * underlying {@link Payment} object.
+   * Uses the provided {@link BlockchainsApi} instance to submit the signed payment.
+   * @param api {@link BlockchainsApi} instance to reuse.
+   * @param network Blockchain network to submit the payment to. Can be null.
+   * @return {@link SubmittedPayment} object indicating a submitted payment
+   * @throws SubmitPaymentException when there is a problem with submitting the payment.
+   */
   public SubmittedPayment submit(BlockchainsApi api, @Nullable String network)
       throws SubmitPaymentException {
     final String chainId = wallet.getChainId().name().toLowerCase(Locale.ROOT);
