@@ -4,7 +4,7 @@ import static app.keyconnect.cli.utils.LocalWalletHelper.readLocalWallet;
 
 import app.keyconnect.api.client.model.BlockchainAccountInfo.ChainIdEnum;
 import app.keyconnect.sdk.wallets.BlockchainWallet;
-import app.keyconnect.sdk.wallets.BlockchainWalletFactory;
+import app.keyconnect.sdk.wallets.factories.BlockchainWalletFactory;
 import app.keyconnect.sdk.wallets.io.WalletWriter;
 import app.keyconnect.cli.utils.LocalWalletData;
 import java.util.Locale;

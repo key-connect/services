@@ -1,7 +1,7 @@
 package app.keyconnect.sdk.wallets.io;
 
-import app.keyconnect.sdk.wallets.BlockchainWalletFactory;
 import app.keyconnect.sdk.wallets.DeterministicWallet;
+import app.keyconnect.sdk.wallets.factories.BlockchainWalletFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.io.BufferedReader;
@@ -48,7 +48,8 @@ public class WalletReader {
 
       final WalletFile walletFile = new ObjectMapper(new YAMLFactory())
           .readValue(decryptedWalletString, WalletFile.class);
-      final DeterministicWallet wallet = new DeterministicWallet(walletFile.getPassphrase(), walletFile.getMnemonic(),
+      final DeterministicWallet wallet = new DeterministicWallet(walletFile.getPassphrase(),
+          walletFile.getMnemonic(),
           System.currentTimeMillis());
       // inflate trees
       walletFile.getAccountIndices()
@@ -73,9 +74,14 @@ public class WalletReader {
   }
 
   private static String decrypt(String walletString, String password) {
-    if (!walletString.contains(":")) throw new WalletReaderException("Encrypted wallet is malformed or has been tampered with");
+    if (!walletString.contains(":")) {
+      throw new WalletReaderException("Encrypted wallet is malformed or has been tampered with");
+    }
     final String[] encoded = walletString.split(":");
-    if (encoded.length != 3) throw new WalletReaderException("Encrypted wallet missing parameters required for decryption");
+    if (encoded.length != 3) {
+      throw new WalletReaderException(
+          "Encrypted wallet missing parameters required for decryption");
+    }
 
     final String saltString = encoded[0];
     final String ivString = encoded[1];

@@ -1,6 +1,7 @@
-package app.keyconnect.sdk.wallets;
+package app.keyconnect.sdk.wallets.factories;
 
 import app.keyconnect.api.client.model.BlockchainAccountInfo.ChainIdEnum;
+import app.keyconnect.sdk.wallets.BlockchainWallet;
 import java.util.List;
 
 public interface BlockchainWalletFactory {

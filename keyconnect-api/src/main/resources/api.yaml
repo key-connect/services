@@ -196,6 +196,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BlockchainAccountInfo'
+        '400':
+          description: Invalid account address
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidAccountAddressError'
   /v1/blockchains/{chainId}/accounts/{accountId}/fund:
     post:
       summary: Funds the given account if funding is available for the specified network.
@@ -239,6 +245,16 @@ paths:
       responses:
         '202':
           description: Funding request was accepted, it will be fulfilled momentarily.
+        '400':
+          description: Invalid funding request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+#                Cannot implement below until https://github.com/OpenAPITools/openapi-generator/issues/2892 is fixed
+#                oneOf:
+#                  - $ref: '#/components/schemas/UnsupportedFundingRequestError'
+#                  - $ref: '#/components/schemas/UnsupportedFundingBlockchainError'
 
   /v1/blockchains/{chainId}/accounts/{accountId}/transactions:
     get:
@@ -305,6 +321,17 @@ paths:
             'application/json':
               schema:
                 $ref: '#/components/schemas/BlockchainAccountTransactions'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+#                Cannot implement below until https://github.com/OpenAPITools/openapi-generator/issues/2892 is fixed
+#                oneOf:
+#                  - $ref: '#/components/schemas/InvalidCursorError'
+#                  - $ref: '#/components/schemas/InvalidAccountAddressError'
+
   /v1/blockchains/{chainId}/accounts/{accountId}/payments:
     get:
       summary: Returns paginated list of payments.
@@ -424,6 +451,12 @@ paths:
             'application/json':
               schema:
                 $ref: '#/components/schemas/BlockchainAccountTransaction'
+        404:
+          description: Transaction not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionNotFoundError'
   /v1/blockchains/{chainId}/transactions:
     post:
       summary: Submit a transaction to the blockchain.
@@ -891,7 +924,7 @@ components:
         accountId:
           type: string
           description: ID of the sub account. Contract hash in case of ethereum token.
-          example: 0xfF20817765cB7f73d4bde2e66e067E58D11095C2
+          example: "0xfF20817765cB7f73d4bde2e66e067E58D11095C2"
         balance:
           $ref: '#/components/schemas/GenericCurrencyValue'
         value:
@@ -980,3 +1013,163 @@ components:
       properties:
         avg:
           $ref: '#/components/schemas/Rate'
+    ErrorResponse:
+      properties:
+        timestamp:
+          type: number
+          description: Unix timestamp indicating when the error occurred
+        status:
+          type: integer
+          description: HTTP status code of the error
+        error:
+          type: string
+          description: HTTP status description
+        message:
+          type: string
+          description: Error message describing the error in detail
+        path:
+          type: string
+          description: The endpoint that caused this error
+    InvalidAccountAddressError:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
+      properties:
+        timestamp:
+          type: number
+          description: Indicates when the error occurred
+          example: 1615115778920
+        status:
+          type: integer
+          description: HTTP status code of the error
+          example: 400
+          default: 400
+          readOnly: true
+        error:
+          type: string
+          description: HTTP status description
+          example: Bad Request
+          default: Bad Request
+          readOnly: true
+        message:
+          type: string
+          description: Error message describing the error in detail
+          example: Requested account some_account_address is invalid on xrp blockchain
+        path:
+          type: string
+          description: The endpoint that caused this error
+          example: "/v1/blockchains/xrp/accounts/some_account_address"
+#          Unused until oneOf issues above are fixed
+    UnsupportedFundingRequestError:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
+      properties:
+        timestamp:
+          type: number
+          description: Indicates when the error occurred
+          example: 1615115778920
+        status:
+          type: integer
+          description: HTTP status code of the error
+          example: 400
+          default: 400
+          readOnly: true
+        error:
+          type: string
+          description: HTTP status description
+          example: Bad Request
+          default: Bad Request
+          readOnly: true
+        message:
+          type: string
+          description: Error message describing the error in detail
+          example: Automatic funding is not available in mainnet network.
+        path:
+          type: string
+          description: The endpoint that caused this error
+          example: "/v1/blockchains/xrp/accounts/rNhZcESPsJbxPSsomCUvGs2dsRaFBH6g3f/fund"
+#          Unused until oneOf issues above are fixed
+    UnsupportedFundingBlockchainError:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
+      properties:
+        timestamp:
+          type: number
+          description: Indicates when the error occurred
+          example: 1615115778920
+        status:
+          type: integer
+          description: HTTP status code of the error
+          example: 400
+          default: 400
+          readOnly: true
+        error:
+          type: string
+          description: HTTP status description
+          example: Bad Request
+          default: Bad Request
+          readOnly: true
+        message:
+          type: string
+          description: Error message describing the error in detail
+          example: API not yet available on ethereum gateway
+        path:
+          type: string
+          description: The endpoint that caused this error
+          example: "/v1/blockchains/eth/accounts/0x89ba75a753a083731fc51195ce7e02fb6d4221e8/fund"
+    TransactionNotFoundError:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
+      properties:
+        timestamp:
+          type: number
+          description: Indicates when the error occurred
+          example: 1615115778920
+        status:
+          type: integer
+          description: HTTP status code of the error
+          example: 404
+          default: 404
+          readOnly: true
+        error:
+          type: string
+          description: HTTP status description
+          example: Not Found
+          default: Not Found
+          readOnly: true
+        message:
+          type: string
+          description: Error message describing the error in detail
+          example: Requested transaction somehash was not found on xrp mainnet
+        path:
+          type: string
+          description: The endpoint that caused this error
+          example: "/v1/blockchains/xrp/transactions/somehash"
+#          Unused until oneOf issues above are fixed
+    InvalidCursorError:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
+      properties:
+        timestamp:
+          type: number
+          description: Indicates when the error occurred
+          example: 1615115778920
+        status:
+          type: integer
+          description: HTTP status code of the error
+          example: 400
+          default: 400
+          readOnly: true
+        error:
+          type: string
+          description: HTTP status description
+          example: Not Found
+          default: Not Found
+          readOnly: true
+        message:
+          type: string
+          description: Error message describing the error in detail
+          example: Value of cursor must be a valid integer
+        path:
+          type: string
+          description: The endpoint that caused this error
+          example: "/v1/blockchains/eth/accounts/0x322515357f38df502620190641f2aa633d969c9b/transactions"

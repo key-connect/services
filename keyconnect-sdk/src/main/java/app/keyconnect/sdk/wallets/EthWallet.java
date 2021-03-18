@@ -1,24 +1,92 @@
 package app.keyconnect.sdk.wallets;
 
+import app.keyconnect.api.client.model.BlockchainAccountInfo.ChainIdEnum;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import org.apache.commons.lang3.NotImplementedException;
-import org.jetbrains.annotations.Nullable;
+import java.security.SecureRandom;
+import java.time.Instant;
+import java.util.Optional;
+import javax.annotation.Nullable;
+import org.bitcoinj.crypto.DeterministicKey;
+import org.bitcoinj.crypto.HDUtils;
+import org.bitcoinj.wallet.DeterministicKeyChain;
+import org.bitcoinj.wallet.DeterministicSeed;
+import org.bitcoinj.wallet.UnreadableWalletException;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.RawTransaction;
 import org.web3j.crypto.TransactionEncoder;
-import org.web3j.tx.ChainId;
-import org.web3j.tx.RawTransactionManager;
 import org.web3j.utils.Numeric;
 
 public class EthWallet implements BlockchainWallet {
 
   public static final BigDecimal ETH_SCALE = BigDecimal.valueOf(1000000000000000000L);
-  private final Credentials credentials;
+  public static final String CHAIN_INDEX = "60";
+  private final DeterministicSeed seed;
+  private final DeterministicKeyChain chain;
+  private final String passphrase;
+  private Credentials credentials;
   private String name;
 
+  /**
+   * Creates an ETH wallet given a private key
+   * @param name Name of the wallet
+   * @param privateKey Private key
+   */
   public EthWallet(String name, BigInteger privateKey) {
     this.name = name;
+    this.seed = null;
+    this.chain = null;
+    this.passphrase = null;
+    initCredentialsFromPrivateKey(privateKey);
+  }
+
+  /**
+   * Creates a standalone ETH wallet
+   * @param name Name of the wallet
+   * @param passphrase Passphrase (salt) to use when generating wallet
+   */
+  public EthWallet(String name, String passphrase) {
+    this.name = name;
+    this.seed = new DeterministicSeed(
+        new SecureRandom(),
+        256,
+        Optional.ofNullable(passphrase).orElse("")
+    );
+    this.passphrase = passphrase;
+    this.chain = DeterministicKeyChain.builder().seed(seed).build();
+    final DeterministicKey key = chain
+        .getKeyByPath(HDUtils.parsePath("M/44H/" + CHAIN_INDEX + "H/0H/0/0"), true);
+    final BigInteger privateKey = key.getPrivKey();
+    initCredentialsFromPrivateKey(privateKey);
+  }
+
+  /**
+   * Recovers a ETH wallet given a passphrase (optional) and mnemonic
+   * @param name Name of the wallet
+   * @param passphrase Wallet passphrase (salt) - optional
+   * @param mnemonic Mnemonic to recover from
+   */
+  public EthWallet(String name, @Nullable String passphrase, String mnemonic) {
+    this.name = name;
+    this.passphrase = passphrase;
+    try {
+      this.seed = new DeterministicSeed(
+          mnemonic,
+          null,
+          Optional.ofNullable(passphrase).orElse(""),
+          Instant.now().getEpochSecond()
+      );
+    } catch (UnreadableWalletException e) {
+      throw new RuntimeException("Unreadable wallet", e);
+    }
+    this.chain = DeterministicKeyChain.builder().seed(seed).build();
+    final DeterministicKey key = chain
+        .getKeyByPath(HDUtils.parsePath("M/44H/" + CHAIN_INDEX + "H/0H/0/0"), true);
+    final BigInteger privKey = key.getPrivKey();
+    initCredentialsFromPrivateKey(privKey);
+  }
+
+  private void initCredentialsFromPrivateKey(BigInteger privateKey) {
     this.credentials = Credentials.create(privateKey.toString(16));
   }
 
@@ -32,7 +100,9 @@ public class EthWallet implements BlockchainWallet {
   public String buildPaymentTransaction(String to, BigDecimal valueInEth,
       @Nullable BigInteger gasFee, long sequence) {
     final RawTransaction rawTransaction =
-        RawTransaction.createTransaction(BigInteger.valueOf(sequence), gasFee, BigInteger.valueOf(100000L), to, valueInEth.multiply(ETH_SCALE).toBigInteger(), "");
+        RawTransaction
+            .createTransaction(BigInteger.valueOf(sequence), gasFee, BigInteger.valueOf(100000L),
+                to, valueInEth.multiply(ETH_SCALE).toBigInteger(), "");
 
     return sign(rawTransaction);
   }
@@ -50,5 +120,24 @@ public class EthWallet implements BlockchainWallet {
   @Override
   public void setName(String name) {
     this.name = name;
+  }
+
+  @Nullable
+  public String getPassphrase() {
+    return passphrase;
+  }
+
+  @Nullable
+  public String getMnemonic() {
+    if (null != seed && null != seed.getMnemonicCode()) {
+      return String.join(" ", seed.getMnemonicCode());
+    }
+
+    return null;
+  }
+
+  @Override
+  public ChainIdEnum getChainId() {
+    return ChainIdEnum.ETH;
   }
 }

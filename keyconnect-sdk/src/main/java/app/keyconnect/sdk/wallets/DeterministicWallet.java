@@ -1,6 +1,9 @@
 package app.keyconnect.sdk.wallets;
 
 import app.keyconnect.api.client.model.BlockchainAccountInfo.ChainIdEnum;
+import app.keyconnect.sdk.wallets.factories.BlockchainWalletFactory;
+import app.keyconnect.sdk.wallets.factories.EthHdWalletFactory;
+import app.keyconnect.sdk.wallets.factories.XrpHdWalletFactory;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.List;
@@ -36,6 +39,10 @@ public class DeterministicWallet {
         Optional.ofNullable(passphrase).orElse("")
     );
     chain = DeterministicKeyChain.builder().seed(seed).build();
+  }
+
+  public DeterministicWallet(@Nullable String passphrase, String mnemonic) {
+    this(passphrase, mnemonic, System.currentTimeMillis());
   }
 
   public DeterministicWallet(@Nullable String passphrase, String mnemonicString,
@@ -74,6 +81,10 @@ public class DeterministicWallet {
     }
   }
 
+  public BlockchainWallet generate(ChainIdEnum chainId, String name) {
+    return getWalletFactory(chainId).generateNext(name);
+  }
+
   public Set<BlockchainWalletFactory> getAllFactories() {
     return Arrays.stream(ChainIdEnum.values())
         .map(this::getWalletFactory)
@@ -93,7 +104,7 @@ public class DeterministicWallet {
     return chain;
   }
 
-  public String getMnemonicCode() {
+  public String getMnemonic() {
     return Strings.join(this.seed.getMnemonicCode(), " ");
   }
 

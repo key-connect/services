@@ -10,7 +10,7 @@ import app.keyconnect.server.services.networks.NetworkClient;
 import app.keyconnect.server.services.networks.NetworkClientService;
 import app.keyconnect.server.utils.EtherscanUtil;
 import app.keyconnect.server.utils.models.EtherscanAccountTransaction;
-import app.keyconnect.server.utils.models.EtherscanResponse;
+import app.keyconnect.server.utils.models.SuccessEtherscanResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.io.IOException;
@@ -88,7 +88,7 @@ public class Erc20TokenService {
     int pageNumber = 1;
     final String pageSize = "1000";
 
-    EtherscanResponse response = etherscanUtil
+    SuccessEtherscanResponse response = etherscanUtil
         .getTokenTransactionsForAccount(network, address, latestBlock.toString(),
             String.valueOf(pageNumber),
             pageSize);

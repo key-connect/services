@@ -1,8 +1,8 @@
 package app.keyconnect.sdk.wallets.io;
 
 import app.keyconnect.sdk.wallets.BlockchainWallet;
-import app.keyconnect.sdk.wallets.BlockchainWalletFactory;
 import app.keyconnect.sdk.wallets.DeterministicWallet;
+import app.keyconnect.sdk.wallets.factories.BlockchainWalletFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -44,7 +44,7 @@ public class WalletWriter {
   public void writeToFile(File file, @Nullable String encryptionPassphrase) {
     final Optional<String> optionalEncryptionPassphrase = Optional.ofNullable(encryptionPassphrase);
     verifyFile(file);
-    final WalletFile walletFile = new WalletFile(wallet.getMnemonicCode(), wallet.getPassphrase());
+    final WalletFile walletFile = new WalletFile(wallet.getMnemonic(), wallet.getPassphrase());
 
     wallet.getAllFactories()
         .stream()
@@ -53,8 +53,8 @@ public class WalletWriter {
             .put(
                 f.getChainIndex(),
                 f.getGeneratedWallets().stream()
-                  .map(BlockchainWallet::getName)
-                  .collect(Collectors.joining(","))
+                    .map(BlockchainWallet::getName)
+                    .collect(Collectors.joining(","))
             )
         );
 
@@ -65,7 +65,8 @@ public class WalletWriter {
         .orElseGet(() -> walletFileString.getBytes(StandardCharsets.UTF_8));
 
     try {
-      final BufferedOutputStream outputStream = new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(file)));
+      final BufferedOutputStream outputStream = new BufferedOutputStream(
+          new GZIPOutputStream(new FileOutputStream(file)));
       outputStream.write(data);
       outputStream.flush();
       outputStream.close();

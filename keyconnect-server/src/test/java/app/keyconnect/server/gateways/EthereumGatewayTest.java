@@ -19,7 +19,7 @@ import app.keyconnect.server.services.networks.EthNetworkClientService;
 import app.keyconnect.server.services.networks.NetworkClientService;
 import app.keyconnect.server.utils.EtherscanUtil;
 import app.keyconnect.server.utils.models.EtherscanAccountTransaction;
-import app.keyconnect.server.utils.models.EtherscanResponse;
+import app.keyconnect.server.utils.models.SuccessEtherscanResponse;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -109,9 +109,7 @@ public class EthereumGatewayTest {
         .value("999999999999")
         .build();
 
-    final EtherscanResponse fakeResponse = EtherscanResponse.builder()
-        .result(new EtherscanAccountTransaction[] {fakeTransaction})
-        .build();
+    final SuccessEtherscanResponse fakeResponse = new SuccessEtherscanResponse(new EtherscanAccountTransaction[] {fakeTransaction});
     doReturn(fakeResponse).when(mockEtherscan).getTransactionsForAccount(eq("mainnet"), eq(testMainAddress), any(), eq("1"), eq("5"));
 
     final BlockchainAccountTransactions transactions = subject

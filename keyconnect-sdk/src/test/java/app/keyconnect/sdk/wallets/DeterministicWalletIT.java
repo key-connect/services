@@ -1,10 +1,10 @@
 package app.keyconnect.sdk.wallets;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 
 import app.keyconnect.api.client.model.BlockchainAccountInfo.ChainIdEnum;
+import app.keyconnect.sdk.wallets.factories.BlockchainWalletFactory;
 import java.util.List;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -18,7 +18,7 @@ public class DeterministicWalletIT {
   public void createDeterministicWalletWithEthAndXrpWallets() {
     final String passphrase = "my passphrase";
     final DeterministicWallet wallet = new DeterministicWallet(passphrase);
-    final String mnemonicCode = wallet.getMnemonicCode();
+    final String mnemonicCode = wallet.getMnemonic();
     logger.info("Wallet mnemonic: {} words, {}", mnemonicCode.split(" ").length,
         mnemonicCode);
     assertThat(mnemonicCode.split(" ").length).isEqualTo(24);
@@ -56,8 +56,7 @@ public class DeterministicWalletIT {
     xrpWallets = xrpWalletFactory.getGeneratedWallets();
     assertThat(xrpWallets).hasSize(1);
 
-    final DeterministicWallet recoveredWallet = new DeterministicWallet(passphrase, mnemonicCode,
-        System.currentTimeMillis());
+    final DeterministicWallet recoveredWallet = new DeterministicWallet(passphrase, mnemonicCode);
     final BlockchainWalletFactory rEthWalletFactory = recoveredWallet
         .getWalletFactory(ChainIdEnum.ETH);
     final BlockchainWalletFactory rXrpWalletFactory = recoveredWallet
@@ -79,7 +78,7 @@ public class DeterministicWalletIT {
   @Test
   public void recoverWithJustMnemonic() throws Exception {
     final DeterministicWallet wallet = new DeterministicWallet("");
-    final String mnemonic = wallet.getMnemonicCode();
+    final String mnemonic = wallet.getMnemonic();
     final BlockchainWallet ethWallet = wallet.getWalletFactory(ChainIdEnum.ETH).generateNext("ethwallet");
     final BlockchainWallet xrpWallet = wallet.getWalletFactory(ChainIdEnum.XRP).generateNext("xrpwallet");
 
