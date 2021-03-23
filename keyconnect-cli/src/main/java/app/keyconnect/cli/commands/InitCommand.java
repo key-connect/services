@@ -23,12 +23,38 @@ public class InitCommand implements Callable<Integer> {
         + "passphrase is a piece of string used to generate the mnemonic. You will need "
         + "to remember this passphrase when recovering the wallet, along with the mnemonic. "
         + "It adds extra randomness that is used to generate the wallet keys.");
-    System.out.print("Choose a wallet seed passphrase: ");
-    final String passphrase = new String(console.readPassword());
+    String passphrase;
+    String confirmPassphrase;
+    do {
+      System.out.print("Choose a wallet seed passphrase: ");
+      passphrase = new String(console.readPassword());
+      System.out.print("Confirm wallet seed passphrase: ");
+      confirmPassphrase = new String(console.readPassword());
+
+      if (passphrase.equals(confirmPassphrase)) {
+        break;
+      }
+
+      System.err.println("Passphrases don't match. Try again.");
+    } while (true);
 
     System.out.println();
-    System.out.print("Choose wallet password: ");
-    final String walletPassword = new String(console.readPassword());
+
+    String walletPassword;
+    String confirmedPassword;
+    do {
+      System.out.print("Choose wallet password: ");
+      walletPassword = new String(console.readPassword());
+
+      System.out.print("Confirm wallet password: ");
+      confirmedPassword = new String(console.readPassword());
+
+      if (walletPassword.equals(confirmedPassword)) {
+        break;
+      }
+
+      System.err.println("Passwords don't match. Try again.");
+    } while (true);
 
     System.out.println("Creating wallet...");
     final DeterministicWallet wallet = new DeterministicWallet(passphrase);
