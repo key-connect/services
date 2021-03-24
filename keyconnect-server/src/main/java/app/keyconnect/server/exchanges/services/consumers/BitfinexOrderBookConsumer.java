@@ -4,6 +4,7 @@ import app.keyconnect.server.exchanges.services.StreamingOrderBookConsumer;
 import info.bitrich.xchangestream.bitfinex.BitfinexStreamingExchange;
 import org.knowm.xchange.currency.CurrencyPair;
 
+@Deprecated
 public class BitfinexOrderBookConsumer extends StreamingOrderBookConsumer {
 
   public static final String NAME = "bitfinex";

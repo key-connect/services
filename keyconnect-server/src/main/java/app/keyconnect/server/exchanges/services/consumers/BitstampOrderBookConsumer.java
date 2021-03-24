@@ -4,6 +4,7 @@ import app.keyconnect.server.exchanges.services.StreamingOrderBookConsumer;
 import info.bitrich.xchangestream.bitstamp.v2.BitstampStreamingExchange;
 import org.knowm.xchange.currency.CurrencyPair;
 
+@Deprecated
 public class BitstampOrderBookConsumer extends StreamingOrderBookConsumer {
 
   public static final String NAME = "bitstamp";

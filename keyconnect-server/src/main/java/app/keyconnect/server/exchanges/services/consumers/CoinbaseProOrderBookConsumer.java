@@ -4,6 +4,7 @@ import app.keyconnect.server.exchanges.services.StreamingOrderBookConsumer;
 import info.bitrich.xchangestream.coinbasepro.CoinbaseProStreamingExchange;
 import org.knowm.xchange.currency.CurrencyPair;
 
+@Deprecated
 public class CoinbaseProOrderBookConsumer extends StreamingOrderBookConsumer {
 
   public static final String NAME = "coinbasepro";
