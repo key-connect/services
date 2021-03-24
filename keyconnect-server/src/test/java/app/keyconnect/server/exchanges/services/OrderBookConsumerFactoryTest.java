@@ -14,7 +14,7 @@ public class OrderBookConsumerFactoryTest {
   @Test
   public void suppliesConsumerForKnownExchanges() {
     final OrderBookConsumerFactory subject = new OrderBookConsumerFactory();
-    final String[] knownExchanges = subject.getKnownExchanges();
+    final String[] knownExchanges = ExchangeNameService.getKnownExchanges();
     assertThat(knownExchanges).hasSize(4);
 
     final CurrencyPair pair = CurrencyPair.ETH_BTC;

@@ -1,5 +1,8 @@
 package app.keyconnect.server.exchanges.services;
 
+import static app.keyconnect.server.exchanges.services.ExchangeNameService.KNOWN_EXCHANGES;
+import static app.keyconnect.server.exchanges.services.ExchangeNameService.mapNameToExchangeClass;
+
 import app.keyconnect.server.exchanges.services.consumers.BitfinexOrderBookConsumer;
 import app.keyconnect.server.exchanges.services.consumers.BitstampOrderBookConsumer;
 import app.keyconnect.server.exchanges.services.consumers.CoinbaseProOrderBookConsumer;
@@ -18,9 +21,6 @@ import org.knowm.xchange.currency.CurrencyPair;
 
 public class OrderBookConsumerFactory {
 
-  private static final String[] KNOWN_EXCHANGES = new String[]{BitfinexOrderBookConsumer.NAME,
-      BitstampOrderBookConsumer.NAME, CoinbaseProOrderBookConsumer.NAME,
-      KrakenOrderBookConsumer.NAME};
   private static final Map<String, List<OrderBookConsumer>> consumers = new HashMap<>();
 
   public OrderBookConsumer consumer(String name, CurrencyPair currencyPair) {
@@ -42,28 +42,5 @@ public class OrderBookConsumerFactory {
     }
 
     return maybeConsumer.get();
-  }
-
-  private Class<? extends StreamingExchange> mapNameToExchangeClass(String name) {
-    switch (name) {
-      case BitfinexOrderBookConsumer.NAME:
-        return BitfinexStreamingExchange.class;
-
-      case BitstampOrderBookConsumer.NAME:
-        return BitstampStreamingExchange.class;
-
-      case CoinbaseProOrderBookConsumer.NAME:
-        return CoinbaseProStreamingExchange.class;
-
-      case KrakenOrderBookConsumer.NAME:
-        return KrakenStreamingExchange.class;
-
-      default:
-        throw new IllegalArgumentException("Consumer name " + name + " is not recognised");
-    }
-  }
-
-  public String[] getKnownExchanges() {
-    return KNOWN_EXCHANGES;
   }
 }
