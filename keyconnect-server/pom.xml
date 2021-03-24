@@ -21,6 +21,7 @@
     <spring-boot.version>2.4.4</spring-boot.version>
     <junit-jupiter.version>5.3.2</junit-jupiter.version>
     <start-class>app.keyconnect.server.KeyConnectApplication</start-class>
+    <xchange.version>5.0.6</xchange.version>
   </properties>
 
   <dependencyManagement>
@@ -83,32 +84,32 @@
     <dependency>
       <groupId>org.knowm.xchange</groupId>
       <artifactId>xchange-core</artifactId>
-      <version>5.0.4</version>
+      <version>${xchange.version}</version>
     </dependency>
     <dependency>
       <groupId>org.knowm.xchange</groupId>
       <artifactId>xchange-stream-bitstamp</artifactId>
-      <version>5.0.4</version>
+      <version>${xchange.version}</version>
     </dependency>
     <dependency>
       <groupId>org.knowm.xchange</groupId>
       <artifactId>xchange-stream-binance</artifactId>
-      <version>5.0.4</version>
+      <version>${xchange.version}</version>
     </dependency>
     <dependency>
       <groupId>org.knowm.xchange</groupId>
       <artifactId>xchange-stream-kraken</artifactId>
-      <version>5.0.4</version>
+      <version>${xchange.version}</version>
     </dependency>
     <dependency>
       <groupId>org.knowm.xchange</groupId>
       <artifactId>xchange-stream-coinbasepro</artifactId>
-      <version>5.0.4</version>
+      <version>${xchange.version}</version>
     </dependency>
     <dependency>
       <groupId>org.knowm.xchange</groupId>
       <artifactId>xchange-stream-bitfinex</artifactId>
-      <version>5.0.4</version>
+      <version>${xchange.version}</version>
     </dependency>
     <dependency>
       <groupId>app.keyconnect</groupId>
