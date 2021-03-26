@@ -1,12 +1,9 @@
 package app.keyconnect.server.exchanges.services;
 
-import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;

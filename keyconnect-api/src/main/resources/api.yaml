@@ -594,7 +594,82 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RateResponse'
-
+  /v1/markets:
+    get:
+      summary: "Get available markets"
+      operationId: getAvailableMarkets
+      tags:
+        - markets
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketsResponse'
+  /v1/markets/{base}/{counter}/orderbook:
+    get:
+      summary: "Get aggregated order book for the provided base and counter"
+      operationId: getAggregatedOrderBook
+      tags:
+        - markets
+      parameters:
+        - in: path
+          name: base
+          description: "Base currency"
+          example: "XRP"
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: counter
+          description: "Counter currency"
+          example: "USD"
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderBook'
+  /v1/markets/{base}/{counter}/exchanges/{exchange}/orderbook:
+    get:
+      summary: "Get order book for the provided base and counter at specified exchange"
+      operationId: getExchangeOrderBook
+      tags:
+        - markets
+      parameters:
+        - in: path
+          name: base
+          description: "Base currency"
+          example: "XRP"
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: counter
+          description: "Counter currency"
+          example: "USD"
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: exchange
+          description: "Exchange name"
+          example: "bitstamp"
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderBook'
 components:
   schemas:
     ServerStatusResponse:
@@ -1173,3 +1248,71 @@ components:
           type: string
           description: The endpoint that caused this error
           example: "/v1/blockchains/eth/accounts/0x322515357f38df502620190641f2aa633d969c9b/transactions"
+    Order:
+      description: "Describes order at an exchange"
+      properties:
+        type:
+          description: "Type of the order"
+          type: string
+          enum:
+            - BID
+            - ASK
+            - EXIT_BID
+            - EXIT_ASK
+        amount:
+          description: "Order amount"
+          type: number
+        id:
+          description: "Order ID"
+          type: string
+        timestamp:
+          description: "Order timestamp (ms since epoch)"
+          type: string
+        price:
+          description: "Order price"
+          type: number
+    OrderBook:
+      description: "Represents an order book containing list of asks and bids"
+      properties:
+        base:
+          description: "Base currency"
+          type: string
+        counter:
+          description: "Counter currency"
+          type: string
+        exchange:
+          description: "Name of the Exchange (if applicable)"
+          type: string
+        timestamp:
+          description: "Order timestamp (ms since epoch)"
+          type: string
+        asks:
+          description: "Lists of asks"
+          type: array
+          items:
+            $ref: '#/components/schemas/Order'
+        bids:
+          description: "Lists of bids"
+          type: array
+          items:
+            $ref: '#/components/schemas/Order'
+    MarketsResponse:
+      description: "Object containing list of available markets"
+      properties:
+        markets:
+          description: "List of market objects"
+          type: array
+          items:
+            $ref: '#/components/schemas/MarketsItem'
+    MarketsItem:
+      description: "Object describing a specific market"
+      properties:
+        name:
+          description: "Name of the market, typically name of the exchange"
+          type: string
+        status:
+          description: "Market status"
+          type: string
+          enum:
+            - connected
+            - disconnected

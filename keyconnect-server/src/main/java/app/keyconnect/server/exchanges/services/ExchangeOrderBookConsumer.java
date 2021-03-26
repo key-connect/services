@@ -1,14 +1,15 @@
 package app.keyconnect.server.exchanges.services;
 
-import info.bitrich.xchangestream.core.StreamingExchange;
+import app.keyconnect.server.exchanges.ExchangeService;
 import org.knowm.xchange.currency.CurrencyPair;
 
 public class ExchangeOrderBookConsumer extends StreamingOrderBookConsumer {
 
   private final String name;
 
-  public ExchangeOrderBookConsumer(String name, Class<? extends StreamingExchange> exchangeClass, CurrencyPair currencyPair) {
-    super(currencyPair, exchangeClass);
+  public ExchangeOrderBookConsumer(String name, ExchangeService exchangeService,
+      CurrencyPair currencyPair) {
+    super(exchangeService, currencyPair);
     this.name = name;
   }
 

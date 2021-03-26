@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 public class OrderBookAggregator implements Observer<OrderBook> {
 
   private static final Logger logger = LoggerFactory.getLogger(OrderBookAggregator.class);
-  private final OrderBookConsumer[] consumers;
   private final CurrencyPair currencyPair;
   private final Map<BigDecimal, LimitOrder> asksByPrice = new TreeMap<>();
   private final Map<BigDecimal, LimitOrder> bidsByPrice = new TreeMap<>();
@@ -35,25 +34,15 @@ public class OrderBookAggregator implements Observer<OrderBook> {
         .map(OrderBookConsumer::getCurrencyPair)
         .collect(Collectors.toSet());
     if (currencyPairs.size() != 1) {
-      throw new IllegalStateException("All consumers under an aggregator must have the same currency pair, found=" + currencyPairs);
+      throw new IllegalStateException(
+          "All consumers under an aggregator must have the same currency pair, found="
+              + currencyPairs);
     }
     this.currencyPair = currencyPairs.iterator().next();
-    this.consumers = consumers;
-  }
 
-  public void start() {
     logger.info("Starting aggregator for currency pair={}", currencyPair);
     for (OrderBookConsumer consumer : consumers) {
-      consumer.start();
-      consumer.subscribe(this);
-    }
-  }
-
-  public void stop() {
-    if (consumers.length > 0) {
-      for (OrderBookConsumer consumer : consumers) {
-        consumer.stop();
-      }
+      consumer.getExchangeService().subscribeOrderBook(this.currencyPair, this);
     }
   }
 

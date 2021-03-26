@@ -1,19 +1,14 @@
 package app.keyconnect.server.exchanges.services;
 
-import io.reactivex.Observer;
+import app.keyconnect.server.exchanges.ExchangeService;
 import java.math.BigDecimal;
 import java.util.List;
 import org.knowm.xchange.currency.CurrencyPair;
-import org.knowm.xchange.dto.marketdata.OrderBook;
 import org.knowm.xchange.dto.trade.LimitOrder;
 
 public interface OrderBookConsumer {
 
-  void start();
-
-  void stop();
-
-  void subscribe(Observer<OrderBook> observable);
+  ExchangeService getExchangeService();
 
   List<LimitOrder> getAsks();
 

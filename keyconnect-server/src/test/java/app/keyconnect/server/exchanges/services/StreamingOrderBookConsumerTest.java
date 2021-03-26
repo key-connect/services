@@ -2,10 +2,11 @@ package app.keyconnect.server.exchanges.services;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import app.keyconnect.server.exchanges.ExchangeService;
+import app.keyconnect.server.exchanges.services.consumers.BitstampOrderBookConsumer;
 import info.bitrich.xchangestream.bitstamp.v2.BitstampStreamingExchange;
 import java.math.BigDecimal;
 import java.util.List;
-import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Test;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.trade.LimitOrder;
@@ -18,15 +19,14 @@ class StreamingOrderBookConsumerTest {
 
   @Test
   void consume() throws Exception {
-    final OrderBookConsumer subject = new StreamingOrderBookConsumer(CurrencyPair.ETH_USD, BitstampStreamingExchange.class) {
+    final ExchangeService exchangeService = new ExchangeService(BitstampOrderBookConsumer.NAME, BitstampStreamingExchange.class);
+    final OrderBookConsumer subject = new StreamingOrderBookConsumer(exchangeService, CurrencyPair.ETH_USD) {
       @Override
       public String getName() {
-        return "testexchange";
+        return "test_bitstamp";
       }
     };
-    subject.start();
     Thread.sleep(5 * 1000);
-    subject.stop();
     final List<LimitOrder> asks = subject.getAsks();
     final List<LimitOrder> bids = subject.getBids();
     assertThat(asks).isNotNull();

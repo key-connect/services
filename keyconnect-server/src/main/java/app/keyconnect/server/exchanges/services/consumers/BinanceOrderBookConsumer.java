@@ -1,9 +1,7 @@
 package app.keyconnect.server.exchanges.services.consumers;
 
+import app.keyconnect.server.exchanges.ExchangeService;
 import app.keyconnect.server.exchanges.services.StreamingOrderBookConsumer;
-import info.bitrich.xchangestream.binance.BinanceStreamingExchange;
-import org.jetbrains.annotations.NotNull;
-import org.knowm.xchange.ExchangeSpecification;
 import org.knowm.xchange.currency.CurrencyPair;
 
 /**
@@ -13,17 +11,8 @@ public class BinanceOrderBookConsumer extends StreamingOrderBookConsumer {
 
   public static final String NAME = "binance";
 
-  public BinanceOrderBookConsumer(CurrencyPair currencyPair) {
-    super(currencyPair, BinanceStreamingExchange.class);
-    setSpecification(getSpec());
-  }
-
-  @NotNull
-  private ExchangeSpecification getSpec() {
-    final ExchangeSpecification spec = new BinanceStreamingExchange().getDefaultExchangeSpecification();
-//    spec.setApiKey("key");
-//    spec.setSecretKey("secret");
-    return spec;
+  public BinanceOrderBookConsumer(ExchangeService exchangeService, CurrencyPair currencyPair) {
+    super(exchangeService, currencyPair);
   }
 
   @Override
