@@ -1,5 +1,6 @@
 package app.keyconnect.server.exchanges.services.aggregators;
 
+import app.keyconnect.server.exchanges.ExchangeService;
 import app.keyconnect.server.exchanges.services.OrderBookConsumer;
 import app.keyconnect.server.exchanges.services.utils.OrderBookUtils;
 import io.reactivex.Observer;
@@ -26,6 +27,7 @@ public class OrderBookAggregator implements Observer<OrderBook> {
   private final CurrencyPair currencyPair;
   private final Map<BigDecimal, LimitOrder> asksByPrice = new TreeMap<>();
   private final Map<BigDecimal, LimitOrder> bidsByPrice = new TreeMap<>();
+  private final List<ExchangeService> exchangeServices;
 
   public OrderBookAggregator(OrderBookConsumer... consumers) {
     Objects.requireNonNull(consumers, "Orderbook aggregator must have non-null consumer");
@@ -44,6 +46,10 @@ public class OrderBookAggregator implements Observer<OrderBook> {
     for (OrderBookConsumer consumer : consumers) {
       consumer.getExchangeService().subscribeOrderBook(this.currencyPair, this);
     }
+
+    this.exchangeServices = Arrays.stream(consumers)
+        .map(OrderBookConsumer::getExchangeService)
+        .collect(Collectors.toList());
   }
 
   public List<LimitOrder> getAsks() {
@@ -52,6 +58,10 @@ public class OrderBookAggregator implements Observer<OrderBook> {
 
   public List<LimitOrder> getBids() {
     return new ArrayList<>(bidsByPrice.values());
+  }
+
+  public List<ExchangeService> getExchangeServices() {
+    return exchangeServices;
   }
 
   public BigDecimal getAskVolume() {

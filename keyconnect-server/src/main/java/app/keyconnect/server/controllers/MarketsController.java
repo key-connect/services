@@ -5,10 +5,12 @@ import app.keyconnect.api.client.model.MarketsItem.StatusEnum;
 import app.keyconnect.api.client.model.MarketsResponse;
 import app.keyconnect.api.client.model.Order;
 import app.keyconnect.api.client.model.OrderBook;
+import app.keyconnect.server.exchanges.ExchangeService;
 import app.keyconnect.server.exchanges.factories.MarketDataFactory;
 import app.keyconnect.server.exchanges.services.OrderBookConsumer;
 import app.keyconnect.server.exchanges.services.aggregators.OrderBookAggregator;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -49,8 +51,16 @@ public class MarketsController {
         counter);
     final OrderBookAggregator aggregator = marketDataFactory
         .getAggregatorForCurrencyPair(pair);
-    final List<LimitOrder> asks = aggregator.getAsks();
-    final List<LimitOrder> bids = aggregator.getBids();
+    final List<LimitOrder> asks = aggregator.getAsks()
+        .stream()
+        .sorted(LimitOrder::compareTo)
+        .collect(Collectors.toList());
+    final List<LimitOrder> bids = aggregator.getBids().stream()
+        .sorted(LimitOrder::compareTo)
+        .collect(Collectors.toList());
+    final List<String> aggregatedExchanges = aggregator.getExchangeServices().stream()
+        .map(ExchangeService::getName)
+        .collect(Collectors.toList());
     return ResponseEntity.ok(
         new OrderBook()
             .base(base)
@@ -61,6 +71,7 @@ public class MarketsController {
                     .map(this::toOrder)
                     .collect(Collectors.toList())
             )
+            .exchanges(aggregatedExchanges)
             .bids(
                 bids.stream()
                     .map(this::toOrder)
@@ -124,6 +135,7 @@ public class MarketsController {
             .base(base)
             .counter(counter)
             .timestamp(String.valueOf(Instant.now().toEpochMilli()))
+            .exchanges(Collections.singletonList(consumer.getName()))
             .asks(
                 asks.stream()
                     .map(this::toOrder)

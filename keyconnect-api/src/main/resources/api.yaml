@@ -1280,9 +1280,11 @@ components:
         counter:
           description: "Counter currency"
           type: string
-        exchange:
-          description: "Name of the Exchange (if applicable)"
-          type: string
+        exchanges:
+          description: "Name of the exchanges (multiple if this is an aggregated orderbook)"
+          type: array
+          items:
+            type: string
         timestamp:
           description: "Order timestamp (ms since epoch)"
           type: string
