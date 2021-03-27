@@ -1316,3 +1316,8 @@ components:
           enum:
             - connected
             - disconnected
+        currencies:
+          description: "Supported list of currencies for this market"
+          type: array
+          items:
+            type: string

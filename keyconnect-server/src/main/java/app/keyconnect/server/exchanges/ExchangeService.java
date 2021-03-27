@@ -48,6 +48,10 @@ public class ExchangeService {
         .add(subscriber);
   }
 
+  public List<CurrencyPair> getCurrencies() {
+    return new ArrayList<>(orderBookSubscriptions.keySet());
+  }
+
   public boolean isConnected() {
     return streamingExchange.isAlive();
   }

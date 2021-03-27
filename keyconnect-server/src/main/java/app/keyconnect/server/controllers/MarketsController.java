@@ -37,7 +37,8 @@ public class MarketsController {
   @GetMapping(
       path = "/v1/markets/{base}/{counter}/orderbook",
       produces = MediaType.APPLICATION_JSON_VALUE
-  ) public ResponseEntity<OrderBook> getAggregatedOrderbook(
+  )
+  public ResponseEntity<OrderBook> getAggregatedOrderbook(
       @PathVariable("base") String base,
       @PathVariable("counter") String counter
   ) {
@@ -52,43 +53,51 @@ public class MarketsController {
     final List<LimitOrder> bids = aggregator.getBids();
     return ResponseEntity.ok(
         new OrderBook()
-          .base(base)
-          .counter(counter)
-          .timestamp(String.valueOf(Instant.now().toEpochMilli()))
-          .asks(
-              asks.stream()
-              .map(this::toOrder)
-              .collect(Collectors.toList())
-          )
-        .bids(
-            bids.stream()
-            .map(this::toOrder)
-            .collect(Collectors.toList())
-        )
+            .base(base)
+            .counter(counter)
+            .timestamp(String.valueOf(Instant.now().toEpochMilli()))
+            .asks(
+                asks.stream()
+                    .map(this::toOrder)
+                    .collect(Collectors.toList())
+            )
+            .bids(
+                bids.stream()
+                    .map(this::toOrder)
+                    .collect(Collectors.toList())
+            )
     );
   }
 
   @GetMapping(
       path = "/v1/markets",
       produces = MediaType.APPLICATION_JSON_VALUE
-  ) public ResponseEntity<MarketsResponse> getMarkets() {
+  )
+  public ResponseEntity<MarketsResponse> getMarkets() {
     return ResponseEntity.ok(
         new MarketsResponse()
-        .markets(
-            marketDataFactory.getExchangeServices()
-            .stream()
-            .map(e -> new MarketsItem()
-                .name(e.getName())
-                .status(e.isConnected() ? StatusEnum.CONNECTED : StatusEnum.DISCONNECTED))
-            .collect(Collectors.toList())
-        )
+            .markets(
+                marketDataFactory.getExchangeServices()
+                    .stream()
+                    .map(e -> new MarketsItem()
+                        .name(e.getName())
+                        .status(e.isConnected() ? StatusEnum.CONNECTED : StatusEnum.DISCONNECTED)
+                        .currencies(
+                            e.getCurrencies()
+                                .stream()
+                                .map(CurrencyPair::toString)
+                                .collect(Collectors.toList())
+                        ))
+                    .collect(Collectors.toList())
+            )
     );
   }
 
   @GetMapping(
       path = "/v1/markets/{base}/{counter}/exchanges/{exchange}/orderbook",
       produces = MediaType.APPLICATION_JSON_VALUE
-  ) public ResponseEntity<OrderBook> getAggregatedOrderbook(
+  )
+  public ResponseEntity<OrderBook> getAggregatedOrderbook(
       @PathVariable("base") String base,
       @PathVariable("counter") String counter,
       @PathVariable("exchange") String exchange
@@ -102,7 +111,10 @@ public class MarketsController {
     final Optional<OrderBookConsumer> maybeConsumer = marketDataFactory
         .getConsumerForNameAndCurrencyPair(exchange, pair);
 
-    if (maybeConsumer.isEmpty()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "exchange/curency pair combination was not found");
+    if (maybeConsumer.isEmpty()) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+          "exchange/curency pair combination was not found");
+    }
 
     final OrderBookConsumer consumer = maybeConsumer.get();
     final List<LimitOrder> asks = consumer.getAsks();
