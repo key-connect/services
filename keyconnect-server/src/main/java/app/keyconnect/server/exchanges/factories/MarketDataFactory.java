@@ -5,6 +5,8 @@ import app.keyconnect.server.exchanges.services.ExchangeNameService;
 import app.keyconnect.server.exchanges.services.ExchangeOrderBookConsumer;
 import app.keyconnect.server.exchanges.services.OrderBookConsumer;
 import app.keyconnect.server.exchanges.services.aggregators.OrderBookAggregator;
+import app.keyconnect.server.factories.configuration.MarketConfiguration;
+import app.keyconnect.server.factories.configuration.YamlConfiguration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,6 +18,7 @@ import javax.annotation.PostConstruct;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -29,6 +32,14 @@ public class MarketDataFactory {
   private final Map<CurrencyPair, OrderBookAggregator> aggregators = new HashMap<>();
   private boolean initialised = false;
 
+  private final YamlConfiguration configuration;
+
+  @Autowired
+  public MarketDataFactory(
+      YamlConfiguration configuration) {
+    this.configuration = configuration;
+  }
+
   @PostConstruct
   public void init() {
     if (initialised) {
@@ -38,7 +49,27 @@ public class MarketDataFactory {
 
     for (String exchange : exchanges) {
       logger.info("Initialising exchange {}", exchange);
-      final List<CurrencyPair> pairs = ExchangeNameService.supportedCurrencyPairs(exchange);
+      final List<CurrencyPair> supportedCurrencyPairs = ExchangeNameService.supportedCurrencyPairs(exchange);
+      final List<CurrencyPair> pairs;
+      final Optional<MarketConfiguration> maybeMarketConfig = configuration.getMarkets().stream()
+          .filter(c -> c.getName().equals(exchange))
+          .findFirst();
+      if (maybeMarketConfig.isEmpty()) {
+        logger.info("Specific currency pairs are not configured for exchange {}, using all supported currency pairs instead", exchange);
+        pairs = supportedCurrencyPairs;
+      } else {
+        pairs = maybeMarketConfig.get()
+            .getCurrencies()
+            .stream()
+            .map(CurrencyPair::new)
+            .filter(c -> {
+              final boolean include = supportedCurrencyPairs.contains(c);
+              if (!include) logger.info("Skipping configured currency pair {} for exchange {} as it is not supported by the exchange", c, exchange);
+              return include;
+            })
+            .collect(Collectors.toList());
+        logger.info("Using configured currencies for exchange, exchange={}, currencies={}", exchange, pairs);
+      }
       currencyPairsByName.put(exchange, pairs);
       final ExchangeService service = new ExchangeService(exchange,
           ExchangeNameService.mapNameToExchangeClass(exchange));

@@ -31,6 +31,31 @@ blockchains:
         mode: "public"
         address: "https://s1.ripple.com:51234/"
         type: "json-rpc"
+markets:
+  - name: bitstamp
+    currencies:
+      - ETH/USD
+      - ETH/GBP
+      - XRP/USD
+      - BTC/USD
+  - name: kraken
+    currencies:
+      - ETH/USD
+      - ETH/GBP
+      - XRP/USD
+      - BTC/USD
+  - name: coinbasepro
+    currencies:
+      - ETH/USD
+      - ETH/GBP
+      - XRP/USD
+      - BTC/USD
+  - name: bitfinex
+    currencies:
+      - ETH/USD
+      - ETH/GBP
+      - XRP/USD
+      - BTC/USD
 spring:
   jackson:
     deserialization:

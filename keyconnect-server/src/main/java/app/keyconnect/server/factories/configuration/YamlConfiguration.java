@@ -19,5 +19,6 @@ import org.springframework.context.annotation.Configuration;
 public class YamlConfiguration {
 
   private List<BlockchainsConfiguration> blockchains;
+  private List<MarketConfiguration> markets;
 
 }
