@@ -2,6 +2,7 @@ package app.keyconnect.cli.config;
 
 import app.keyconnect.api.ApiClient;
 import app.keyconnect.api.client.BlockchainsApi;
+import app.keyconnect.api.client.MarketsApi;
 import app.keyconnect.api.client.RatesApi;
 import app.keyconnect.api.client.ServerApi;
 import org.jetbrains.annotations.NotNull;
@@ -40,6 +41,12 @@ public class BaseClientConfig extends BaseConfig {
 
   protected RatesApi getRatesApi() {
     return new RatesApi(
+        getApiClient()
+    );
+  }
+
+  protected MarketsApi getMarketsApi() {
+    return new MarketsApi(
         getApiClient()
     );
   }
