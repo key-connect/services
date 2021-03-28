@@ -10,6 +10,7 @@ Name | Type | Description | Notes
 **destinationTag** | [**String**](string.md) |  | [optional] [default to null]
 **fee** | [**CurrencyValue**](CurrencyValue.md) |  | [optional] [default to null]
 **amount** | [**CurrencyValue**](CurrencyValue.md) |  | [optional] [default to null]
+**value** | [**GenericCurrencyValue**](GenericCurrencyValue.md) |  | [optional] [default to null]
 **hash** | [**String**](string.md) |  | [optional] [default to null]
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
