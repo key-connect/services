@@ -49,13 +49,19 @@ public class MarketDataFactory {
 
     for (String exchange : exchanges) {
       logger.info("Initialising exchange {}", exchange);
-      final List<CurrencyPair> supportedCurrencyPairs = ExchangeNameService.supportedCurrencyPairs(exchange);
+      final List<CurrencyPair> supportedCurrencyPairs = ExchangeNameService
+          .supportedCurrencyPairs(exchange);
       final List<CurrencyPair> pairs;
-      final Optional<MarketConfiguration> maybeMarketConfig = configuration.getMarkets().stream()
+      final Optional<MarketConfiguration> maybeMarketConfig = Optional
+          .ofNullable(configuration.getMarkets())
+          .orElse(Collections.emptyList())
+          .stream()
           .filter(c -> c.getName().equals(exchange))
           .findFirst();
       if (maybeMarketConfig.isEmpty()) {
-        logger.info("Specific currency pairs are not configured for exchange {}, using all supported currency pairs instead", exchange);
+        logger.info(
+            "Specific currency pairs are not configured for exchange {}, using all supported currency pairs instead",
+            exchange);
         pairs = supportedCurrencyPairs;
       } else {
         pairs = maybeMarketConfig.get()
@@ -64,11 +70,17 @@ public class MarketDataFactory {
             .map(CurrencyPair::new)
             .filter(c -> {
               final boolean include = supportedCurrencyPairs.contains(c);
-              if (!include) logger.info("Skipping configured currency pair {} for exchange {} as it is not supported by the exchange", c, exchange);
+              if (!include) {
+                logger.info(
+                    "Skipping configured currency pair {} for exchange {} as it is not supported by the exchange",
+                    c, exchange);
+              }
               return include;
             })
             .collect(Collectors.toList());
-        logger.info("Using configured currencies for exchange, exchange={}, currencies={}", exchange, pairs);
+        logger
+            .info("Using configured currencies for exchange, exchange={}, currencies={}", exchange,
+                pairs);
       }
       currencyPairsByName.put(exchange, pairs);
       final ExchangeService service = new ExchangeService(exchange,
