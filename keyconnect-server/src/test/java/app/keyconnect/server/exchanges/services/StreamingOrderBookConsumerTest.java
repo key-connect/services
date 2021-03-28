@@ -26,6 +26,7 @@ class StreamingOrderBookConsumerTest {
         return "test_bitstamp";
       }
     };
+    exchangeService.connect();
     Thread.sleep(5 * 1000);
     final List<LimitOrder> asks = subject.getAsks();
     final List<LimitOrder> bids = subject.getBids();
