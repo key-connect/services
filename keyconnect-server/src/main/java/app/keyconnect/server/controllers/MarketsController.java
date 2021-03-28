@@ -49,8 +49,17 @@ public class MarketsController {
 
     final CurrencyPair pair = new CurrencyPair(base,
         counter);
-    final OrderBookAggregator aggregator = marketDataFactory
+    final Optional<OrderBookAggregator> maybeAggregator = marketDataFactory
         .getAggregatorForCurrencyPair(pair);
+    if (maybeAggregator.isEmpty()) {
+      return ResponseEntity.ok(
+          new OrderBook()
+          .base(base)
+          .counter(counter)
+          .exchanges(Collections.emptyList())
+      );
+    }
+    final OrderBookAggregator aggregator = maybeAggregator.get();
     final List<LimitOrder> asks = aggregator.getAsks()
         .stream()
         .sorted(LimitOrder::compareTo)
@@ -123,8 +132,12 @@ public class MarketsController {
         .getConsumerForNameAndCurrencyPair(exchange, pair);
 
     if (maybeConsumer.isEmpty()) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-          "exchange/curency pair combination was not found");
+      return ResponseEntity.ok(
+          new OrderBook()
+          .base(base)
+          .counter(counter)
+          .exchanges(Collections.emptyList())
+      );
     }
 
     final OrderBookConsumer consumer = maybeConsumer.get();

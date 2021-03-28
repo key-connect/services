@@ -4,8 +4,12 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import org.knowm.xchange.dto.trade.LimitOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class OrderBookUtils {
+
+  private static final Logger logger = LoggerFactory.getLogger(OrderBookUtils.class);
 
   public static void indexOrders(Map<BigDecimal, LimitOrder> priceMap,
       List<LimitOrder> limitOrders) {
@@ -27,6 +31,7 @@ public class OrderBookUtils {
 
       if (order.getRemainingAmount().equals(BigDecimal.ZERO)) {
         priceMap.remove(price);
+        logger.info("Removing consumed price {}", price);
         continue;
       }
 

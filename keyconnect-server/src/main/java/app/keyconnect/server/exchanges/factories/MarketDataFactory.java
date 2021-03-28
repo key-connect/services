@@ -156,11 +156,11 @@ public class MarketDataFactory {
         .findFirst();
   }
 
-  public OrderBookAggregator getAggregatorForCurrencyPair(CurrencyPair currencyPair) {
+  public Optional<OrderBookAggregator> getAggregatorForCurrencyPair(CurrencyPair currencyPair) {
     if (!initialised) {
       throw new IllegalStateException("Not initialised, call init() first");
     }
-    return aggregators.get(currencyPair);
+    return Optional.ofNullable(aggregators.get(currencyPair));
   }
 
   public List<CurrencyPair> getCurrenciesForName(String name) {
