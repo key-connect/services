@@ -16,6 +16,8 @@ import app.keyconnect.cli.commands.RenameWalletCommand;
 import app.keyconnect.cli.commands.ServerStatusCommand;
 import app.keyconnect.cli.commands.TransactionCommand;
 import app.keyconnect.cli.commands.WalletsCommand;
+import app.keyconnect.cli.commands.markets.MarketsCommand;
+import app.keyconnect.cli.commands.markets.OrderBookCommand;
 import app.keyconnect.cli.utils.ConsoleUtil;
 import com.google.gson.Gson;
 import java.net.ConnectException;
@@ -47,6 +49,8 @@ public class CommandLineApplication {
           .addSubcommand(new ExportWalletCommand())
           .addSubcommand(new RenameWalletCommand())
           .addSubcommand(new PayCommand())
+          .addSubcommand(new MarketsCommand())
+          .addSubcommand(new OrderBookCommand())
           .setExecutionExceptionHandler((ex, commandLine, parseResult) -> {
             if (!(ex instanceof ApiException)) {
               ConsoleUtil.print(ex);
