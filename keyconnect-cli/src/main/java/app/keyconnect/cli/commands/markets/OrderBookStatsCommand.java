@@ -57,6 +57,10 @@ public class OrderBookStatsCommand extends BaseClientConfig implements Callable<
           .orElse(BigDecimal.ZERO)
           .divide(totalVolume, RoundingMode.HALF_UP);
       System.out.println("Average price: " + weightedAvgPrice);
+      final Order lastEntry = orderBook.getAsks().get(orderBook.getAsks().size() - 1);
+      final Order firstEntry = orderBook.getAsks().get(0);
+      System.out.println("Highest price @ volume: " + lastEntry.getPrice() + " @ " + lastEntry.getAmount());
+      System.out.println("Lowest price @ volume: " + firstEntry.getPrice() + " @ " + firstEntry.getAmount());
       System.out.println();
     }
 
@@ -76,6 +80,10 @@ public class OrderBookStatsCommand extends BaseClientConfig implements Callable<
           .orElse(BigDecimal.ZERO)
           .divide(totalVolume, RoundingMode.HALF_UP);
       System.out.println("Average price: " + weightedAvgPrice);
+      final Order lastEntry = orderBook.getBids().get(orderBook.getBids().size() - 1);
+      final Order firstEntry = orderBook.getBids().get(0);
+      System.out.println("Highest price @ volume: " + lastEntry.getPrice() + " @ " + lastEntry.getAmount());
+      System.out.println("Lowest price @ volume: " + firstEntry.getPrice() + " @ " + firstEntry.getAmount());
       System.out.println();
     }
 
