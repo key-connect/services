@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 import org.jetbrains.annotations.NotNull;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.marketdata.OrderBook;
@@ -21,8 +22,8 @@ public abstract class StreamingOrderBookConsumer implements
     OrderBookConsumer, Observer<OrderBook> {
 
   private static final Logger logger = LoggerFactory.getLogger(StreamingOrderBookConsumer.class);
-  private final Map<BigDecimal, LimitOrder> asksByPrice = new TreeMap<>();
-  private final Map<BigDecimal, LimitOrder> bidsByPrice = new TreeMap<>();
+  private final Map<BigDecimal, LimitOrder> asksByPrice = new ConcurrentHashMap<>();
+  private final Map<BigDecimal, LimitOrder> bidsByPrice = new ConcurrentHashMap<>();
   private final CurrencyPair currencyPair;
   private final ExchangeService exchangeService;
 

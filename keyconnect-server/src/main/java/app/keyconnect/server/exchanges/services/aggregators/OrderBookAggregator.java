@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.knowm.xchange.currency.CurrencyPair;
@@ -25,8 +25,8 @@ public class OrderBookAggregator implements Observer<OrderBook> {
 
   private static final Logger logger = LoggerFactory.getLogger(OrderBookAggregator.class);
   private final CurrencyPair currencyPair;
-  private final Map<BigDecimal, LimitOrder> asksByPrice = new TreeMap<>();
-  private final Map<BigDecimal, LimitOrder> bidsByPrice = new TreeMap<>();
+  private final Map<BigDecimal, LimitOrder> asksByPrice = new ConcurrentHashMap<>();
+  private final Map<BigDecimal, LimitOrder> bidsByPrice = new ConcurrentHashMap<>();
   private final List<ExchangeService> exchangeServices;
 
   public OrderBookAggregator(OrderBookConsumer... consumers) {
