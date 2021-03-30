@@ -37,25 +37,25 @@ markets:
       - ETH/USD
       - ETH/GBP
       - XRP/USD
-      - BTC/USD
+      - XRP/GBP
   - name: kraken
     currencies:
       - ETH/USD
       - ETH/GBP
       - XRP/USD
-      - BTC/USD
+      - XRP/GBP
   - name: coinbasepro
     currencies:
       - ETH/USD
       - ETH/GBP
       - XRP/USD
-      - BTC/USD
+      - XRP/GBP
   - name: bitfinex
     currencies:
       - ETH/USD
       - ETH/GBP
       - XRP/USD
-      - BTC/USD
+      - XRP/GBP
 spring:
   jackson:
     deserialization:
