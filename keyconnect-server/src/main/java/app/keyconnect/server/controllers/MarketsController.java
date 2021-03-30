@@ -141,8 +141,12 @@ public class MarketsController {
     }
 
     final OrderBookConsumer consumer = maybeConsumer.get();
-    final List<LimitOrder> asks = consumer.getAsks();
-    final List<LimitOrder> bids = consumer.getBids();
+    final List<LimitOrder> asks = consumer.getAsks().stream()
+        .sorted(LimitOrder::compareTo)
+        .collect(Collectors.toList());
+    final List<LimitOrder> bids = consumer.getBids().stream()
+        .sorted(LimitOrder::compareTo)
+        .collect(Collectors.toList());
     return ResponseEntity.ok(
         new OrderBook()
             .base(base)
