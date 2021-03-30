@@ -60,13 +60,10 @@ public class MarketsController {
       );
     }
     final OrderBookAggregator aggregator = maybeAggregator.get();
-    final List<LimitOrder> asks = aggregator.getAsks()
-        .stream()
-        .sorted(LimitOrder::compareTo)
-        .collect(Collectors.toList());
-    final List<LimitOrder> bids = aggregator.getBids().stream()
-        .sorted(LimitOrder::compareTo)
-        .collect(Collectors.toList());
+    final List<LimitOrder> asks = aggregator.getAsks();
+    asks.sort(LimitOrder::compareTo);
+    final List<LimitOrder> bids = aggregator.getBids();
+    bids.sort(LimitOrder::compareTo);
     final List<String> aggregatedExchanges = aggregator.getExchangeServices().stream()
         .map(ExchangeService::getName)
         .collect(Collectors.toList());
@@ -141,12 +138,11 @@ public class MarketsController {
     }
 
     final OrderBookConsumer consumer = maybeConsumer.get();
-    final List<LimitOrder> asks = consumer.getAsks().stream()
-        .sorted(LimitOrder::compareTo)
-        .collect(Collectors.toList());
-    final List<LimitOrder> bids = consumer.getBids().stream()
-        .sorted(LimitOrder::compareTo)
-        .collect(Collectors.toList());
+    final List<LimitOrder> asks = consumer.getAsks();
+    asks.sort(LimitOrder::compareTo);
+    final List<LimitOrder> bids = consumer.getBids();
+    bids.sort(LimitOrder::compareTo);
+
     return ResponseEntity.ok(
         new OrderBook()
             .base(base)
