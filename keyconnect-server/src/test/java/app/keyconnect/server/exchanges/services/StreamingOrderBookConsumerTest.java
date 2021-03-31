@@ -2,6 +2,7 @@ package app.keyconnect.server.exchanges.services;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import app.keyconnect.api.client.model.Order;
 import app.keyconnect.server.exchanges.ExchangeService;
 import app.keyconnect.server.exchanges.services.consumers.BitstampOrderBookConsumer;
 import info.bitrich.xchangestream.bitstamp.v2.BitstampStreamingExchange;
@@ -28,8 +29,8 @@ class StreamingOrderBookConsumerTest {
     };
     exchangeService.connect();
     Thread.sleep(5 * 1000);
-    final List<LimitOrder> asks = subject.getAsks();
-    final List<LimitOrder> bids = subject.getBids();
+    final List<Order> asks = subject.getAsks();
+    final List<Order> bids = subject.getBids();
     assertThat(asks).isNotNull();
     assertThat(bids).isNotNull();
     final BigDecimal askVolume = subject.getAskVolume();

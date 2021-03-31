@@ -1,5 +1,6 @@
 package app.keyconnect.server.exchanges.services;
 
+import app.keyconnect.api.client.model.Order;
 import app.keyconnect.server.exchanges.ExchangeService;
 import java.math.BigDecimal;
 import java.util.List;
@@ -10,9 +11,9 @@ public interface OrderBookConsumer {
 
   ExchangeService getExchangeService();
 
-  List<LimitOrder> getAsks();
+  List<Order> getAsks();
 
-  List<LimitOrder> getBids();
+  List<Order> getBids();
 
   BigDecimal getAskVolume();
 

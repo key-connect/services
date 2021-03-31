@@ -2,6 +2,7 @@ package app.keyconnect.server.exchanges.services;
 
 import static app.keyconnect.server.exchanges.services.utils.OrderBookUtils.indexOrders;
 
+import app.keyconnect.api.client.model.Order;
 import app.keyconnect.server.exchanges.ExchangeService;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
@@ -22,8 +23,8 @@ public abstract class StreamingOrderBookConsumer implements
     OrderBookConsumer, Observer<OrderBook> {
 
   private static final Logger logger = LoggerFactory.getLogger(StreamingOrderBookConsumer.class);
-  private final Map<BigDecimal, LimitOrder> asksByPrice = new ConcurrentHashMap<>();
-  private final Map<BigDecimal, LimitOrder> bidsByPrice = new ConcurrentHashMap<>();
+  private final Map<BigDecimal, Order> asksByPrice = new ConcurrentHashMap<>();
+  private final Map<BigDecimal, Order> bidsByPrice = new ConcurrentHashMap<>();
   private final CurrencyPair currencyPair;
   private final ExchangeService exchangeService;
 
@@ -39,12 +40,12 @@ public abstract class StreamingOrderBookConsumer implements
   }
 
   @Override
-  public List<LimitOrder> getAsks() {
+  public List<Order> getAsks() {
     return new ArrayList<>(asksByPrice.values());
   }
 
   @Override
-  public List<LimitOrder> getBids() {
+  public List<Order> getBids() {
     return new ArrayList<>(bidsByPrice.values());
   }
 
@@ -52,7 +53,7 @@ public abstract class StreamingOrderBookConsumer implements
   public BigDecimal getAskVolume() {
     return getAsks()
         .parallelStream()
-        .map(LimitOrder::getRemainingAmount)
+        .map(Order::getAmount)
         .reduce(BigDecimal.ZERO, BigDecimal::add);
   }
 
@@ -60,7 +61,7 @@ public abstract class StreamingOrderBookConsumer implements
   public BigDecimal getBidVolume() {
     return getBids()
         .parallelStream()
-        .map(LimitOrder::getRemainingAmount)
+        .map(Order::getAmount)
         .reduce(BigDecimal.ZERO, BigDecimal::add);
   }
 
