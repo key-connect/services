@@ -1,5 +1,7 @@
 package app.keyconnect.server.exchanges.services;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import app.keyconnect.server.exchanges.ExchangeService;
 import app.keyconnect.server.exchanges.services.aggregators.OrderBookAggregator;
 import app.keyconnect.server.exchanges.services.consumers.BitstampOrderBookConsumer;
@@ -38,7 +40,7 @@ public class OrderBookAggregatorTest {
     krakenExchangeService.connect();
     cbpExchangeService.connect();
     Thread.sleep(5000);
-    subject.getAsks();
-    subject.getBids();
+    assertThat(subject.getAsks()).hasSizeGreaterThan(0);
+    assertThat(subject.getBids()).hasSizeGreaterThan(0);
   }
 }

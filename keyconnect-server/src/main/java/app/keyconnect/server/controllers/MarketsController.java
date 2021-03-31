@@ -11,6 +11,7 @@ import app.keyconnect.server.exchanges.services.OrderBookConsumer;
 import app.keyconnect.server.exchanges.services.aggregators.OrderBookAggregator;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -60,10 +61,10 @@ public class MarketsController {
       );
     }
     final OrderBookAggregator aggregator = maybeAggregator.get();
-    final List<LimitOrder> asks = aggregator.getAsks();
-    asks.sort(LimitOrder::compareTo);
-    final List<LimitOrder> bids = aggregator.getBids();
-    bids.sort(LimitOrder::compareTo);
+    final List<Order> asks = aggregator.getAsks();
+    asks.sort(Comparator.comparing(Order::getPrice));
+    final List<Order> bids = aggregator.getBids();
+    bids.sort(Comparator.comparing(Order::getPrice));
     final List<String> aggregatedExchanges = aggregator.getExchangeServices().stream()
         .map(ExchangeService::getName)
         .collect(Collectors.toList());
@@ -72,17 +73,9 @@ public class MarketsController {
             .base(base)
             .counter(counter)
             .timestamp(String.valueOf(Instant.now().toEpochMilli()))
-            .asks(
-                asks.stream()
-                    .map(this::toOrder)
-                    .collect(Collectors.toList())
-            )
+            .asks(asks)
             .exchanges(aggregatedExchanges)
-            .bids(
-                bids.stream()
-                    .map(this::toOrder)
-                    .collect(Collectors.toList())
-            )
+            .bids(bids)
     );
   }
 
@@ -138,10 +131,10 @@ public class MarketsController {
     }
 
     final OrderBookConsumer consumer = maybeConsumer.get();
-    final List<LimitOrder> asks = consumer.getAsks();
-    asks.sort(LimitOrder::compareTo);
-    final List<LimitOrder> bids = consumer.getBids();
-    bids.sort(LimitOrder::compareTo);
+    final List<Order> asks = consumer.getAsks();
+    asks.sort(Comparator.comparing(Order::getPrice));
+    final List<Order> bids = consumer.getBids();
+    bids.sort(Comparator.comparing(Order::getPrice));
 
     return ResponseEntity.ok(
         new OrderBook()
@@ -149,16 +142,8 @@ public class MarketsController {
             .counter(counter)
             .timestamp(String.valueOf(Instant.now().toEpochMilli()))
             .exchanges(Collections.singletonList(consumer.getName()))
-            .asks(
-                asks.stream()
-                    .map(this::toOrder)
-                    .collect(Collectors.toList())
-            )
-            .bids(
-                bids.stream()
-                    .map(this::toOrder)
-                    .collect(Collectors.toList())
-            )
+            .asks(asks)
+            .bids(bids)
     );
   }
 

@@ -1,5 +1,6 @@
 package app.keyconnect.server.exchanges.services.aggregators;
 
+import app.keyconnect.api.client.model.Order;
 import app.keyconnect.server.exchanges.ExchangeService;
 import app.keyconnect.server.exchanges.services.OrderBookConsumer;
 import app.keyconnect.server.exchanges.services.utils.OrderBookUtils;
@@ -25,8 +26,8 @@ public class OrderBookAggregator implements Observer<OrderBook> {
 
   private static final Logger logger = LoggerFactory.getLogger(OrderBookAggregator.class);
   private final CurrencyPair currencyPair;
-  private final Map<BigDecimal, LimitOrder> asksByPrice = new ConcurrentHashMap<>();
-  private final Map<BigDecimal, LimitOrder> bidsByPrice = new ConcurrentHashMap<>();
+  private final Map<BigDecimal, Order> asksByPrice = new ConcurrentHashMap<>();
+  private final Map<BigDecimal, Order> bidsByPrice = new ConcurrentHashMap<>();
   private final List<ExchangeService> exchangeServices;
 
   public OrderBookAggregator(OrderBookConsumer... consumers) {
@@ -52,11 +53,11 @@ public class OrderBookAggregator implements Observer<OrderBook> {
         .collect(Collectors.toList());
   }
 
-  public List<LimitOrder> getAsks() {
+  public List<Order> getAsks() {
     return new ArrayList<>(asksByPrice.values());
   }
 
-  public List<LimitOrder> getBids() {
+  public List<Order> getBids() {
     return new ArrayList<>(bidsByPrice.values());
   }
 
@@ -67,14 +68,14 @@ public class OrderBookAggregator implements Observer<OrderBook> {
   public BigDecimal getAskVolume() {
     return getAsks()
         .parallelStream()
-        .map(LimitOrder::getRemainingAmount)
+        .map(Order::getAmount)
         .reduce(BigDecimal.ZERO, BigDecimal::add);
   }
 
   public BigDecimal getBidVolume() {
     return getBids()
         .parallelStream()
-        .map(LimitOrder::getRemainingAmount)
+        .map(Order::getAmount)
         .reduce(BigDecimal.ZERO, BigDecimal::add);
   }
 
