@@ -50,14 +50,12 @@ markets:
       - ETH/GBP
       - XRP/USD
       - XRP/GBP
-
-# Disable bitfinex due to Duplicate key DOGE/USD issue
-#  - name: bitfinex
-#    currencies:
-#      - ETH/USD
-#      - ETH/GBP
-#      - XRP/USD
-#      - XRP/GBP
+  - name: bitfinex
+    currencies:
+      - ETH/USD
+      - ETH/GBP
+      - XRP/USD
+      - XRP/GBP
 spring:
   jackson:
     deserialization:
@@ -68,7 +66,7 @@ spring:
     location: banner.txt
 application:
   title: Key Connect Server
-  version: 1.0.0
+  version: 1.1.0
 server:
   error:
     include-message: always
