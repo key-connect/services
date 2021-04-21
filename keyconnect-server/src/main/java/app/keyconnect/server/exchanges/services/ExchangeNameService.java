@@ -16,7 +16,7 @@ import org.knowm.xchange.currency.CurrencyPair;
 
 public class ExchangeNameService {
 
-  public static final String[] KNOWN_EXCHANGES = new String[]{BitfinexOrderBookConsumer.NAME,
+  public static final String[] KNOWN_EXCHANGES = new String[]{//BitfinexOrderBookConsumer.NAME,
       BitstampOrderBookConsumer.NAME, CoinbaseProOrderBookConsumer.NAME,
       KrakenOrderBookConsumer.NAME};
 
