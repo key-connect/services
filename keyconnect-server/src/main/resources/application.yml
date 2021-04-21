@@ -50,12 +50,14 @@ markets:
       - ETH/GBP
       - XRP/USD
       - XRP/GBP
-  - name: bitfinex
-    currencies:
-      - ETH/USD
-      - ETH/GBP
-      - XRP/USD
-      - XRP/GBP
+
+# Disable bitfinex due to Duplicate key DOGE/USD issue
+#  - name: bitfinex
+#    currencies:
+#      - ETH/USD
+#      - ETH/GBP
+#      - XRP/USD
+#      - XRP/GBP
 spring:
   jackson:
     deserialization:
