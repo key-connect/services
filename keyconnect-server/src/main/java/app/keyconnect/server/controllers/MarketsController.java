@@ -19,15 +19,15 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.trade.LimitOrder;
-import org.springframework.http.HttpStatus;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
+@ConditionalOnProperty(value = "api.markets.enabled", havingValue = "true")
 public class MarketsController {
 
   private final MarketDataFactory marketDataFactory;
@@ -55,9 +55,9 @@ public class MarketsController {
     if (maybeAggregator.isEmpty()) {
       return ResponseEntity.ok(
           new OrderBook()
-          .base(base)
-          .counter(counter)
-          .exchanges(Collections.emptyList())
+              .base(base)
+              .counter(counter)
+              .exchanges(Collections.emptyList())
       );
     }
     final OrderBookAggregator aggregator = maybeAggregator.get();
@@ -124,9 +124,9 @@ public class MarketsController {
     if (maybeConsumer.isEmpty()) {
       return ResponseEntity.ok(
           new OrderBook()
-          .base(base)
-          .counter(counter)
-          .exchanges(Collections.emptyList())
+              .base(base)
+              .counter(counter)
+              .exchanges(Collections.emptyList())
       );
     }
 

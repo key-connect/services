@@ -19,9 +19,11 @@ import org.knowm.xchange.currency.CurrencyPair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 @Service
+@ConditionalOnProperty(value = "api.markets.enabled", havingValue = "true")
 public class MarketDataFactory {
 
   private static final Logger logger = LoggerFactory.getLogger(MarketDataFactory.class);
@@ -30,9 +32,8 @@ public class MarketDataFactory {
   private final Map<String, List<CurrencyPair>> currencyPairsByName = new HashMap<>();
   private final Map<CurrencyPair, List<OrderBookConsumer>> consumersByCurrency = new HashMap<>();
   private final Map<CurrencyPair, OrderBookAggregator> aggregators = new HashMap<>();
-  private boolean initialised = false;
-
   private final YamlConfiguration configuration;
+  private boolean initialised = false;
 
   @Autowired
   public MarketDataFactory(
@@ -42,6 +43,7 @@ public class MarketDataFactory {
 
   @PostConstruct
   public void init() {
+    logger.info("Initialising market data factory");
     if (initialised) {
       throw new IllegalStateException("Cannot re-initialise when already initialised");
     }
