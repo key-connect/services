@@ -405,6 +405,7 @@ public class XrpGateway implements BlockchainGateway {
       final PublicRippledClient client = networkClient.getClient();
       final TransactionResponse transaction = client.getTransaction(hash);
       final TransactionResult tx = transaction.getResult();
+
       if (tx == null ||
           (StringUtils.isNotBlank(tx.getStatus()) && tx.getStatus().equalsIgnoreCase(STATUS_ERROR))
       ) {
@@ -445,6 +446,7 @@ public class XrpGateway implements BlockchainGateway {
                   .type(tx.getTransactionType())
                   .hash(tx.getHash())
                   .status(meta != null ? toSimpleStatus(meta.getTransactionResult()) : "unknown")
+                  .date(tx.getDate())
           );
     }
 
