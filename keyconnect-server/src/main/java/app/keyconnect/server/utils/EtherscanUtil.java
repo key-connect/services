@@ -25,8 +25,10 @@ public class EtherscanUtil {
   private final RestTemplate restTemplate;
   private final String token;
   private final RateLimiter rateLimiter;
-  public static final String ETHERSCAN_TXN_BASE_URI = "https://api.etherscan.io/api?module=account&action=txlist&address={address}&startblock=0&endblock={endBlock}&sort=desc&page={page}&offset={offset}&apikey={token}";
-  public static final String ETHERSCAN_TOKEN_TXN_BASE_URI = "https://api.etherscan.io/api?module=account&action=tokentx&address={address}&startblock=0&endblock={endBlock}&sort=desc&page={page}&offset={offset}&apikey={token}";
+  private static final String ETHERSCAN_MAINNET_HOST = "https://api.etherscan.io";
+  private static final String ETHERSCAN_ROPSTEN_HOST = "https://api-ropsten.etherscan.io";
+  public static final String ETHERSCAN_TXN_BASE_URI = "/api?module=account&action=txlist&address={address}&startblock=0&endblock={endBlock}&sort=desc&page={page}&offset={offset}&apikey={token}";
+  public static final String ETHERSCAN_TOKEN_TXN_BASE_URI = "/api?module=account&action=tokentx&address={address}&startblock=0&endblock={endBlock}&sort=desc&page={page}&offset={offset}&apikey={token}";
   private ObjectMapper mapper;
 
   public EtherscanUtil(RestTemplate restTemplate, String token) {
@@ -39,13 +41,23 @@ public class EtherscanUtil {
   public SuccessEtherscanResponse getTransactionsForAccount(String network, String address,
       String latestBlock, String pageNumber, String pageSize) {
     // we only support mainnet for now
-    if (!network.equalsIgnoreCase("mainnet")) {
+    if (!network.equalsIgnoreCase("mainnet") && !network.equalsIgnoreCase("ropsten")) {
+      logger.warn("skipping loading of token transactions for non-mainnet and non-ropsten networks");
       return new SuccessEtherscanResponse();
     }
 
     return acquirePermitAndExecute(() -> {
+      final String host;
+      if (network.equalsIgnoreCase("mainnet")) {
+        host = ETHERSCAN_MAINNET_HOST;
+      } else if (network.equalsIgnoreCase("ropsten")) {
+        host = ETHERSCAN_ROPSTEN_HOST;
+      } else {
+        throw new RuntimeException(network + " network is invalid for token transactions, should not have reached here without validation");
+      }
+
       final ResponseEntity<String> response = restTemplate
-          .getForEntity(ETHERSCAN_TXN_BASE_URI, String.class, address, latestBlock,
+          .getForEntity(host + ETHERSCAN_TXN_BASE_URI, String.class, address, latestBlock,
               pageNumber, pageSize, token);
 
       return extractSuccessResponse(address, response);
@@ -73,13 +85,23 @@ public class EtherscanUtil {
 
   public SuccessEtherscanResponse getTokenTransactionsForAccount(String network, String address, String latestBlock, String pageNumber, String pageSize) {
     // we only support mainnet for now
-    if (!network.equalsIgnoreCase("mainnet")) {
+    if (!network.equalsIgnoreCase("mainnet") && !network.equalsIgnoreCase("ropsten")) {
+      logger.warn("skipping loading of token transactions for non-mainnet and non-ropsten networks");
       return new SuccessEtherscanResponse();
     }
 
     return acquirePermitAndExecute(() -> {
+      final String host;
+      if (network.equalsIgnoreCase("mainnet")) {
+        host = ETHERSCAN_MAINNET_HOST;
+      } else if (network.equalsIgnoreCase("ropsten")) {
+        host = ETHERSCAN_ROPSTEN_HOST;
+      } else {
+        throw new RuntimeException(network + " network is invalid for token transactions, should not have reached here without validation");
+      }
+
       final ResponseEntity<String> response = restTemplate
-          .getForEntity(ETHERSCAN_TOKEN_TXN_BASE_URI, String.class, address, latestBlock,
+          .getForEntity(host + ETHERSCAN_TOKEN_TXN_BASE_URI, String.class, address, latestBlock,
               pageNumber, pageSize, token);
       return extractSuccessResponse(address, response);
     });

@@ -221,9 +221,7 @@ public class EthereumGateway implements
 
         final String nonceVal = txCount.toString();
 
-        final List<SubAccountInfo> subAccountInfo = BigInteger.ZERO.equals(txCount)
-            ? Collections.emptyList()
-            : tokenService.getAllSubAccountInfo(network, accountId,latestBlock);
+        final List<SubAccountInfo> subAccountInfo = tokenService.getAllSubAccountInfo(network, accountId,latestBlock);
         return accountInfo
             .server(toHost(serverUrl))
             .balance(
