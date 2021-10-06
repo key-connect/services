@@ -160,8 +160,10 @@ public class Erc20TokenService {
         .load(token.getContractAddress(), client, credentials, new DefaultGasProvider());
     final String tokenSymbol = token.getTokenSymbol();
     final BigInteger balanceNum;
+    final BigInteger decimals;
     try {
       balanceNum = contract.balanceOf(address).sendAsync().get();
+      decimals = contract.decimals().sendAsync().get();
     } catch (InterruptedException | ExecutionException e) {
       if (e.getCause() instanceof ContractCallException && e.getCause().getMessage()
           .equals("Empty value (0x) returned from contract")) {
@@ -173,14 +175,14 @@ public class Erc20TokenService {
             "Unable to get balance, token=" + token + ", address=" + address, e);
       }
     }
-    final BigDecimal tokenBalance = new BigDecimal(balanceNum)
-        .divide(ETH_SCALE, SCALE, ROUNDING_MODE);
+    final BigDecimal tokenBalance = new BigDecimal(balanceNum, decimals.intValue());
+
     // get balance
     return new SubAccountInfo()
         .accountId(token.getContractAddress())
         .balance(
             new GenericCurrencyValue()
-                .amount(tokenBalance.toString())
+                .amount(tokenBalance.toPlainString())
                 .currency(tokenSymbol)
         );
   }

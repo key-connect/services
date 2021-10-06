@@ -239,7 +239,7 @@ public class XrpGateway implements BlockchainGateway {
       }
 
       if (accountInfoResponse.getResult().getAccountData().getSequence() != null) {
-        accountInfo.setNonce(accountInfoResponse.getResult().getAccountData().getSequence().toString());
+        accountInfo.setNonce(accountInfoResponse.getResult().getAccountData().getSequence().toPlainString());
       }
 
       accountInfo.setLastTransactionId(
@@ -247,7 +247,7 @@ public class XrpGateway implements BlockchainGateway {
     } else {
       accountInfo.setBalance(
           new CurrencyValue()
-            .amount(new BigDecimal(0L).setScale(XRP_SCALE, RoundingMode.HALF_UP).toString())
+            .amount(new BigDecimal(0L).setScale(XRP_SCALE, RoundingMode.HALF_UP).toPlainString())
       );
 
       accountInfo.setNonce("0");
@@ -346,7 +346,7 @@ public class XrpGateway implements BlockchainGateway {
         .amount(
             new BigDecimal(dropsAmount)
                 .divide(DROPS_PER_XRP, XRP_SCALE, RoundingMode.DOWN)
-                .toString()
+                .toPlainString()
         )  // todo handle issued currencies
         .currency(CurrencyEnum.XRP);
   }
@@ -430,7 +430,7 @@ public class XrpGateway implements BlockchainGateway {
                   .amount(
                       new CurrencyValue()
                           .amount(
-                              txAmount.toString()
+                              txAmount.toPlainString()
                           )  // todo handle issued currencies
                           .currency(CurrencyEnum.XRP)
                   )

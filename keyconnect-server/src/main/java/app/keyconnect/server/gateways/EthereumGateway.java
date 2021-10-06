@@ -228,7 +228,7 @@ public class EthereumGateway implements
                 new CurrencyValue()
                     .amount(
                         ethBalance
-                            .toString()
+                            .toPlainString()
                     )
                     .currency(CurrencyEnum.ETH)
             )
@@ -324,7 +324,7 @@ public class EthereumGateway implements
             return new BlockchainAccountTransactionItem()
                 .amount(
                     new CurrencyValue()
-                        .amount(amountInEth.toString())
+                        .amount(amountInEth.toPlainString())
                         .currency(CurrencyEnum.ETH)
                 )
                 .sourceAccount(t.getFrom())
@@ -413,7 +413,7 @@ public class EthereumGateway implements
                 new BlockchainAccountTransactionItem()
                     .amount(
                         new CurrencyValue()
-                            .amount(amountInEth.toString())
+                            .amount(amountInEth.toPlainString())
                             .currency(CurrencyEnum.ETH)
                     )
                     .sourceAccount(transaction.getFrom())
