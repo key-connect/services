@@ -1,9 +1,5 @@
 package app.keyconnect.server.services;
 
-import static app.keyconnect.server.gateways.EthereumGateway.ETH_SCALE;
-import static app.keyconnect.server.gateways.EthereumGateway.ROUNDING_MODE;
-import static app.keyconnect.server.gateways.EthereumGateway.SCALE;
-
 import app.keyconnect.api.client.model.GenericCurrencyValue;
 import app.keyconnect.api.client.model.SubAccountInfo;
 import app.keyconnect.server.services.networks.NetworkClient;
