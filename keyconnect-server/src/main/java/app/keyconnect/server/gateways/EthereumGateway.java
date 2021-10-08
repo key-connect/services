@@ -288,9 +288,6 @@ public class EthereumGateway implements
   @Cacheable(value = "slow")
   public BlockchainAccountTransactions getTransactions(String accountId, String network, int limit,
       String cursor) throws UnknownNetworkException {
-    if (!"mainnet".equalsIgnoreCase(network)) {
-      throw new UnsupportedNetworkForEthTransactionsException();
-    }
     if (!(Strings.isNullOrEmpty(cursor) || "null".equalsIgnoreCase(cursor)) && !isInteger(cursor)) {
       throw new EthTransactionsCursorMustBePageNumberException();
     }
