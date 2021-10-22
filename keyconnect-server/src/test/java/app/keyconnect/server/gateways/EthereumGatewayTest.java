@@ -74,7 +74,7 @@ public class EthereumGatewayTest {
     assertThat(blockchainFee).isNotNull();
     final CurrencyValue fee = blockchainFee.getFee();
     assertThat(fee).isNotNull();
-    assertThat(fee.getCurrency()).isEqualTo(CurrencyEnum.GAS);
+    assertThat(fee.getCurrency()).isEqualTo(CurrencyEnum.GWEI);
     assertThat(new BigDecimal(fee.getAmount())).isGreaterThan(BigDecimal.ZERO);
   }
 
@@ -88,7 +88,7 @@ public class EthereumGatewayTest {
     assertThat(transaction.getSourceAccount()).isEqualTo("0xccd77974499731bdb46b187fdf28b901fc2253ba");
     assertThat(transaction.getDestinationAccount()).isEqualTo("0x95f4b3decec688e5d9192e717757f791e11c8c9e");
     assertThat(transaction.getFee().getAmount()).isEqualTo("21000");
-    assertThat(transaction.getFee().getCurrency()).isEqualTo(CurrencyEnum.GAS);
+    assertThat(transaction.getFee().getCurrency()).isEqualTo(CurrencyEnum.GWEI);
     assertThat(transaction.getAmount().getCurrency()).isEqualTo(CurrencyEnum.ETH);
     assertThat(transaction.getAmount().getAmount()).isEqualTo("0.016060534000000000");
     assertThat(transaction.getHash()).isEqualTo("0x70ba342f52b859dd0391e01c4643ca9c86cb7d8890737c19f0f91ddd30b387ef");
