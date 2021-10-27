@@ -480,7 +480,7 @@ public class EthereumGateway implements
         if (error.getMessage().contains("exceeds block gas limit")) {
           throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Specified gas limit is too high");
         } else if (error.getMessage().contains("insufficient funds for gas")) {
-          throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient funds for gas");
+          throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient funds for fees");
         } else {
           logger.error("submit transaction error, code={}, message={}, data={}", error.getCode(), error.getMessage(), error.getData());
         }
