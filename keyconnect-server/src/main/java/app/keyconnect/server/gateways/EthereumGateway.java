@@ -56,6 +56,7 @@ import org.web3j.exceptions.MessageDecodingException;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameter;
 import org.web3j.protocol.core.DefaultBlockParameterName;
+import org.web3j.protocol.core.Response.Error;
 import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.core.methods.response.EthBlock.Block;
 import org.web3j.protocol.core.methods.response.EthGasPrice;
@@ -475,8 +476,13 @@ public class EthereumGateway implements
 
       if (response.hasError()) {
         // handle other errors...
-        if (response.getError().getMessage().contains("exceeds block gas limit")) {
+        final Error error = response.getError();
+        if (error.getMessage().contains("exceeds block gas limit")) {
           throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Specified gas limit is too high");
+        } else if (error.getMessage().contains("insufficient funds for gas")) {
+          throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient funds for gas");
+        } else {
+          logger.error("submit transaction error, code={}, message={}, data={}", error.getCode(), error.getMessage(), error.getData());
         }
       }
 
