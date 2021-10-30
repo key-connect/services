@@ -483,6 +483,7 @@ public class EthereumGateway implements
           throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient funds for fees");
         } else {
           logger.error("submit transaction error, code={}, message={}, data={}", error.getCode(), error.getMessage(), error.getData());
+          throw new ResponseStatusException(HttpStatus.BAD_REQUEST, error.getMessage());
         }
       }
 
