@@ -834,7 +834,7 @@ components:
             - xrp
             - drops
             - eth
-            - gas
+            - gwei
       required:
         - amount
         - currency

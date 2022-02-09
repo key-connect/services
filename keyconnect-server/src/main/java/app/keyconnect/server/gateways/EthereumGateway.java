@@ -173,7 +173,7 @@ public class EthereumGateway implements
             .chainId(BlockchainFee.ChainIdEnum.ETH)
             .fee(
                 new CurrencyValue()
-                    .currency(CurrencyEnum.GAS)
+                    .currency(CurrencyEnum.GWEI)
                     .amount(gasPrice.getGasPrice().toString())
             );
       } catch (InterruptedException | ExecutionException | TimeoutException e) {
@@ -330,7 +330,7 @@ public class EthereumGateway implements
                 .fee(
                     new CurrencyValue()
                         .amount(t.getGas())
-                        .currency(CurrencyEnum.GAS)
+                        .currency(CurrencyEnum.GWEI)
                 )
                 .type("transaction")
                 .hash(t.getHash())
@@ -419,7 +419,7 @@ public class EthereumGateway implements
                     .fee(
                         new CurrencyValue()
                             .amount(transaction.getGas().toString())
-                            .currency(CurrencyEnum.GAS)
+                            .currency(CurrencyEnum.GWEI)
                     )
                     .type("transaction")
                     .hash(transaction.getHash())
